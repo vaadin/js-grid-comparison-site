@@ -1,1 +1,783 @@
-var _self='undefined'==typeof window?'undefined'!=typeof WorkerGlobalScope&&self instanceof WorkerGlobalScope?self:{}:window,Prism=function(){var a=/\blang(?:uage)?-(\w+)\b/i,b=0,c=_self.Prism={util:{encode:function(g){return g instanceof d?new d(g.type,c.util.encode(g.content),g.alias):'Array'===c.util.type(g)?g.map(c.util.encode):g.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/\u00a0/g,' ')},type:function(g){return Object.prototype.toString.call(g).match(/\[object (\w+)\]/)[1]},objId:function(g){return g.__id||Object.defineProperty(g,'__id',{value:++b}),g.__id},clone:function(g){var h=c.util.type(g);switch(h){case'Object':var f={};for(var l in g)g.hasOwnProperty(l)&&(f[l]=c.util.clone(g[l]));return f;case'Array':return g.map&&g.map(function(m){return c.util.clone(m)});}return g}},languages:{extend:function(g,h){var l=c.util.clone(c.languages[g]);for(var m in h)l[m]=h[m];return l},insertBefore:function(g,h,l,m){m=m||c.languages;var n=m[g];if(2==arguments.length){for(var q in l=arguments[1],l)l.hasOwnProperty(q)&&(n[q]=l[q]);return n}var r={};for(var s in n)if(n.hasOwnProperty(s)){if(s==h)for(var q in l)l.hasOwnProperty(q)&&(r[q]=l[q]);r[s]=n[s]}return c.languages.DFS(c.languages,function(t,u){u===m[g]&&t!=g&&(this[t]=r)}),m[g]=r},DFS:function(g,h,l,m){for(var n in m=m||{},g)g.hasOwnProperty(n)&&(h.call(g,n,g[n],l||n),'Object'!==c.util.type(g[n])||m[c.util.objId(g[n])]?'Array'===c.util.type(g[n])&&!m[c.util.objId(g[n])]&&(m[c.util.objId(g[n])]=!0,c.languages.DFS(g[n],h,n,m)):(m[c.util.objId(g[n])]=!0,c.languages.DFS(g[n],h,null,m)))}},plugins:{},highlightAll:function(g,h){var l={callback:h,selector:'code[class*="language-"], [class*="language-"] code, code[class*="lang-"], [class*="lang-"] code'};c.hooks.run('before-highlightall',l);for(var q,m=l.elements||document.querySelectorAll(l.selector),n=0;q=m[n++];)c.highlightElement(q,!0===g,l.callback)},highlightElement:function(g,h,l){for(var m,n,q=g;q&&!a.test(q.className);)q=q.parentNode;q&&(m=(q.className.match(a)||[,''])[1].toLowerCase(),n=c.languages[m]),g.className=g.className.replace(a,'').replace(/\s+/g,' ')+' language-'+m,q=g.parentNode,/pre/i.test(q.nodeName)&&(q.className=q.className.replace(a,'').replace(/\s+/g,' ')+' language-'+m);var r=g.textContent,s={element:g,language:m,grammar:n,code:r};if(c.hooks.run('before-sanity-check',s),!s.code||!s.grammar)return s.code&&(s.element.textContent=s.code),void c.hooks.run('complete',s);if(c.hooks.run('before-highlight',s),h&&_self.Worker){var t=new Worker(c.filename);t.onmessage=function(u){s.highlightedCode=u.data,c.hooks.run('before-insert',s),s.element.innerHTML=s.highlightedCode,l&&l.call(s.element),c.hooks.run('after-highlight',s),c.hooks.run('complete',s)},t.postMessage(JSON.stringify({language:s.language,code:s.code,immediateClose:!0}))}else s.highlightedCode=c.highlight(s.code,s.grammar,s.language),c.hooks.run('before-insert',s),s.element.innerHTML=s.highlightedCode,l&&l.call(g),c.hooks.run('after-highlight',s),c.hooks.run('complete',s)},highlight:function(g,h,l){var m=c.tokenize(g,h);return d.stringify(c.util.encode(m),l)},tokenize:function(g,h){var m=c.Token,n=[g],q=h.rest;if(q){for(var r in q)h[r]=q[r];delete h.rest}tokenloop:for(var r in h)if(h.hasOwnProperty(r)&&h[r]){var s=h[r];s='Array'===c.util.type(s)?s:[s];for(var t=0;t<s.length;++t){var u=s[t],w=u.inside,x=!!u.lookbehind,y=!!u.greedy,z=0,A=u.alias;if(y&&!u.pattern.global){var B=u.pattern.toString().match(/[imuy]*$/)[0];u.pattern=RegExp(u.pattern.source,B+'g')}u=u.pattern||u;for(var E,C=0,D=0;C<n.length;D+=n[C].length,++C){if(E=n[C],n.length>g.length)break tokenloop;if(!(E instanceof m)){u.lastIndex=0;var F=u.exec(E),G=1;if(!F&&y&&C!=n.length-1){if(u.lastIndex=D,F=u.exec(g),!F)break;for(var H=F.index+(x?F[1].length:0),I=F.index+F[0].length,J=C,K=D,L=n.length;J<L&&K<I;++J)K+=n[J].length,H>=K&&(++C,D=K);if(n[C]instanceof m||n[J-1].greedy)continue;G=J-C,E=g.slice(D,K),F.index-=D}if(F){x&&(z=F[1].length);var H=F.index+z,F=F[0].slice(z),I=H+F.length,M=E.slice(0,H),N=E.slice(I),O=[C,G];M&&O.push(M);var P=new m(r,w?c.tokenize(F,w):F,A,F,y);O.push(P),N&&O.push(N),Array.prototype.splice.apply(n,O)}}}}}return n},hooks:{all:{},add:function(g,h){var l=c.hooks.all;l[g]=l[g]||[],l[g].push(h)},run:function(g,h){var l=c.hooks.all[g];if(l&&l.length)for(var n,m=0;n=l[m++];)n(h)}}},d=c.Token=function(f,g,h,l,m){this.type=f,this.content=g,this.alias=h,this.length=0|(l||'').length,this.greedy=!!m};if(d.stringify=function(f,g,h){if('string'==typeof f)return f;if('Array'===c.util.type(f))return f.map(function(q){return d.stringify(q,g,f)}).join('');var l={type:f.type,content:d.stringify(f.content,g,h),tag:'span',classes:['token',f.type],attributes:{},language:g,parent:h};if('comment'==l.type&&(l.attributes.spellcheck='true'),f.alias){var m='Array'===c.util.type(f.alias)?f.alias:[f.alias];Array.prototype.push.apply(l.classes,m)}c.hooks.run('wrap',l);var n=Object.keys(l.attributes).map(function(q){return q+'="'+(l.attributes[q]||'').replace(/"/g,'&quot;')+'"'}).join(' ');return'<'+l.tag+' class="'+l.classes.join(' ')+'"'+(n?' '+n:'')+'>'+l.content+'</'+l.tag+'>'},!_self.document)return _self.addEventListener?(_self.addEventListener('message',function(f){var g=JSON.parse(f.data),h=g.language,l=g.code,m=g.immediateClose;_self.postMessage(c.highlight(l,c.languages[h],h)),m&&_self.close()},!1),_self.Prism):_self.Prism;var e=document.currentScript||[].slice.call(document.getElementsByTagName('script')).pop();return e&&(c.filename=e.src,document.addEventListener&&!e.hasAttribute('data-manual')&&('loading'===document.readyState?document.addEventListener('DOMContentLoaded',c.highlightAll):window.requestAnimationFrame?window.requestAnimationFrame(c.highlightAll):window.setTimeout(c.highlightAll,16))),_self.Prism}();'undefined'!=typeof module&&module.exports&&(module.exports=Prism),'undefined'!=typeof global&&(global.Prism=Prism),Prism.languages.markup={comment:/<!--[\w\W]*?-->/,prolog:/<\?[\w\W]+?\?>/,doctype:/<!DOCTYPE[\w\W]+?>/i,cdata:/<!\[CDATA\[[\w\W]*?]]>/i,tag:{pattern:/<\/?(?!\d)[^\s>\/=$<]+(?:\s+[^\s>\/=]+(?:=(?:("|')(?:\\\1|\\?(?!\1)[\w\W])*\1|[^\s'">=]+))?)*\s*\/?>/i,inside:{tag:{pattern:/^<\/?[^\s>\/]+/i,inside:{punctuation:/^<\/?/,namespace:/^[^\s>\/:]+:/}},'attr-value':{pattern:/=(?:('|")[\w\W]*?(\1)|[^\s>]+)/i,inside:{punctuation:/[=>"']/}},punctuation:/\/?>/,'attr-name':{pattern:/[^\s>\/]+/,inside:{namespace:/^[^\s>\/:]+:/}}}},entity:/&#?[\da-z]{1,8};/i},Prism.hooks.add('wrap',function(a){'entity'===a.type&&(a.attributes.title=a.content.replace(/&amp;/,'&'))}),Prism.languages.xml=Prism.languages.markup,Prism.languages.html=Prism.languages.markup,Prism.languages.mathml=Prism.languages.markup,Prism.languages.svg=Prism.languages.markup,Prism.languages.css={comment:/\/\*[\w\W]*?\*\//,atrule:{pattern:/@[\w-]+?.*?(;|(?=\s*\{))/i,inside:{rule:/@[\w-]+/}},url:/url\((?:(["'])(\\(?:\r\n|[\w\W])|(?!\1)[^\\\r\n])*\1|.*?)\)/i,selector:/[^\{\}\s][^\{\};]*?(?=\s*\{)/,string:{pattern:/("|')(\\(?:\r\n|[\w\W])|(?!\1)[^\\\r\n])*\1/,greedy:!0},property:/(\b|\B)[\w-]+(?=\s*:)/i,important:/\B!important\b/i,'function':/[-a-z0-9]+(?=\()/i,punctuation:/[(){};:]/},Prism.languages.css.atrule.inside.rest=Prism.util.clone(Prism.languages.css),Prism.languages.markup&&(Prism.languages.insertBefore('markup','tag',{style:{pattern:/(<style[\w\W]*?>)[\w\W]*?(?=<\/style>)/i,lookbehind:!0,inside:Prism.languages.css,alias:'language-css'}}),Prism.languages.insertBefore('inside','attr-value',{'style-attr':{pattern:/\s*style=("|').*?\1/i,inside:{'attr-name':{pattern:/^\s*style/i,inside:Prism.languages.markup.tag.inside},punctuation:/^\s*=\s*['"]|['"]\s*$/,'attr-value':{pattern:/.+/i,inside:Prism.languages.css}},alias:'language-css'}},Prism.languages.markup.tag)),Prism.languages.clike={comment:[{pattern:/(^|[^\\])\/\*[\w\W]*?\*\//,lookbehind:!0},{pattern:/(^|[^\\:])\/\/.*/,lookbehind:!0}],string:{pattern:/(["'])(\\(?:\r\n|[\s\S])|(?!\1)[^\\\r\n])*\1/,greedy:!0},'class-name':{pattern:/((?:\b(?:class|interface|extends|implements|trait|instanceof|new)\s+)|(?:catch\s+\())[a-z0-9_\.\\]+/i,lookbehind:!0,inside:{punctuation:/(\.|\\)/}},keyword:/\b(if|else|while|do|for|return|in|instanceof|function|new|try|throw|catch|finally|null|break|continue)\b/,boolean:/\b(true|false)\b/,'function':/[a-z0-9_]+(?=\()/i,number:/\b-?(?:0x[\da-f]+|\d*\.?\d+(?:e[+-]?\d+)?)\b/i,operator:/--?|\+\+?|!=?=?|<=?|>=?|==?=?|&&?|\|\|?|\?|\*|\/|~|\^|%/,punctuation:/[{}[\];(),.:]/},Prism.languages.javascript=Prism.languages.extend('clike',{keyword:/\b(as|async|await|break|case|catch|class|const|continue|debugger|default|delete|do|else|enum|export|extends|finally|for|from|function|get|if|implements|import|in|instanceof|interface|let|new|null|of|package|private|protected|public|return|set|static|super|switch|this|throw|try|typeof|var|void|while|with|yield)\b/,number:/\b-?(0x[\dA-Fa-f]+|0b[01]+|0o[0-7]+|\d*\.?\d+([Ee][+-]?\d+)?|NaN|Infinity)\b/,'function':/[_$a-zA-Z\xA0-\uFFFF][_$a-zA-Z0-9\xA0-\uFFFF]*(?=\()/i,operator:/--?|\+\+?|!=?=?|<=?|>=?|==?=?|&&?|\|\|?|\?|\*\*?|\/|~|\^|%|\.{3}/}),Prism.languages.insertBefore('javascript','keyword',{regex:{pattern:/(^|[^/])\/(?!\/)(\[.+?]|\\.|[^/\\\r\n])+\/[gimyu]{0,5}(?=\s*($|[\r\n,.;})]))/,lookbehind:!0,greedy:!0}}),Prism.languages.insertBefore('javascript','string',{'template-string':{pattern:/`(?:\\\\|\\?[^\\])*?`/,greedy:!0,inside:{interpolation:{pattern:/\$\{[^}]+\}/,inside:{'interpolation-punctuation':{pattern:/^\$\{|\}$/,alias:'punctuation'},rest:Prism.languages.javascript}},string:/[\s\S]+/}}}),Prism.languages.markup&&Prism.languages.insertBefore('markup','tag',{script:{pattern:/(<script[\w\W]*?>)[\w\W]*?(?=<\/script>)/i,lookbehind:!0,inside:Prism.languages.javascript,alias:'language-javascript'}}),Prism.languages.js=Prism.languages.javascript,function(){'undefined'!=typeof self&&self.Prism&&self.document&&document.querySelector&&(self.Prism.fileHighlight=function(){var a={js:'javascript',py:'python',rb:'ruby',ps1:'powershell',psm1:'powershell',sh:'bash',bat:'batch',h:'c',tex:'latex'};Array.prototype.forEach&&Array.prototype.slice.call(document.querySelectorAll('pre[data-src]')).forEach(function(b){for(var d,c=b.getAttribute('data-src'),e=b,f=/\blang(?:uage)?-(?!\*)(\w+)\b/i;e&&!f.test(e.className);)e=e.parentNode;if(e&&(d=(b.className.match(f)||[,''])[1]),!d){var g=(c.match(/\.(\w+)$/)||[,''])[1];d=a[g]||g}var h=document.createElement('code');h.className='language-'+d,b.textContent='',h.textContent='Loading\u2026',b.appendChild(h);var l=new XMLHttpRequest;l.open('GET',c,!0),l.onreadystatechange=function(){4==l.readyState&&(400>l.status&&l.responseText?(h.textContent=l.responseText,Prism.highlightElement(h)):400<=l.status?h.textContent='\u2716 Error '+l.status+' while fetching file: '+l.statusText:h.textContent='\u2716 Error: File does not exist or is empty')},l.send(null)})},document.addEventListener('DOMContentLoaded',self.Prism.fileHighlight))}();
+
+/* **********************************************
+     Begin prism-core.js
+********************************************** */
+
+var _self = typeof window !== 'undefined' ? window // if in browser
+: typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope ? self // if in worker
+: {} // if in node js
+;
+
+/**
+ * Prism: Lightweight, robust, elegant syntax highlighting
+ * MIT license http://www.opensource.org/licenses/mit-license.php/
+ * @author Lea Verou http://lea.verou.me
+ */
+
+var Prism = function () {
+
+	// Private helper vars
+	var lang = /\blang(?:uage)?-(\w+)\b/i;
+	var uniqueId = 0;
+
+	var _ = _self.Prism = {
+		util: {
+			encode: function encode(tokens) {
+				if (tokens instanceof Token) {
+					return new Token(tokens.type, _.util.encode(tokens.content), tokens.alias);
+				} else if (_.util.type(tokens) === 'Array') {
+					return tokens.map(_.util.encode);
+				} else {
+					return tokens.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/\u00a0/g, ' ');
+				}
+			},
+
+			type: function type(o) {
+				return Object.prototype.toString.call(o).match(/\[object (\w+)\]/)[1];
+			},
+
+			objId: function objId(obj) {
+				if (!obj['__id']) {
+					Object.defineProperty(obj, '__id', { value: ++uniqueId });
+				}
+				return obj['__id'];
+			},
+
+			// Deep clone a language definition (e.g. to extend it)
+			clone: function clone(o) {
+				var type = _.util.type(o);
+
+				switch (type) {
+					case 'Object':
+						var clone = {};
+
+						for (var key in o) {
+							if (o.hasOwnProperty(key)) {
+								clone[key] = _.util.clone(o[key]);
+							}
+						}
+
+						return clone;
+
+					case 'Array':
+						// Check for existence for IE8
+						return o.map && o.map(function (v) {
+							return _.util.clone(v);
+						});
+				}
+
+				return o;
+			}
+		},
+
+		languages: {
+			extend: function extend(id, redef) {
+				var lang = _.util.clone(_.languages[id]);
+
+				for (var key in redef) {
+					lang[key] = redef[key];
+				}
+
+				return lang;
+			},
+
+			/**
+    * Insert a token before another token in a language literal
+    * As this needs to recreate the object (we cannot actually insert before keys in object literals),
+    * we cannot just provide an object, we need anobject and a key.
+    * @param inside The key (or language id) of the parent
+    * @param before The key to insert before. If not provided, the function appends instead.
+    * @param insert Object with the key/value pairs to insert
+    * @param root The object that contains `inside`. If equal to Prism.languages, it can be omitted.
+    */
+			insertBefore: function insertBefore(inside, before, insert, root) {
+				root = root || _.languages;
+				var grammar = root[inside];
+
+				if (arguments.length == 2) {
+					insert = arguments[1];
+
+					for (var newToken in insert) {
+						if (insert.hasOwnProperty(newToken)) {
+							grammar[newToken] = insert[newToken];
+						}
+					}
+
+					return grammar;
+				}
+
+				var ret = {};
+
+				for (var token in grammar) {
+
+					if (grammar.hasOwnProperty(token)) {
+
+						if (token == before) {
+
+							for (var newToken in insert) {
+
+								if (insert.hasOwnProperty(newToken)) {
+									ret[newToken] = insert[newToken];
+								}
+							}
+						}
+
+						ret[token] = grammar[token];
+					}
+				}
+
+				// Update references in other language definitions
+				_.languages.DFS(_.languages, function (key, value) {
+					if (value === root[inside] && key != inside) {
+						this[key] = ret;
+					}
+				});
+
+				return root[inside] = ret;
+			},
+
+			// Traverse a language definition with Depth First Search
+			DFS: function DFS(o, callback, type, visited) {
+				visited = visited || {};
+				for (var i in o) {
+					if (o.hasOwnProperty(i)) {
+						callback.call(o, i, o[i], type || i);
+
+						if (_.util.type(o[i]) === 'Object' && !visited[_.util.objId(o[i])]) {
+							visited[_.util.objId(o[i])] = true;
+							_.languages.DFS(o[i], callback, null, visited);
+						} else if (_.util.type(o[i]) === 'Array' && !visited[_.util.objId(o[i])]) {
+							visited[_.util.objId(o[i])] = true;
+							_.languages.DFS(o[i], callback, i, visited);
+						}
+					}
+				}
+			}
+		},
+		plugins: {},
+
+		highlightAll: function highlightAll(async, callback) {
+			var env = {
+				callback: callback,
+				selector: 'code[class*="language-"], [class*="language-"] code, code[class*="lang-"], [class*="lang-"] code'
+			};
+
+			_.hooks.run("before-highlightall", env);
+
+			var elements = env.elements || document.querySelectorAll(env.selector);
+
+			for (var i = 0, element; element = elements[i++];) {
+				_.highlightElement(element, async === true, env.callback);
+			}
+		},
+
+		highlightElement: function highlightElement(element, async, callback) {
+			// Find language
+			var language,
+			    grammar,
+			    parent = element;
+
+			while (parent && !lang.test(parent.className)) {
+				parent = parent.parentNode;
+			}
+
+			if (parent) {
+				language = (parent.className.match(lang) || [, ''])[1].toLowerCase();
+				grammar = _.languages[language];
+			}
+
+			// Set language on the element, if not present
+			element.className = element.className.replace(lang, '').replace(/\s+/g, ' ') + ' language-' + language;
+
+			// Set language on the parent, for styling
+			parent = element.parentNode;
+
+			if (/pre/i.test(parent.nodeName)) {
+				parent.className = parent.className.replace(lang, '').replace(/\s+/g, ' ') + ' language-' + language;
+			}
+
+			var code = element.textContent;
+
+			var env = {
+				element: element,
+				language: language,
+				grammar: grammar,
+				code: code
+			};
+
+			_.hooks.run('before-sanity-check', env);
+
+			if (!env.code || !env.grammar) {
+				if (env.code) {
+					env.element.textContent = env.code;
+				}
+				_.hooks.run('complete', env);
+				return;
+			}
+
+			_.hooks.run('before-highlight', env);
+
+			if (async && _self.Worker) {
+				var worker = new Worker(_.filename);
+
+				worker.onmessage = function (evt) {
+					env.highlightedCode = evt.data;
+
+					_.hooks.run('before-insert', env);
+
+					env.element.innerHTML = env.highlightedCode;
+
+					callback && callback.call(env.element);
+					_.hooks.run('after-highlight', env);
+					_.hooks.run('complete', env);
+				};
+
+				worker.postMessage(JSON.stringify({
+					language: env.language,
+					code: env.code,
+					immediateClose: true
+				}));
+			} else {
+				env.highlightedCode = _.highlight(env.code, env.grammar, env.language);
+
+				_.hooks.run('before-insert', env);
+
+				env.element.innerHTML = env.highlightedCode;
+
+				callback && callback.call(element);
+
+				_.hooks.run('after-highlight', env);
+				_.hooks.run('complete', env);
+			}
+		},
+
+		highlight: function highlight(text, grammar, language) {
+			var tokens = _.tokenize(text, grammar);
+			return Token.stringify(_.util.encode(tokens), language);
+		},
+
+		tokenize: function tokenize(text, grammar, language) {
+			var Token = _.Token;
+
+			var strarr = [text];
+
+			var rest = grammar.rest;
+
+			if (rest) {
+				for (var token in rest) {
+					grammar[token] = rest[token];
+				}
+
+				delete grammar.rest;
+			}
+
+			tokenloop: for (var token in grammar) {
+				if (!grammar.hasOwnProperty(token) || !grammar[token]) {
+					continue;
+				}
+
+				var patterns = grammar[token];
+				patterns = _.util.type(patterns) === "Array" ? patterns : [patterns];
+
+				for (var j = 0; j < patterns.length; ++j) {
+					var pattern = patterns[j],
+					    inside = pattern.inside,
+					    lookbehind = !!pattern.lookbehind,
+					    greedy = !!pattern.greedy,
+					    lookbehindLength = 0,
+					    alias = pattern.alias;
+
+					if (greedy && !pattern.pattern.global) {
+						// Without the global flag, lastIndex won't work
+						var flags = pattern.pattern.toString().match(/[imuy]*$/)[0];
+						pattern.pattern = RegExp(pattern.pattern.source, flags + "g");
+					}
+
+					pattern = pattern.pattern || pattern;
+
+					// Don’t cache length as it changes during the loop
+					for (var i = 0, pos = 0; i < strarr.length; pos += strarr[i].length, ++i) {
+
+						var str = strarr[i];
+
+						if (strarr.length > text.length) {
+							// Something went terribly wrong, ABORT, ABORT!
+							break tokenloop;
+						}
+
+						if (str instanceof Token) {
+							continue;
+						}
+
+						pattern.lastIndex = 0;
+
+						var match = pattern.exec(str),
+						    delNum = 1;
+
+						// Greedy patterns can override/remove up to two previously matched tokens
+						if (!match && greedy && i != strarr.length - 1) {
+							pattern.lastIndex = pos;
+							match = pattern.exec(text);
+							if (!match) {
+								break;
+							}
+
+							var from = match.index + (lookbehind ? match[1].length : 0),
+							    to = match.index + match[0].length,
+							    k = i,
+							    p = pos;
+
+							for (var len = strarr.length; k < len && p < to; ++k) {
+								p += strarr[k].length;
+								// Move the index i to the element in strarr that is closest to from
+								if (from >= p) {
+									++i;
+									pos = p;
+								}
+							}
+
+							/*
+        * If strarr[i] is a Token, then the match starts inside another Token, which is invalid
+        * If strarr[k - 1] is greedy we are in conflict with another greedy pattern
+        */
+							if (strarr[i] instanceof Token || strarr[k - 1].greedy) {
+								continue;
+							}
+
+							// Number of tokens to delete and replace with the new match
+							delNum = k - i;
+							str = text.slice(pos, p);
+							match.index -= pos;
+						}
+
+						if (!match) {
+							continue;
+						}
+
+						if (lookbehind) {
+							lookbehindLength = match[1].length;
+						}
+
+						var from = match.index + lookbehindLength,
+						    match = match[0].slice(lookbehindLength),
+						    to = from + match.length,
+						    before = str.slice(0, from),
+						    after = str.slice(to);
+
+						var args = [i, delNum];
+
+						if (before) {
+							args.push(before);
+						}
+
+						var wrapped = new Token(token, inside ? _.tokenize(match, inside) : match, alias, match, greedy);
+
+						args.push(wrapped);
+
+						if (after) {
+							args.push(after);
+						}
+
+						Array.prototype.splice.apply(strarr, args);
+					}
+				}
+			}
+
+			return strarr;
+		},
+
+		hooks: {
+			all: {},
+
+			add: function add(name, callback) {
+				var hooks = _.hooks.all;
+
+				hooks[name] = hooks[name] || [];
+
+				hooks[name].push(callback);
+			},
+
+			run: function run(name, env) {
+				var callbacks = _.hooks.all[name];
+
+				if (!callbacks || !callbacks.length) {
+					return;
+				}
+
+				for (var i = 0, callback; callback = callbacks[i++];) {
+					callback(env);
+				}
+			}
+		}
+	};
+
+	var Token = _.Token = function (type, content, alias, matchedStr, greedy) {
+		this.type = type;
+		this.content = content;
+		this.alias = alias;
+		// Copy of the full string this token was created from
+		this.length = (matchedStr || "").length | 0;
+		this.greedy = !!greedy;
+	};
+
+	Token.stringify = function (o, language, parent) {
+		if (typeof o == 'string') {
+			return o;
+		}
+
+		if (_.util.type(o) === 'Array') {
+			return o.map(function (element) {
+				return Token.stringify(element, language, o);
+			}).join('');
+		}
+
+		var env = {
+			type: o.type,
+			content: Token.stringify(o.content, language, parent),
+			tag: 'span',
+			classes: ['token', o.type],
+			attributes: {},
+			language: language,
+			parent: parent
+		};
+
+		if (env.type == 'comment') {
+			env.attributes['spellcheck'] = 'true';
+		}
+
+		if (o.alias) {
+			var aliases = _.util.type(o.alias) === 'Array' ? o.alias : [o.alias];
+			Array.prototype.push.apply(env.classes, aliases);
+		}
+
+		_.hooks.run('wrap', env);
+
+		var attributes = Object.keys(env.attributes).map(function (name) {
+			return name + '="' + (env.attributes[name] || '').replace(/"/g, '&quot;') + '"';
+		}).join(' ');
+
+		return '<' + env.tag + ' class="' + env.classes.join(' ') + '"' + (attributes ? ' ' + attributes : '') + '>' + env.content + '</' + env.tag + '>';
+	};
+
+	if (!_self.document) {
+		if (!_self.addEventListener) {
+			// in Node.js
+			return _self.Prism;
+		}
+		// In worker
+		_self.addEventListener('message', function (evt) {
+			var message = JSON.parse(evt.data),
+			    lang = message.language,
+			    code = message.code,
+			    immediateClose = message.immediateClose;
+
+			_self.postMessage(_.highlight(code, _.languages[lang], lang));
+			if (immediateClose) {
+				_self.close();
+			}
+		}, false);
+
+		return _self.Prism;
+	}
+
+	//Get current script and highlight
+	var script = document.currentScript || [].slice.call(document.getElementsByTagName("script")).pop();
+
+	if (script) {
+		_.filename = script.src;
+
+		if (document.addEventListener && !script.hasAttribute('data-manual')) {
+			if (document.readyState !== "loading") {
+				if (window.requestAnimationFrame) {
+					window.requestAnimationFrame(_.highlightAll);
+				} else {
+					window.setTimeout(_.highlightAll, 16);
+				}
+			} else {
+				document.addEventListener('DOMContentLoaded', _.highlightAll);
+			}
+		}
+	}
+
+	return _self.Prism;
+}();
+
+if (typeof module !== 'undefined' && module.exports) {
+	module.exports = Prism;
+}
+
+// hack for components to work correctly in node.js
+if (typeof global !== 'undefined') {
+	global.Prism = Prism;
+}
+
+/* **********************************************
+     Begin prism-markup.js
+********************************************** */
+
+Prism.languages.markup = {
+	'comment': /<!--[\w\W]*?-->/,
+	'prolog': /<\?[\w\W]+?\?>/,
+	'doctype': /<!DOCTYPE[\w\W]+?>/i,
+	'cdata': /<!\[CDATA\[[\w\W]*?]]>/i,
+	'tag': {
+		pattern: /<\/?(?!\d)[^\s>\/=$<]+(?:\s+[^\s>\/=]+(?:=(?:("|')(?:\\\1|\\?(?!\1)[\w\W])*\1|[^\s'">=]+))?)*\s*\/?>/i,
+		inside: {
+			'tag': {
+				pattern: /^<\/?[^\s>\/]+/i,
+				inside: {
+					'punctuation': /^<\/?/,
+					'namespace': /^[^\s>\/:]+:/
+				}
+			},
+			'attr-value': {
+				pattern: /=(?:('|")[\w\W]*?(\1)|[^\s>]+)/i,
+				inside: {
+					'punctuation': /[=>"']/
+				}
+			},
+			'punctuation': /\/?>/,
+			'attr-name': {
+				pattern: /[^\s>\/]+/,
+				inside: {
+					'namespace': /^[^\s>\/:]+:/
+				}
+			}
+
+		}
+	},
+	'entity': /&#?[\da-z]{1,8};/i
+};
+
+// Plugin to make entity title show the real entity, idea by Roman Komarov
+Prism.hooks.add('wrap', function (env) {
+
+	if (env.type === 'entity') {
+		env.attributes['title'] = env.content.replace(/&amp;/, '&');
+	}
+});
+
+Prism.languages.xml = Prism.languages.markup;
+Prism.languages.html = Prism.languages.markup;
+Prism.languages.mathml = Prism.languages.markup;
+Prism.languages.svg = Prism.languages.markup;
+
+/* **********************************************
+     Begin prism-css.js
+********************************************** */
+
+Prism.languages.css = {
+	'comment': /\/\*[\w\W]*?\*\//,
+	'atrule': {
+		pattern: /@[\w-]+?.*?(;|(?=\s*\{))/i,
+		inside: {
+			'rule': /@[\w-]+/
+			// See rest below
+		}
+	},
+	'url': /url\((?:(["'])(\\(?:\r\n|[\w\W])|(?!\1)[^\\\r\n])*\1|.*?)\)/i,
+	'selector': /[^\{\}\s][^\{\};]*?(?=\s*\{)/,
+	'string': {
+		pattern: /("|')(\\(?:\r\n|[\w\W])|(?!\1)[^\\\r\n])*\1/,
+		greedy: true
+	},
+	'property': /(\b|\B)[\w-]+(?=\s*:)/i,
+	'important': /\B!important\b/i,
+	'function': /[-a-z0-9]+(?=\()/i,
+	'punctuation': /[(){};:]/
+};
+
+Prism.languages.css['atrule'].inside.rest = Prism.util.clone(Prism.languages.css);
+
+if (Prism.languages.markup) {
+	Prism.languages.insertBefore('markup', 'tag', {
+		'style': {
+			pattern: /(<style[\w\W]*?>)[\w\W]*?(?=<\/style>)/i,
+			lookbehind: true,
+			inside: Prism.languages.css,
+			alias: 'language-css'
+		}
+	});
+
+	Prism.languages.insertBefore('inside', 'attr-value', {
+		'style-attr': {
+			pattern: /\s*style=("|').*?\1/i,
+			inside: {
+				'attr-name': {
+					pattern: /^\s*style/i,
+					inside: Prism.languages.markup.tag.inside
+				},
+				'punctuation': /^\s*=\s*['"]|['"]\s*$/,
+				'attr-value': {
+					pattern: /.+/i,
+					inside: Prism.languages.css
+				}
+			},
+			alias: 'language-css'
+		}
+	}, Prism.languages.markup.tag);
+}
+
+/* **********************************************
+     Begin prism-clike.js
+********************************************** */
+
+Prism.languages.clike = {
+	'comment': [{
+		pattern: /(^|[^\\])\/\*[\w\W]*?\*\//,
+		lookbehind: true
+	}, {
+		pattern: /(^|[^\\:])\/\/.*/,
+		lookbehind: true
+	}],
+	'string': {
+		pattern: /(["'])(\\(?:\r\n|[\s\S])|(?!\1)[^\\\r\n])*\1/,
+		greedy: true
+	},
+	'class-name': {
+		pattern: /((?:\b(?:class|interface|extends|implements|trait|instanceof|new)\s+)|(?:catch\s+\())[a-z0-9_\.\\]+/i,
+		lookbehind: true,
+		inside: {
+			punctuation: /(\.|\\)/
+		}
+	},
+	'keyword': /\b(if|else|while|do|for|return|in|instanceof|function|new|try|throw|catch|finally|null|break|continue)\b/,
+	'boolean': /\b(true|false)\b/,
+	'function': /[a-z0-9_]+(?=\()/i,
+	'number': /\b-?(?:0x[\da-f]+|\d*\.?\d+(?:e[+-]?\d+)?)\b/i,
+	'operator': /--?|\+\+?|!=?=?|<=?|>=?|==?=?|&&?|\|\|?|\?|\*|\/|~|\^|%/,
+	'punctuation': /[{}[\];(),.:]/
+};
+
+/* **********************************************
+     Begin prism-javascript.js
+********************************************** */
+
+Prism.languages.javascript = Prism.languages.extend('clike', {
+	'keyword': /\b(as|async|await|break|case|catch|class|const|continue|debugger|default|delete|do|else|enum|export|extends|finally|for|from|function|get|if|implements|import|in|instanceof|interface|let|new|null|of|package|private|protected|public|return|set|static|super|switch|this|throw|try|typeof|var|void|while|with|yield)\b/,
+	'number': /\b-?(0x[\dA-Fa-f]+|0b[01]+|0o[0-7]+|\d*\.?\d+([Ee][+-]?\d+)?|NaN|Infinity)\b/,
+	// Allow for all non-ASCII characters (See http://stackoverflow.com/a/2008444)
+	'function': /[_$a-zA-Z\xA0-\uFFFF][_$a-zA-Z0-9\xA0-\uFFFF]*(?=\()/i,
+	'operator': /--?|\+\+?|!=?=?|<=?|>=?|==?=?|&&?|\|\|?|\?|\*\*?|\/|~|\^|%|\.{3}/
+});
+
+Prism.languages.insertBefore('javascript', 'keyword', {
+	'regex': {
+		pattern: /(^|[^/])\/(?!\/)(\[.+?]|\\.|[^/\\\r\n])+\/[gimyu]{0,5}(?=\s*($|[\r\n,.;})]))/,
+		lookbehind: true,
+		greedy: true
+	}
+});
+
+Prism.languages.insertBefore('javascript', 'string', {
+	'template-string': {
+		pattern: /`(?:\\\\|\\?[^\\])*?`/,
+		greedy: true,
+		inside: {
+			'interpolation': {
+				pattern: /\$\{[^}]+\}/,
+				inside: {
+					'interpolation-punctuation': {
+						pattern: /^\$\{|\}$/,
+						alias: 'punctuation'
+					},
+					rest: Prism.languages.javascript
+				}
+			},
+			'string': /[\s\S]+/
+		}
+	}
+});
+
+if (Prism.languages.markup) {
+	Prism.languages.insertBefore('markup', 'tag', {
+		'script': {
+			pattern: /(<script[\w\W]*?>)[\w\W]*?(?=<\/script>)/i,
+			lookbehind: true,
+			inside: Prism.languages.javascript,
+			alias: 'language-javascript'
+		}
+	});
+}
+
+Prism.languages.js = Prism.languages.javascript;
+
+/* **********************************************
+     Begin prism-file-highlight.js
+********************************************** */
+
+(function () {
+	if (typeof self === 'undefined' || !self.Prism || !self.document || !document.querySelector) {
+		return;
+	}
+
+	self.Prism.fileHighlight = function () {
+
+		var Extensions = {
+			'js': 'javascript',
+			'py': 'python',
+			'rb': 'ruby',
+			'ps1': 'powershell',
+			'psm1': 'powershell',
+			'sh': 'bash',
+			'bat': 'batch',
+			'h': 'c',
+			'tex': 'latex'
+		};
+
+		if (Array.prototype.forEach) {
+			// Check to prevent error in IE8
+			Array.prototype.slice.call(document.querySelectorAll('pre[data-src]')).forEach(function (pre) {
+				var src = pre.getAttribute('data-src');
+
+				var language,
+				    parent = pre;
+				var lang = /\blang(?:uage)?-(?!\*)(\w+)\b/i;
+				while (parent && !lang.test(parent.className)) {
+					parent = parent.parentNode;
+				}
+
+				if (parent) {
+					language = (pre.className.match(lang) || [, ''])[1];
+				}
+
+				if (!language) {
+					var extension = (src.match(/\.(\w+)$/) || [, ''])[1];
+					language = Extensions[extension] || extension;
+				}
+
+				var code = document.createElement('code');
+				code.className = 'language-' + language;
+
+				pre.textContent = '';
+
+				code.textContent = 'Loading…';
+
+				pre.appendChild(code);
+
+				var xhr = new XMLHttpRequest();
+
+				xhr.open('GET', src, true);
+
+				xhr.onreadystatechange = function () {
+					if (xhr.readyState == 4) {
+
+						if (xhr.status < 400 && xhr.responseText) {
+							code.textContent = xhr.responseText;
+
+							Prism.highlightElement(code);
+						} else if (xhr.status >= 400) {
+							code.textContent = '✖ Error ' + xhr.status + ' while fetching file: ' + xhr.statusText;
+						} else {
+							code.textContent = '✖ Error: File does not exist or is empty';
+						}
+					}
+				};
+
+				xhr.send(null);
+			});
+		}
+	};
+
+	document.addEventListener('DOMContentLoaded', self.Prism.fileHighlight);
+})();

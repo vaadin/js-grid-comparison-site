@@ -1,1 +1,2153 @@
-<html><head><link rel="import" href="polymer-micro.html"><script>(function(){function t(D,L){return D.replace(f,function(T,A,P,O){return A+'\''+_(P.replace(/["']/g,''),L)+'\''+O})}function _(D,L){if(D&&E.test(D))return D;var T=g(L);return T.href=D,T.href||D}function g(D){return D.body.__urlResolver||(D.body.__urlResolver=D.createElement('a'))}function N(D){return D.substring(0,D.lastIndexOf('/')+1)}var C,y,f=/(url\()([^)]*)(\))/g,S={'*':['href','src','style','url'],form:['action']},E=/(^\/)|(^#)|(^[\w-\d]*:)/,R=/\{\{|\[\[/;Polymer.ResolveUrl={resolveCss:t,resolveAttrs:function(D,L){for(var T in S)for(var x,w,M,A=S[T],P=0,O=A.length;P<O&&(x=A[P]);P++)('*'==T||D.localName===T)&&(w=D.attributes[x],M=w&&w.value,M&&0>M.search(R)&&(w.value='style'===x?t(M,L):_(M,L)))},resolveUrl:function(D,L){return C||(C=document.implementation.createHTMLDocument('temp'),y=C.createElement('base'),C.head.appendChild(y)),y.href=L,_(D,C)},pathFromUrl:N},Polymer.rootPath=Polymer.Settings.rootPath||N(document.baseURI||window.location.href)})(),Polymer.Base._addFeature({_prepTemplate:function(){var r;if(void 0===this._template&&(r=Polymer.DomModule.import(this.is),this._template=r&&r.querySelector('template')),r){var _=r.getAttribute('assetpath')||'',u=Polymer.ResolveUrl.resolveUrl(_,r.ownerDocument.baseURI);this._importPath=Polymer.ResolveUrl.pathFromUrl(u)}else this._importPath='';this._template&&this._template.hasAttribute('is')&&this._warn(this._logf('_prepTemplate','top-level Polymer template must not be a type-extension, found',this._template,'Move inside simple <template>.')),this._template&&!this._template.content&&window.HTMLTemplateElement&&HTMLTemplateElement.decorate&&HTMLTemplateElement.decorate(this._template)},_stampTemplate:function(){this._template&&(this.root=this.instanceTemplate(this._template))},instanceTemplate:function(r){var _=document.importNode(r._content||r.content,!0);return _}}),function(){var t=Polymer.Base.attachedCallback;Polymer.Base._addFeature({_hostStack:[],ready:function(){},_registerHost:function(_){this.dataHost=_=_||Polymer.Base._hostStack[Polymer.Base._hostStack.length-1],_&&_._clients&&_._clients.push(this),this._clients=null,this._clientsReadied=!1},_beginHosting:function(){Polymer.Base._hostStack.push(this),this._clients||(this._clients=[])},_endHosting:function(){Polymer.Base._hostStack.pop()},_tryReady:function(){this._readied=!1,this._canReady()&&this._ready()},_canReady:function(){return!this.dataHost||this.dataHost._clientsReadied},_ready:function(){this._beforeClientsReady(),this._template&&(this._setupRoot(),this._readyClients()),this._clientsReadied=!0,this._clients=null,this._afterClientsReady(),this._readySelf()},_readyClients:function(){this._beginDistribute();var _=this._clients;if(_)for(var N,u=0,g=_.length;u<g&&(N=_[u]);u++)N._ready();this._finishDistribute()},_readySelf:function(){for(var u,_=0;_<this.behaviors.length;_++)u=this.behaviors[_],u.ready&&u.ready.call(this);this.ready&&this.ready(),this._readied=!0,this._attachedPending&&(this._attachedPending=!1,this.attachedCallback())},_beforeClientsReady:function(){},_afterClientsReady:function(){},_beforeAttached:function(){},attachedCallback:function(){this._readied?(this._beforeAttached(),t.call(this)):this._attachedPending=!0}})}(),Polymer.ArraySplice=function(){function t(C,y,f){return{index:C,removed:y,addedCount:f}}function r(){}var _=0,u=1,g=2,N=3;return r.prototype={calcEditDistances:function(y,f,S,E,R,D){for(var L=D-R+1,T=S-f+1,A=Array(L),P=0;P<L;P++)A[P]=Array(T),A[P][0]=P;for(var O=0;O<T;O++)A[0][O]=O;for(P=1;P<L;P++)for(O=1;O<T;O++)if(this.equals(y[f+O-1],E[R+P-1]))A[P][O]=A[P-1][O-1];else{var x=A[P-1][O]+1,w=A[P][O-1]+1;A[P][O]=x<w?x:w}return A},spliceOperationsFromEditDistances:function(y){for(var f=y.length-1,S=y[0].length-1,E=y[f][S],R=[];0<f||0<S;){if(0==f){R.push(g),S--;continue}if(0==S){R.push(N),f--;continue}var A,D=y[f-1][S-1],L=y[f-1][S],T=y[f][S-1];A=L<T?L<D?L:D:T<D?T:D,A==D?(D==E?R.push(_):(R.push(u),E=D),f--,S--):A==L?(R.push(N),f--,E=L):(R.push(g),S--,E=T)}return R.reverse(),R},calcSplices:function(y,f,S,E,R,D){var L=0,T=0,A=Math.min(S-f,D-R);if(0==f&&0==R&&(L=this.sharedPrefix(y,E,A)),S==y.length&&D==E.length&&(T=this.sharedSuffix(y,E,A-L)),f+=L,R+=L,S-=T,D-=T,0==S-f&&0==D-R)return[];if(f==S){for(var P=t(f,[],0);R<D;)P.removed.push(E[R++]);return[P]}if(R==D)return[t(f,[],S-f)];var O=this.spliceOperationsFromEditDistances(this.calcEditDistances(y,f,S,E,R,D));P=void 0;for(var x=[],w=f,M=R,F=0;F<O.length;F++)switch(O[F]){case _:P&&(x.push(P),P=void 0),w++,M++;break;case u:P||(P=t(w,[],0)),P.addedCount++,w++,P.removed.push(E[M]),M++;break;case g:P||(P=t(w,[],0)),P.addedCount++,w++;break;case N:P||(P=t(w,[],0)),P.removed.push(E[M]),M++;}return P&&x.push(P),x},sharedPrefix:function(y,f,S){for(var E=0;E<S;E++)if(!this.equals(y[E],f[E]))return E;return S},sharedSuffix:function(y,f,S){for(var E=y.length,R=f.length,D=0;D<S&&this.equals(y[--E],f[--R]);)D++;return D},calculateSplices:function(y,f){return this.calcSplices(y,0,y.length,f,0,f.length)},equals:function(y,f){return y===f}},new r}(),Polymer.domInnerHTML=function(){function t(E){return'&'===E?'&amp;':'<'===E?'&lt;':'>'===E?'&gt;':'"'===E?'&quot;':'\xA0'===E?'&nbsp;':void 0}function r(E){return E.replace(C,t)}function _(E){return E.replace(y,t)}function u(E){for(var R={},D=0;D<E.length;D++)R[E[D]]=!0;return R}function g(E,R,D){switch(E.nodeType){case Node.ELEMENT_NODE:for(var O,L=E.localName,T='<'+L,A=E.attributes,P=0;O=A[P];P++)T+=' '+O.name+'="'+r(O.value)+'"';return T+='>',f[L]?T:T+N(E,D)+'</'+L+'>';case Node.TEXT_NODE:var x=E.data;return R&&S[R.localName]?x:_(x);case Node.COMMENT_NODE:return'<!--'+E.data+'-->';default:throw console.error(E),new Error('not implemented');}}function N(E,R){E instanceof HTMLTemplateElement&&(E=E.content);for(var P,D='',L=Polymer.dom(E).childNodes,T=0,A=L.length;T<A&&(P=L[T]);T++)D+=g(P,E,R);return D}var C=/[&\u00A0"]/g,y=/[&\u00A0<>]/g,f=u(['area','base','br','col','command','embed','hr','img','input','keygen','link','meta','param','source','track','wbr']),S=u(['style','script','xmp','iframe','noembed','noframes','plaintext','noscript']);return{getInnerHTML:N}}(),function(){'use strict';var t=Element.prototype.insertBefore,r=Element.prototype.appendChild,_=Element.prototype.removeChild;Polymer.TreeApi={arrayCopyChildNodes:function(g){for(var N=[],C=0,y=g.firstChild;y;y=y.nextSibling)N[C++]=y;return N},arrayCopyChildren:function(g){for(var N=[],C=0,y=g.firstElementChild;y;y=y.nextElementSibling)N[C++]=y;return N},arrayCopy:function(g){for(var N=g.length,C=Array(N),y=0;y<N;y++)C[y]=g[y];return C}},Polymer.TreeApi.Logical={hasParentNode:function(g){return!!(g.__dom&&g.__dom.parentNode)},hasChildNodes:function(g){return!!(g.__dom&&g.__dom.childNodes!==void 0)},getChildNodes:function(g){return this.hasChildNodes(g)?this._getChildNodes(g):g.childNodes},_getChildNodes:function(g){if(!g.__dom.childNodes){g.__dom.childNodes=[];for(var N=g.__dom.firstChild;N;N=N.__dom.nextSibling)g.__dom.childNodes.push(N)}return g.__dom.childNodes},getParentNode:function(g){return g.__dom&&g.__dom.parentNode!==void 0?g.__dom.parentNode:g.parentNode},getFirstChild:function(g){return g.__dom&&g.__dom.firstChild!==void 0?g.__dom.firstChild:g.firstChild},getLastChild:function(g){return g.__dom&&g.__dom.lastChild!==void 0?g.__dom.lastChild:g.lastChild},getNextSibling:function(g){return g.__dom&&g.__dom.nextSibling!==void 0?g.__dom.nextSibling:g.nextSibling},getPreviousSibling:function(g){return g.__dom&&g.__dom.previousSibling!==void 0?g.__dom.previousSibling:g.previousSibling},getFirstElementChild:function(g){return g.__dom&&g.__dom.firstChild!==void 0?this._getFirstElementChild(g):g.firstElementChild},_getFirstElementChild:function(g){for(var N=g.__dom.firstChild;N&&N.nodeType!==Node.ELEMENT_NODE;)N=N.__dom.nextSibling;return N},getLastElementChild:function(g){return g.__dom&&g.__dom.lastChild!==void 0?this._getLastElementChild(g):g.lastElementChild},_getLastElementChild:function(g){for(var N=g.__dom.lastChild;N&&N.nodeType!==Node.ELEMENT_NODE;)N=N.__dom.previousSibling;return N},getNextElementSibling:function(g){return g.__dom&&g.__dom.nextSibling!==void 0?this._getNextElementSibling(g):g.nextElementSibling},_getNextElementSibling:function(g){for(var N=g.__dom.nextSibling;N&&N.nodeType!==Node.ELEMENT_NODE;)N=N.__dom.nextSibling;return N},getPreviousElementSibling:function(g){return g.__dom&&g.__dom.previousSibling!==void 0?this._getPreviousElementSibling(g):g.previousElementSibling},_getPreviousElementSibling:function(g){for(var N=g.__dom.previousSibling;N&&N.nodeType!==Node.ELEMENT_NODE;)N=N.__dom.previousSibling;return N},saveChildNodes:function(g){if(!this.hasChildNodes(g)){g.__dom=g.__dom||{},g.__dom.firstChild=g.firstChild,g.__dom.lastChild=g.lastChild,g.__dom.childNodes=[];for(var N=g.firstChild;N;N=N.nextSibling)N.__dom=N.__dom||{},N.__dom.parentNode=g,g.__dom.childNodes.push(N),N.__dom.nextSibling=N.nextSibling,N.__dom.previousSibling=N.previousSibling}},recordInsertBefore:function(g,N,C){if(N.__dom.childNodes=null,g.nodeType===Node.DOCUMENT_FRAGMENT_NODE)for(var y=g.firstChild;y;y=y.nextSibling)this._linkNode(y,N,C);else this._linkNode(g,N,C)},_linkNode:function(g,N,C){g.__dom=g.__dom||{},N.__dom=N.__dom||{},C&&(C.__dom=C.__dom||{}),g.__dom.previousSibling=C?C.__dom.previousSibling:N.__dom.lastChild,g.__dom.previousSibling&&(g.__dom.previousSibling.__dom.nextSibling=g),g.__dom.nextSibling=C||null,g.__dom.nextSibling&&(g.__dom.nextSibling.__dom.previousSibling=g),g.__dom.parentNode=N,C?C===N.__dom.firstChild&&(N.__dom.firstChild=g):(N.__dom.lastChild=g,!N.__dom.firstChild&&(N.__dom.firstChild=g)),N.__dom.childNodes=null},recordRemoveChild:function(g,N){g.__dom=g.__dom||{},N.__dom=N.__dom||{},g===N.__dom.firstChild&&(N.__dom.firstChild=g.__dom.nextSibling),g===N.__dom.lastChild&&(N.__dom.lastChild=g.__dom.previousSibling);var C=g.__dom.previousSibling,y=g.__dom.nextSibling;C&&(C.__dom.nextSibling=y),y&&(y.__dom.previousSibling=C),g.__dom.parentNode=g.__dom.previousSibling=g.__dom.nextSibling=void 0,N.__dom.childNodes=null}},Polymer.TreeApi.Composed={getChildNodes:function(g){return Polymer.TreeApi.arrayCopyChildNodes(g)},getParentNode:function(g){return g.parentNode},clearChildNodes:function(g){g.textContent=''},insertBefore:function(g,N,C){return t.call(g,N,C||null)},appendChild:function(g,N){return r.call(g,N)},removeChild:function(g,N){return _.call(g,N)}}}(),Polymer.DomApi=function(){'use strict';var t=Polymer.Settings,r=Polymer.TreeApi,_=function y(f){this.node=u?y.wrap(f):f},u=t.hasShadow&&!t.nativeShadow;_.wrap=window.wrap?window.wrap:function(y){return y},_.prototype={flush:function(){Polymer.dom.flush()},deepContains:function(f){if(this.node.contains(f))return!0;for(var S=f,E=f.ownerDocument;S&&S!==E&&S!==this.node;)S=Polymer.dom(S).parentNode||S.host;return S===this.node},queryDistributedElements:function(f){for(var L,S=this.getEffectiveChildNodes(),E=[],R=0,D=S.length;R<D&&(L=S[R]);R++)L.nodeType===Node.ELEMENT_NODE&&_.matchesSelector.call(L,f)&&E.push(L);return E},getEffectiveChildNodes:function(){for(var D,f=[],S=this.childNodes,E=0,R=S.length;E<R&&(D=S[E]);E++)if(D.localName===g)for(var L=N(D).getDistributedNodes(),T=0;T<L.length;T++)f.push(L[T]);else f.push(D);return f},observeNodes:function(f){if(f)return this.observer||(this.observer=this.node.localName===g?new _.DistributedNodesObserver(this):new _.EffectiveNodesObserver(this)),this.observer.addListener(f)},unobserveNodes:function(f){this.observer&&this.observer.removeListener(f)},notifyObserver:function(){this.observer&&this.observer.notify()},_query:function(f,S,E){S=S||this.node;var R=[];return this._queryElements(r.Logical.getChildNodes(S),f,E,R),R},_queryElements:function(f,S,E,R){for(var T,D=0,L=f.length;D<L&&(T=f[D]);D++)if(T.nodeType===Node.ELEMENT_NODE&&this._queryElement(T,S,E,R))return!0},_queryElement:function(f,S,E,R){var D=S(f);return D&&R.push(f),E&&E(D)?D:void this._queryElements(r.Logical.getChildNodes(f),S,E,R)}};var g=_.CONTENT='content',N=_.factory=function(y){return y=y||document,y.__domApi||(y.__domApi=new _.ctor(y)),y.__domApi};_.hasApi=function(y){return!!y.__domApi},_.ctor=_,Polymer.dom=function(y,f){return y instanceof Event?Polymer.EventApi.factory(y):_.factory(y,f)};var C=Element.prototype;return _.matchesSelector=C.matches||C.matchesSelector||C.mozMatchesSelector||C.msMatchesSelector||C.oMatchesSelector||C.webkitMatchesSelector,_}(),function(){'use strict';var t=Polymer.Settings,r=Polymer.DomApi,_=r.factory,u=Polymer.TreeApi,g=Polymer.domInnerHTML.getInnerHTML,N=r.CONTENT;if(!t.useShadow){var C=Element.prototype.cloneNode,y=Document.prototype.importNode;Polymer.Base.mixin(r.prototype,{_lazyDistribute:function(S){S.shadyRoot&&S.shadyRoot._distributionClean&&(S.shadyRoot._distributionClean=!1,Polymer.dom.addDebouncer(S.debounce('_distribute',S._distributeContent)))},appendChild:function(S){return this.insertBefore(S)},insertBefore:function(S,E){if(E&&u.Logical.getParentNode(E)!==this.node)throw Error('The ref_node to be inserted before is not a child of this node');if(S.nodeType!==Node.DOCUMENT_FRAGMENT_NODE){var R=u.Logical.getParentNode(S);R?(r.hasApi(R)&&_(R).notifyObserver(),this._removeNode(S)):this._removeOwnerShadyRoot(S)}if(!this._addNode(S,E)){E&&(E=E.localName===N?this._firstComposedNode(E):E);var D=this.node._isShadyRoot?this.node.host:this.node;E?u.Composed.insertBefore(D,S,E):u.Composed.appendChild(D,S)}return this.notifyObserver(),S},_addNode:function(S,E){var R=this.getOwnerRoot();if(R){var D=this._maybeAddInsertionPoint(S,this.node);R._invalidInsertionPoints||(R._invalidInsertionPoints=D),this._addNodeToHost(R.host,S)}u.Logical.hasChildNodes(this.node)&&u.Logical.recordInsertBefore(S,this.node,E);var L=this._maybeDistribute(S)||this.node.shadyRoot;if(L)if(S.nodeType===Node.DOCUMENT_FRAGMENT_NODE)for(;S.firstChild;)u.Composed.removeChild(S,S.firstChild);else{var T=u.Composed.getParentNode(S);T&&u.Composed.removeChild(T,S)}return L},removeChild:function(S){if(u.Logical.getParentNode(S)!==this.node)throw Error('The node to be removed is not a child of this node: '+S);if(!this._removeNode(S)){var E=this.node._isShadyRoot?this.node.host:this.node,R=u.Composed.getParentNode(S);E===R&&u.Composed.removeChild(E,S)}return this.notifyObserver(),S},_removeNode:function(S){var R,E=u.Logical.hasParentNode(S)&&u.Logical.getParentNode(S),D=this._ownerShadyRootForNode(S);return E&&(R=_(S)._maybeDistributeParent(),u.Logical.recordRemoveChild(S,E),D&&this._removeDistributedChildren(D,S)&&(D._invalidInsertionPoints=!0,this._lazyDistribute(D.host))),this._removeOwnerShadyRoot(S),D&&this._removeNodeFromHost(D.host,S),R},replaceChild:function(S,E){return this.insertBefore(S,E),this.removeChild(E),S},_hasCachedOwnerRoot:function(S){return void 0!==S._ownerShadyRoot},getOwnerRoot:function(){return this._ownerShadyRootForNode(this.node)},_ownerShadyRootForNode:function(S){if(S){var E=S._ownerShadyRoot;if(void 0===E){if(S._isShadyRoot)E=S;else{var R=u.Logical.getParentNode(S);E=R?R._isShadyRoot?R:this._ownerShadyRootForNode(R):null}(E||document.documentElement.contains(S))&&(S._ownerShadyRoot=E)}return E}},_maybeDistribute:function(S){var E=S.nodeType===Node.DOCUMENT_FRAGMENT_NODE&&!S.__noContent&&_(S).querySelector(N),R=E&&u.Logical.getParentNode(E).nodeType!==Node.DOCUMENT_FRAGMENT_NODE,D=E||S.localName===N;if(D){var L=this.getOwnerRoot();L&&this._lazyDistribute(L.host)}var T=this._nodeNeedsDistribution(this.node);return T&&this._lazyDistribute(this.node),T||D&&!R},_maybeAddInsertionPoint:function(S,E){var R;if(S.nodeType===Node.DOCUMENT_FRAGMENT_NODE&&!S.__noContent)for(var T,A,P,D=_(S).querySelectorAll(N),L=0;L<D.length&&(T=D[L]);L++)A=u.Logical.getParentNode(T),A===S&&(A=E),P=this._maybeAddInsertionPoint(T,A),R=R||P;else S.localName===N&&(u.Logical.saveChildNodes(E),u.Logical.saveChildNodes(S),R=!0);return R},_updateInsertionPoints:function(S){for(var D,E=S.shadyRoot._insertionPoints=_(S.shadyRoot).querySelectorAll(N),R=0;R<E.length;R++)D=E[R],u.Logical.saveChildNodes(D),u.Logical.saveChildNodes(u.Logical.getParentNode(D))},_nodeNeedsDistribution:function(S){return S&&S.shadyRoot&&r.hasInsertionPoint(S.shadyRoot)},_addNodeToHost:function(S,E){S._elementAdd&&S._elementAdd(E)},_removeNodeFromHost:function(S,E){S._elementRemove&&S._elementRemove(E)},_removeDistributedChildren:function(S,E){for(var R,T,D=S._insertionPoints,L=0;L<D.length;L++)if(T=D[L],this._contains(E,T))for(var A=_(T).getDistributedNodes(),P=0;P<A.length;P++){R=!0;var O=A[P],x=u.Composed.getParentNode(O);x&&u.Composed.removeChild(x,O)}return R},_contains:function(S,E){for(;E;){if(E==S)return!0;E=u.Logical.getParentNode(E)}},_removeOwnerShadyRoot:function(S){if(this._hasCachedOwnerRoot(S))for(var L,E=u.Logical.getChildNodes(S),R=0,D=E.length;R<D&&(L=E[R]);R++)this._removeOwnerShadyRoot(L);S._ownerShadyRoot=void 0},_firstComposedNode:function(S){for(var L,T,E=_(S).getDistributedNodes(),R=0,D=E.length;R<D&&(L=E[R]);R++)if(T=_(L).getDestinationInsertionPoints(),T[T.length-1]===S)return L},querySelector:function(S){var E=this._query(function(R){return r.matchesSelector.call(R,S)},this.node,function(R){return!!R})[0];return E||null},querySelectorAll:function(S){return this._query(function(E){return r.matchesSelector.call(E,S)},this.node)},getDestinationInsertionPoints:function(){return this.node._destinationInsertionPoints||[]},getDistributedNodes:function(){return this.node._distributedNodes||[]},_clear:function(){for(;this.childNodes.length;)this.removeChild(this.childNodes[0])},setAttribute:function(S,E){this.node.setAttribute(S,E),this._maybeDistributeParent()},removeAttribute:function(S){this.node.removeAttribute(S),this._maybeDistributeParent()},_maybeDistributeParent:function(){if(this._nodeNeedsDistribution(this.parentNode))return this._lazyDistribute(this.parentNode),!0},cloneNode:function(S){var E=C.call(this.node,!1);if(S)for(var T,R=this.childNodes,D=_(E),L=0;L<R.length;L++)T=_(R[L]).cloneNode(!0),D.appendChild(T);return E},importNode:function(S,E){var R=this.node instanceof Document?this.node:this.node.ownerDocument,D=y.call(R,S,!1);if(E)for(var P,L=u.Logical.getChildNodes(S),T=_(D),A=0;A<L.length;A++)P=_(R).importNode(L[A],!0),T.appendChild(P);return D},_getComposedInnerHTML:function(){return g(this.node,!0)}}),Object.defineProperties(r.prototype,{activeElement:{get:function(){var S=document.activeElement;if(!S)return null;var E=!!this.node._isShadyRoot;if(this.node!==document){if(!E)return null;if(this.node.host===S||!this.node.host.contains(S))return null}for(var R=_(S).getOwnerRoot();R&&R!==this.node;)S=R.host,R=_(S).getOwnerRoot();return this.node===document?R?null:S:R===this.node?S:null},configurable:!0},childNodes:{get:function(){var S=u.Logical.getChildNodes(this.node);return Array.isArray(S)?S:u.arrayCopyChildNodes(this.node)},configurable:!0},children:{get:function(){return u.Logical.hasChildNodes(this.node)?Array.prototype.filter.call(this.childNodes,function(S){return S.nodeType===Node.ELEMENT_NODE}):u.arrayCopyChildren(this.node)},configurable:!0},parentNode:{get:function(){return u.Logical.getParentNode(this.node)},configurable:!0},firstChild:{get:function(){return u.Logical.getFirstChild(this.node)},configurable:!0},lastChild:{get:function(){return u.Logical.getLastChild(this.node)},configurable:!0},nextSibling:{get:function(){return u.Logical.getNextSibling(this.node)},configurable:!0},previousSibling:{get:function(){return u.Logical.getPreviousSibling(this.node)},configurable:!0},firstElementChild:{get:function(){return u.Logical.getFirstElementChild(this.node)},configurable:!0},lastElementChild:{get:function(){return u.Logical.getLastElementChild(this.node)},configurable:!0},nextElementSibling:{get:function(){return u.Logical.getNextElementSibling(this.node)},configurable:!0},previousElementSibling:{get:function(){return u.Logical.getPreviousElementSibling(this.node)},configurable:!0},textContent:{get:function(){var S=this.node.nodeType;if(S===Node.TEXT_NODE||S===Node.COMMENT_NODE)return this.node.textContent;for(var L,E=[],R=0,D=this.childNodes;L=D[R];R++)L.nodeType!==Node.COMMENT_NODE&&E.push(L.textContent);return E.join('')},set:function(S){var E=this.node.nodeType;E===Node.TEXT_NODE||E===Node.COMMENT_NODE?this.node.textContent=S:(this._clear(),S&&this.appendChild(document.createTextNode(S)))},configurable:!0},innerHTML:{get:function(){var S=this.node.nodeType;return S===Node.TEXT_NODE||S===Node.COMMENT_NODE?null:g(this.node)},set:function(S){var E=this.node.nodeType;if(E!==Node.TEXT_NODE||E!==Node.COMMENT_NODE){this._clear();var R=document.createElement('div');R.innerHTML=S;for(var D=u.arrayCopyChildNodes(R),L=0;L<D.length;L++)this.appendChild(D[L])}},configurable:!0}}),r.hasInsertionPoint=function(f){return!!(f&&f._insertionPoints.length)}}}(),function(){'use strict';var t=Polymer.Settings,r=Polymer.TreeApi,_=Polymer.DomApi;if(t.useShadow){Polymer.Base.mixin(_.prototype,{querySelectorAll:function(f){return r.arrayCopy(this.node.querySelectorAll(f))},getOwnerRoot:function(){for(var f=this.node;f;){if(f.nodeType===Node.DOCUMENT_FRAGMENT_NODE&&f.host)return f;f=f.parentNode}},importNode:function(f,S){var E=this.node instanceof Document?this.node:this.node.ownerDocument;return E.importNode(f,S)},getDestinationInsertionPoints:function(){var f=this.node.getDestinationInsertionPoints&&this.node.getDestinationInsertionPoints();return f?r.arrayCopy(f):[]},getDistributedNodes:function(){var f=this.node.getDistributedNodes&&this.node.getDistributedNodes();return f?r.arrayCopy(f):[]}}),Object.defineProperties(_.prototype,{activeElement:{get:function(){var f=_.wrap(this.node),S=f.activeElement;return f.contains(S)?S:null},configurable:!0},childNodes:{get:function(){return r.arrayCopyChildNodes(this.node)},configurable:!0},children:{get:function(){return r.arrayCopyChildren(this.node)},configurable:!0},textContent:{get:function(){return this.node.textContent},set:function(f){return this.node.textContent=f},configurable:!0},innerHTML:{get:function(){return this.node.innerHTML},set:function(f){return this.node.innerHTML=f},configurable:!0}});var u=function(f){for(var S=0;S<f.length;S++)g(f[S])},g=function(f){_.prototype[f]=function(){return this.node[f].apply(this.node,arguments)}};u(['cloneNode','appendChild','insertBefore','removeChild','replaceChild','setAttribute','removeAttribute','querySelector']);var N=function(f){for(var S=0;S<f.length;S++)C(f[S])},C=function(f){Object.defineProperty(_.prototype,f,{get:function(){return this.node[f]},configurable:!0})};N(['parentNode','firstChild','lastChild','nextSibling','previousSibling','firstElementChild','lastElementChild','nextElementSibling','previousElementSibling'])}}(),Polymer.Base.mixin(Polymer.dom,{_flushGuard:0,_FLUSH_MAX:100,_needsTakeRecords:!Polymer.Settings.useNativeCustomElements,_debouncers:[],_staticFlushList:[],_finishDebouncer:null,flush:function(){for(this._flushGuard=0,this._prepareFlush();this._debouncers.length&&this._flushGuard<this._FLUSH_MAX;){for(;this._debouncers.length;)this._debouncers.shift().complete();this._finishDebouncer&&this._finishDebouncer.complete(),this._prepareFlush(),this._flushGuard++}this._flushGuard>=this._FLUSH_MAX&&console.warn('Polymer.dom.flush aborted. Flush may not be complete.')},_prepareFlush:function(){this._needsTakeRecords&&CustomElements.takeRecords();for(var r=0;r<this._staticFlushList.length;r++)this._staticFlushList[r]()},addStaticFlush:function(r){this._staticFlushList.push(r)},removeStaticFlush:function(r){var _=this._staticFlushList.indexOf(r);0<=_&&this._staticFlushList.splice(_,1)},addDebouncer:function(r){this._debouncers.push(r),this._finishDebouncer=Polymer.Debounce(this._finishDebouncer,this._finishFlush)},_finishFlush:function(){Polymer.dom._debouncers=[]}}),Polymer.EventApi=function(){'use strict';var t=Polymer.DomApi.ctor,r=Polymer.Settings;t.Event=function(u){this.event=u},t.Event.prototype=r.useShadow?{get rootTarget(){return this.event.path[0]},get localTarget(){return this.event.target},get path(){var u=this.event.path;return Array.isArray(u)||(u=Array.prototype.slice.call(u)),u}}:{get rootTarget(){return this.event.target},get localTarget(){for(var u=this.event.currentTarget,g=u&&Polymer.dom(u).getOwnerRoot(),N=this.path,C=0;C<N.length;C++)if(Polymer.dom(N[C]).getOwnerRoot()===g)return N[C]},get path(){if(!this.event._path){for(var u=[],g=this.rootTarget;g;){u.push(g);var N=Polymer.dom(g).getDestinationInsertionPoints();if(N.length){for(var C=0;C<N.length-1;C++)u.push(N[C]);g=N[N.length-1]}else g=Polymer.dom(g).parentNode||g.host}u.push(window),this.event._path=u}return this.event._path}};return{factory:function(g){return g.__eventApi||(g.__eventApi=new t.Event(g)),g.__eventApi}}}(),function(){'use strict';var t=Polymer.DomApi.ctor,r=Polymer.Settings.useShadow;Object.defineProperty(t.prototype,'classList',{get:function(){return this._classList||(this._classList=new t.ClassList(this)),this._classList},configurable:!0}),t.ClassList=function(_){this.domApi=_,this.node=_.node},t.ClassList.prototype={add:function(){this.node.classList.add.apply(this.node.classList,arguments),this._distributeParent()},remove:function(){this.node.classList.remove.apply(this.node.classList,arguments),this._distributeParent()},toggle:function(){this.node.classList.toggle.apply(this.node.classList,arguments),this._distributeParent()},_distributeParent:function(){r||this.domApi._maybeDistributeParent()},contains:function(){return this.node.classList.contains.apply(this.node.classList,arguments)}}}(),function(){'use strict';var t=Polymer.DomApi.ctor,r=Polymer.Settings;if(t.EffectiveNodesObserver=function(g){this.domApi=g,this.node=this.domApi.node,this._listeners=[]},t.EffectiveNodesObserver.prototype={addListener:function(N){this._isSetup||(this._setup(),this._isSetup=!0);var C={fn:N,_nodes:[]};return this._listeners.push(C),this._scheduleNotify(),C},removeListener:function(N){var C=this._listeners.indexOf(N);0<=C&&(this._listeners.splice(C,1),N._nodes=[]),this._hasListeners()||(this._cleanup(),this._isSetup=!1)},_setup:function(){this._observeContentElements(this.domApi.childNodes)},_cleanup:function(){this._unobserveContentElements(this.domApi.childNodes)},_hasListeners:function(){return!!this._listeners.length},_scheduleNotify:function(){this._debouncer&&this._debouncer.stop(),this._debouncer=Polymer.Debounce(this._debouncer,this._notify),this._debouncer.context=this,Polymer.dom.addDebouncer(this._debouncer)},notify:function(){this._hasListeners()&&this._scheduleNotify()},_notify:function(){this._beforeCallListeners(),this._callListeners()},_beforeCallListeners:function(){this._updateContentElements()},_updateContentElements:function(){this._observeContentElements(this.domApi.childNodes)},_observeContentElements:function(N){for(var y,C=0;C<N.length&&(y=N[C]);C++)this._isContent(y)&&(y.__observeNodesMap=y.__observeNodesMap||new WeakMap,y.__observeNodesMap.has(this)||y.__observeNodesMap.set(this,this._observeContent(y)))},_observeContent:function(N){var C=this,y=Polymer.dom(N).observeNodes(function(){C._scheduleNotify()});return y._avoidChangeCalculation=!0,y},_unobserveContentElements:function(N){for(var y,f,C=0;C<N.length&&(y=N[C]);C++)this._isContent(y)&&(f=y.__observeNodesMap.get(this),f&&(Polymer.dom(y).unobserveNodes(f),y.__observeNodesMap.delete(this)))},_isContent:function(N){return'content'===N.localName},_callListeners:function(){for(var f,S,N=this._listeners,C=this._getEffectiveNodes(),y=0;y<N.length&&(f=N[y]);y++)S=this._generateListenerInfo(f,C),(S||f._alwaysNotify)&&this._callListener(f,S)},_getEffectiveNodes:function(){return this.domApi.getEffectiveChildNodes()},_generateListenerInfo:function(N,C){if(N._avoidChangeCalculation)return!0;for(var R,y=N._nodes,f={target:this.node,addedNodes:[],removedNodes:[]},S=Polymer.ArraySplice.calculateSplices(C,y),E=0;E<S.length&&(R=S[E]);E++)for(var L,D=0;D<R.removed.length&&(L=R.removed[D]);D++)f.removedNodes.push(L);for(E=0,R;E<S.length&&(R=S[E]);E++)for(D=R.index;D<R.index+R.addedCount;D++)f.addedNodes.push(C[D]);if(N._nodes=C,f.addedNodes.length||f.removedNodes.length)return f},_callListener:function(N,C){return N.fn.call(this.node,C)},enableShadowAttributeTracking:function(){}},r.useShadow){var _=t.EffectiveNodesObserver.prototype._setup,u=t.EffectiveNodesObserver.prototype._cleanup;Polymer.Base.mixin(t.EffectiveNodesObserver.prototype,{_setup:function(){if(!this._observer){var N=this;this._mutationHandler=function(C){C&&C.length&&N._scheduleNotify()},this._observer=new MutationObserver(this._mutationHandler),this._boundFlush=function(){N._flush()},Polymer.dom.addStaticFlush(this._boundFlush),this._observer.observe(this.node,{childList:!0})}_.call(this)},_cleanup:function(){this._observer.disconnect(),this._observer=null,this._mutationHandler=null,Polymer.dom.removeStaticFlush(this._boundFlush),u.call(this)},_flush:function(){this._observer&&this._mutationHandler(this._observer.takeRecords())},enableShadowAttributeTracking:function(){if(this._observer){this._makeContentListenersAlwaysNotify(),this._observer.disconnect(),this._observer.observe(this.node,{childList:!0,attributes:!0,subtree:!0});var N=this.domApi.getOwnerRoot(),C=N&&N.host;C&&Polymer.dom(C).observer&&Polymer.dom(C).observer.enableShadowAttributeTracking()}},_makeContentListenersAlwaysNotify:function(){for(var C,N=0;N<this._listeners.length;N++)C=this._listeners[N],C._alwaysNotify=C._isContentListener}})}}(),function(){'use strict';var t=Polymer.DomApi.ctor,r=Polymer.Settings;t.DistributedNodesObserver=function(_){t.EffectiveNodesObserver.call(this,_)},t.DistributedNodesObserver.prototype=Object.create(t.EffectiveNodesObserver.prototype),Polymer.Base.mixin(t.DistributedNodesObserver.prototype,{_setup:function(){},_cleanup:function(){},_beforeCallListeners:function(){},_getEffectiveNodes:function(){return this.domApi.getDistributedNodes()}}),r.useShadow&&Polymer.Base.mixin(t.DistributedNodesObserver.prototype,{_setup:function(){if(!this._observer){var u=this.domApi.getOwnerRoot(),g=u&&u.host;if(g){var N=this;this._observer=Polymer.dom(g).observeNodes(function(){N._scheduleNotify()}),this._observer._isContentListener=!0,this._hasAttrSelect()&&Polymer.dom(g).observer.enableShadowAttributeTracking()}}},_hasAttrSelect:function(){var u=this.node.getAttribute('select');return u&&u.match(/[[.]+/)},_cleanup:function(){var u=this.domApi.getOwnerRoot(),g=u&&u.host;g&&Polymer.dom(g).unobserveNodes(this._observer),this._observer=null}})}(),function(){function t(T,A){A._distributedNodes.push(T);var P=T._destinationInsertionPoints;P?P.push(A):T._destinationInsertionPoints=[A]}function r(T){var A=T._distributedNodes;if(A)for(var O,P=0;P<A.length;P++)O=A[P]._destinationInsertionPoints,O&&O.splice(O.indexOf(T)+1,O.length)}function _(T,A){var P=R.Logical.getParentNode(T);P&&P.shadyRoot&&E.hasInsertionPoint(P.shadyRoot)&&P.shadyRoot._distributionClean&&(P.shadyRoot._distributionClean=!1,A.shadyRoot._dirtyRoots.push(P))}function u(T,A){var P=A._destinationInsertionPoints;return P&&P[P.length-1]===T}function g(T){return'content'==T.localName}function N(T){for(;T&&C(T);)T=T.domHost;return T}function C(T){for(var O,A=R.Logical.getChildNodes(T),P=0;P<A.length;P++)if(O=A[P],O.localName&&'content'===O.localName)return T.domHost}function y(T){for(var P,A=0;A<T._insertionPoints.length;A++)P=T._insertionPoints[A],E.hasApi(P)&&Polymer.dom(P).notifyObserver()}function f(T){E.hasApi(T)&&Polymer.dom(T).notifyObserver()}function S(T){if(L&&T)for(var A=0;A<T.length;A++)CustomElements.upgrade(T[A])}var E=Polymer.DomApi,R=Polymer.TreeApi;Polymer.Base._addFeature({_prepShady:function(){this._useContent=this._useContent||!!this._template},_setupShady:function(){this.shadyRoot=null,this.__domApi||(this.__domApi=null),this.__dom||(this.__dom=null),this._ownerShadyRoot||(this._ownerShadyRoot=void 0)},_poolContent:function(){this._useContent&&R.Logical.saveChildNodes(this)},_setupRoot:function(){this._useContent&&(this._createLocalRoot(),!this.dataHost&&S(R.Logical.getChildNodes(this)))},_createLocalRoot:function(){this.shadyRoot=this.root,this.shadyRoot._distributionClean=!1,this.shadyRoot._hasDistributed=!1,this.shadyRoot._isShadyRoot=!0,this.shadyRoot._dirtyRoots=[];var A=this.shadyRoot._insertionPoints=!this._notes||this._notes._hasContent?this.shadyRoot.querySelectorAll('content'):[];R.Logical.saveChildNodes(this.shadyRoot);for(var O,P=0;P<A.length;P++)O=A[P],R.Logical.saveChildNodes(O),R.Logical.saveChildNodes(O.parentNode);this.shadyRoot.host=this},distributeContent:function(A){if(this.shadyRoot){this.shadyRoot._invalidInsertionPoints=this.shadyRoot._invalidInsertionPoints||A;var P=N(this);Polymer.dom(this)._lazyDistribute(P)}},_distributeContent:function(){this._useContent&&!this.shadyRoot._distributionClean&&(this.shadyRoot._invalidInsertionPoints&&(Polymer.dom(this)._updateInsertionPoints(this),this.shadyRoot._invalidInsertionPoints=!1),this._beginDistribute(),this._distributeDirtyRoots(),this._finishDistribute())},_beginDistribute:function(){this._useContent&&E.hasInsertionPoint(this.shadyRoot)&&(this._resetDistribution(),this._distributePool(this.shadyRoot,this._collectPool()))},_distributeDirtyRoots:function(){for(var x,A=this.shadyRoot._dirtyRoots,P=0,O=A.length;P<O&&(x=A[P]);P++)x._distributeContent();this.shadyRoot._dirtyRoots=[]},_finishDistribute:function(){if(this._useContent){if(this.shadyRoot._distributionClean=!0,E.hasInsertionPoint(this.shadyRoot))this._composeTree(),y(this.shadyRoot);else if(!this.shadyRoot._hasDistributed)R.Composed.clearChildNodes(this),this.appendChild(this.shadyRoot);else{var A=this._composeNode(this);this._updateChildNodes(this,A)}this.shadyRoot._hasDistributed||f(this),this.shadyRoot._hasDistributed=!0}},elementMatches:function(A,P){return P=P||this,E.matchesSelector.call(P,A)},_resetDistribution:function(){for(var O,A=R.Logical.getChildNodes(this),P=0;P<A.length;P++)O=A[P],O._destinationInsertionPoints&&(O._destinationInsertionPoints=void 0),g(O)&&r(O);for(var x=this.shadyRoot,w=x._insertionPoints,M=0;M<w.length;M++)w[M]._distributedNodes=[]},_collectPool:function(){for(var x,A=[],P=R.Logical.getChildNodes(this),O=0;O<P.length;O++)x=P[O],g(x)?A.push.apply(A,x._distributedNodes):A.push(x);return A},_distributePool:function(A,P){for(var M,O=A._insertionPoints,x=0,w=O.length;x<w&&(M=O[x]);x++)this._distributeInsertionPoint(M,P),_(M,this)},_distributeInsertionPoint:function(A,P){for(var M,O=!1,x=0,w=P.length;x<w;x++)(M=P[x],!!M)&&this._matchesContentSelect(M,A)&&(t(M,A),P[x]=void 0,O=!0);if(!O)for(var F=R.Logical.getChildNodes(A),I=0;I<F.length;I++)t(F[I],A)},_composeTree:function(){this._updateChildNodes(this,this._composeNode(this));for(var x,w,A=this.shadyRoot._insertionPoints,P=0,O=A.length;P<O&&(x=A[P]);P++)w=R.Logical.getParentNode(x),w._useContent||w===this||w===this.shadyRoot||this._updateChildNodes(w,this._composeNode(w))},_composeNode:function(A){for(var w,P=[],O=R.Logical.getChildNodes(A.shadyRoot||A),x=0;x<O.length;x++)if(w=O[x],g(w))for(var I,M=w._distributedNodes,F=0;F<M.length;F++)I=M[F],u(w,I)&&P.push(I);else P.push(w);return P},_updateChildNodes:function(A,P){for(var F,O=R.Composed.getChildNodes(A),x=Polymer.ArraySplice.calculateSplices(P,O),w=0,M=0;w<x.length&&(F=x[w]);w++){for(var H,I=0;I<F.removed.length&&(H=F.removed[I]);I++)R.Composed.getParentNode(H)===A&&R.Composed.removeChild(A,H),O.splice(F.index+M,1);M-=F.addedCount}for(var F,k,w=0;w<x.length&&(F=x[w]);w++)for(k=O[F.index],I=F.index,H;I<F.index+F.addedCount;I++)H=P[I],R.Composed.insertBefore(A,H,k),O.splice(I,0,H)},_matchesContentSelect:function(A,P){var O=P.getAttribute('select');if(!O)return!0;if(O=O.trim(),!O)return!0;if(!(A instanceof Element))return!1;var x=/^(:not\()?[*.#[a-zA-Z_|]/;return!!x.test(O)&&this.elementMatches(O,A)},_elementAdd:function(){},_elementRemove:function(){}});var D={get:function(){var A=Polymer.dom(this).getOwnerRoot();return A&&A.host},configurable:!0};Object.defineProperty(Polymer.Base,'domHost',D),Polymer.BaseDescriptors.domHost=D;var L=window.CustomElements&&!CustomElements.useNative}(),Polymer.Settings.useShadow&&Polymer.Base._addFeature({_poolContent:function(){},_beginDistribute:function(){},distributeContent:function(){},_distributeContent:function(){},_finishDistribute:function(){},_createLocalRoot:function(){this.createShadowRoot(),this.shadowRoot.appendChild(this.root),this.root=this.shadowRoot}}),Polymer.Async={_currVal:0,_lastVal:0,_callbacks:[],_twiddleContent:0,_twiddle:document.createTextNode(''),run:function(r,_){return 0<_?~setTimeout(r,_):(this._twiddle.textContent=this._twiddleContent++,this._callbacks.push(r),this._currVal++)},cancel:function(r){if(0>r)clearTimeout(~r);else{var _=r-this._lastVal;if(0<=_){if(!this._callbacks[_])throw'invalid async handle: '+r;this._callbacks[_]=null}}},_atEndOfMicrotask:function(){for(var u,r=this._callbacks.length,_=0;_<r;_++)if(u=this._callbacks[_],u)try{u()}catch(g){throw _++,this._callbacks.splice(0,_),this._lastVal+=_,this._twiddle.textContent=this._twiddleContent++,g}this._callbacks.splice(0,r),this._lastVal+=r}},new window.MutationObserver(function(){Polymer.Async._atEndOfMicrotask()}).observe(Polymer.Async._twiddle,{characterData:!0}),Polymer.Debounce=function(){var r=Polymer.Async,_=function(g){this.context=g;var N=this;this.boundComplete=function(){N.complete()}};return _.prototype={go:function(g,N){var C;this.finish=function(){r.cancel(C)},C=r.run(this.boundComplete,N),this.callback=g},stop:function(){this.finish&&(this.finish(),this.finish=null,this.callback=null)},complete:function(){if(this.finish){var g=this.callback;this.stop(),g.call(this.context)}}},function(u,g,N){return u?u.stop():u=new _(this),u.go(g,N),u}}(),Polymer.Base._addFeature({_setupDebouncers:function(){this._debouncers={}},debounce:function(r,_,u){return this._debouncers[r]=Polymer.Debounce.call(this,this._debouncers[r],_,u)},isDebouncerActive:function(r){var _=this._debouncers[r];return!!(_&&_.finish)},flushDebouncer:function(r){var _=this._debouncers[r];_&&_.complete()},cancelDebouncer:function(r){var _=this._debouncers[r];_&&_.stop()}}),Polymer.DomModule=document.createElement('dom-module'),Polymer.Base._addFeature({_registerFeatures:function(){this._prepIs(),this._prepBehaviors(),this._prepConstructor(),this._prepTemplate(),this._prepShady(),this._prepPropertyInfo()},_prepBehavior:function(r){this._addHostAttributes(r.hostAttributes)},_initFeatures:function(){this._registerHost(),this._template&&(this._poolContent(),this._beginHosting(),this._stampTemplate(),this._endHosting()),this._marshalHostAttributes(),this._setupDebouncers(),this._marshalBehaviors(),this._tryReady()},_marshalBehavior:function(){}});</script></head><body></body></html>
+<html><head><link rel="import" href="polymer-micro.html"><script>(function () {
+  function resolveCss(cssText, ownerDocument) {
+    return cssText.replace(CSS_URL_RX, function (m, pre, url, post) {
+      return pre + '\'' + resolve(url.replace(/["']/g, ''), ownerDocument) + '\'' + post;
+    });
+  }
+  function resolveAttrs(element, ownerDocument) {
+    for (var name in URL_ATTRS) {
+      var a$ = URL_ATTRS[name];
+      for (var i = 0, l = a$.length, a, at, v; i < l && (a = a$[i]); i++) {
+        if (name === '*' || element.localName === name) {
+          at = element.attributes[a];
+          v = at && at.value;
+          if (v && v.search(BINDING_RX) < 0) {
+            at.value = a === 'style' ? resolveCss(v, ownerDocument) : resolve(v, ownerDocument);
+          }
+        }
+      }
+    }
+  }
+  function resolve(url, ownerDocument) {
+    if (url && ABS_URL.test(url)) {
+      return url;
+    }
+    var resolver = getUrlResolver(ownerDocument);
+    resolver.href = url;
+    return resolver.href || url;
+  }
+  var tempDoc;
+  var tempDocBase;
+  function resolveUrl(url, baseUri) {
+    if (!tempDoc) {
+      tempDoc = document.implementation.createHTMLDocument('temp');
+      tempDocBase = tempDoc.createElement('base');
+      tempDoc.head.appendChild(tempDocBase);
+    }
+    tempDocBase.href = baseUri;
+    return resolve(url, tempDoc);
+  }
+  function getUrlResolver(ownerDocument) {
+    return ownerDocument.body.__urlResolver || (ownerDocument.body.__urlResolver = ownerDocument.createElement('a'));
+  }
+  function pathFromUrl(url) {
+    return url.substring(0, url.lastIndexOf('/') + 1);
+  }
+  var CSS_URL_RX = /(url\()([^)]*)(\))/g;
+  var URL_ATTRS = {
+    '*': ['href', 'src', 'style', 'url'],
+    form: ['action']
+  };
+  var ABS_URL = /(^\/)|(^#)|(^[\w-\d]*:)/;
+  var BINDING_RX = /\{\{|\[\[/;
+  Polymer.ResolveUrl = {
+    resolveCss: resolveCss,
+    resolveAttrs: resolveAttrs,
+    resolveUrl: resolveUrl,
+    pathFromUrl: pathFromUrl
+  };
+  Polymer.rootPath = Polymer.Settings.rootPath || pathFromUrl(document.baseURI || window.location.href);
+})();Polymer.Base._addFeature({
+  _prepTemplate: function _prepTemplate() {
+    var module;
+    if (this._template === undefined) {
+      module = Polymer.DomModule.import(this.is);
+      this._template = module && module.querySelector('template');
+    }
+    if (module) {
+      var assetPath = module.getAttribute('assetpath') || '';
+      var importURL = Polymer.ResolveUrl.resolveUrl(assetPath, module.ownerDocument.baseURI);
+      this._importPath = Polymer.ResolveUrl.pathFromUrl(importURL);
+    } else {
+      this._importPath = '';
+    }
+    if (this._template && this._template.hasAttribute('is')) {
+      this._warn(this._logf('_prepTemplate', 'top-level Polymer template ' + 'must not be a type-extension, found', this._template, 'Move inside simple <template>.'));
+    }
+    if (this._template && !this._template.content && window.HTMLTemplateElement && HTMLTemplateElement.decorate) {
+      HTMLTemplateElement.decorate(this._template);
+    }
+  },
+  _stampTemplate: function _stampTemplate() {
+    if (this._template) {
+      this.root = this.instanceTemplate(this._template);
+    }
+  },
+  instanceTemplate: function instanceTemplate(template) {
+    var dom = document.importNode(template._content || template.content, true);
+    return dom;
+  }
+});(function () {
+  var baseAttachedCallback = Polymer.Base.attachedCallback;
+  Polymer.Base._addFeature({
+    _hostStack: [],
+    ready: function ready() {},
+    _registerHost: function _registerHost(host) {
+      this.dataHost = host = host || Polymer.Base._hostStack[Polymer.Base._hostStack.length - 1];
+      if (host && host._clients) {
+        host._clients.push(this);
+      }
+      this._clients = null;
+      this._clientsReadied = false;
+    },
+    _beginHosting: function _beginHosting() {
+      Polymer.Base._hostStack.push(this);
+      if (!this._clients) {
+        this._clients = [];
+      }
+    },
+    _endHosting: function _endHosting() {
+      Polymer.Base._hostStack.pop();
+    },
+    _tryReady: function _tryReady() {
+      this._readied = false;
+      if (this._canReady()) {
+        this._ready();
+      }
+    },
+    _canReady: function _canReady() {
+      return !this.dataHost || this.dataHost._clientsReadied;
+    },
+    _ready: function _ready() {
+      this._beforeClientsReady();
+      if (this._template) {
+        this._setupRoot();
+        this._readyClients();
+      }
+      this._clientsReadied = true;
+      this._clients = null;
+      this._afterClientsReady();
+      this._readySelf();
+    },
+    _readyClients: function _readyClients() {
+      this._beginDistribute();
+      var c$ = this._clients;
+      if (c$) {
+        for (var i = 0, l = c$.length, c; i < l && (c = c$[i]); i++) {
+          c._ready();
+        }
+      }
+      this._finishDistribute();
+    },
+    _readySelf: function _readySelf() {
+      for (var i = 0, b; i < this.behaviors.length; i++) {
+        b = this.behaviors[i];
+        if (b.ready) {
+          b.ready.call(this);
+        }
+      }
+      if (this.ready) {
+        this.ready();
+      }
+      this._readied = true;
+      if (this._attachedPending) {
+        this._attachedPending = false;
+        this.attachedCallback();
+      }
+    },
+    _beforeClientsReady: function _beforeClientsReady() {},
+    _afterClientsReady: function _afterClientsReady() {},
+    _beforeAttached: function _beforeAttached() {},
+    attachedCallback: function attachedCallback() {
+      if (this._readied) {
+        this._beforeAttached();
+        baseAttachedCallback.call(this);
+      } else {
+        this._attachedPending = true;
+      }
+    }
+  });
+})();Polymer.ArraySplice = function () {
+  function newSplice(index, removed, addedCount) {
+    return {
+      index: index,
+      removed: removed,
+      addedCount: addedCount
+    };
+  }
+  var EDIT_LEAVE = 0;
+  var EDIT_UPDATE = 1;
+  var EDIT_ADD = 2;
+  var EDIT_DELETE = 3;
+  function ArraySplice() {}
+  ArraySplice.prototype = {
+    calcEditDistances: function calcEditDistances(current, currentStart, currentEnd, old, oldStart, oldEnd) {
+      var rowCount = oldEnd - oldStart + 1;
+      var columnCount = currentEnd - currentStart + 1;
+      var distances = new Array(rowCount);
+      for (var i = 0; i < rowCount; i++) {
+        distances[i] = new Array(columnCount);
+        distances[i][0] = i;
+      }
+      for (var j = 0; j < columnCount; j++) {
+        distances[0][j] = j;
+      }for (i = 1; i < rowCount; i++) {
+        for (j = 1; j < columnCount; j++) {
+          if (this.equals(current[currentStart + j - 1], old[oldStart + i - 1])) distances[i][j] = distances[i - 1][j - 1];else {
+            var north = distances[i - 1][j] + 1;
+            var west = distances[i][j - 1] + 1;
+            distances[i][j] = north < west ? north : west;
+          }
+        }
+      }
+      return distances;
+    },
+    spliceOperationsFromEditDistances: function spliceOperationsFromEditDistances(distances) {
+      var i = distances.length - 1;
+      var j = distances[0].length - 1;
+      var current = distances[i][j];
+      var edits = [];
+      while (i > 0 || j > 0) {
+        if (i == 0) {
+          edits.push(EDIT_ADD);
+          j--;
+          continue;
+        }
+        if (j == 0) {
+          edits.push(EDIT_DELETE);
+          i--;
+          continue;
+        }
+        var northWest = distances[i - 1][j - 1];
+        var west = distances[i - 1][j];
+        var north = distances[i][j - 1];
+        var min;
+        if (west < north) min = west < northWest ? west : northWest;else min = north < northWest ? north : northWest;
+        if (min == northWest) {
+          if (northWest == current) {
+            edits.push(EDIT_LEAVE);
+          } else {
+            edits.push(EDIT_UPDATE);
+            current = northWest;
+          }
+          i--;
+          j--;
+        } else if (min == west) {
+          edits.push(EDIT_DELETE);
+          i--;
+          current = west;
+        } else {
+          edits.push(EDIT_ADD);
+          j--;
+          current = north;
+        }
+      }
+      edits.reverse();
+      return edits;
+    },
+    calcSplices: function calcSplices(current, currentStart, currentEnd, old, oldStart, oldEnd) {
+      var prefixCount = 0;
+      var suffixCount = 0;
+      var minLength = Math.min(currentEnd - currentStart, oldEnd - oldStart);
+      if (currentStart == 0 && oldStart == 0) prefixCount = this.sharedPrefix(current, old, minLength);
+      if (currentEnd == current.length && oldEnd == old.length) suffixCount = this.sharedSuffix(current, old, minLength - prefixCount);
+      currentStart += prefixCount;
+      oldStart += prefixCount;
+      currentEnd -= suffixCount;
+      oldEnd -= suffixCount;
+      if (currentEnd - currentStart == 0 && oldEnd - oldStart == 0) return [];
+      if (currentStart == currentEnd) {
+        var splice = newSplice(currentStart, [], 0);
+        while (oldStart < oldEnd) {
+          splice.removed.push(old[oldStart++]);
+        }return [splice];
+      } else if (oldStart == oldEnd) return [newSplice(currentStart, [], currentEnd - currentStart)];
+      var ops = this.spliceOperationsFromEditDistances(this.calcEditDistances(current, currentStart, currentEnd, old, oldStart, oldEnd));
+      splice = undefined;
+      var splices = [];
+      var index = currentStart;
+      var oldIndex = oldStart;
+      for (var i = 0; i < ops.length; i++) {
+        switch (ops[i]) {
+          case EDIT_LEAVE:
+            if (splice) {
+              splices.push(splice);
+              splice = undefined;
+            }
+            index++;
+            oldIndex++;
+            break;
+          case EDIT_UPDATE:
+            if (!splice) splice = newSplice(index, [], 0);
+            splice.addedCount++;
+            index++;
+            splice.removed.push(old[oldIndex]);
+            oldIndex++;
+            break;
+          case EDIT_ADD:
+            if (!splice) splice = newSplice(index, [], 0);
+            splice.addedCount++;
+            index++;
+            break;
+          case EDIT_DELETE:
+            if (!splice) splice = newSplice(index, [], 0);
+            splice.removed.push(old[oldIndex]);
+            oldIndex++;
+            break;
+        }
+      }
+      if (splice) {
+        splices.push(splice);
+      }
+      return splices;
+    },
+    sharedPrefix: function sharedPrefix(current, old, searchLength) {
+      for (var i = 0; i < searchLength; i++) {
+        if (!this.equals(current[i], old[i])) return i;
+      }return searchLength;
+    },
+    sharedSuffix: function sharedSuffix(current, old, searchLength) {
+      var index1 = current.length;
+      var index2 = old.length;
+      var count = 0;
+      while (count < searchLength && this.equals(current[--index1], old[--index2])) {
+        count++;
+      }return count;
+    },
+    calculateSplices: function calculateSplices(current, previous) {
+      return this.calcSplices(current, 0, current.length, previous, 0, previous.length);
+    },
+    equals: function equals(currentValue, previousValue) {
+      return currentValue === previousValue;
+    }
+  };
+  return new ArraySplice();
+}();Polymer.domInnerHTML = function () {
+  var escapeAttrRegExp = /[&\u00A0"]/g;
+  var escapeDataRegExp = /[&\u00A0<>]/g;
+  function escapeReplace(c) {
+    switch (c) {
+      case '&':
+        return '&amp;';
+      case '<':
+        return '&lt;';
+      case '>':
+        return '&gt;';
+      case '"':
+        return '&quot;';
+      case '\xA0':
+        return '&nbsp;';
+    }
+  }
+  function escapeAttr(s) {
+    return s.replace(escapeAttrRegExp, escapeReplace);
+  }
+  function escapeData(s) {
+    return s.replace(escapeDataRegExp, escapeReplace);
+  }
+  function makeSet(arr) {
+    var set = {};
+    for (var i = 0; i < arr.length; i++) {
+      set[arr[i]] = true;
+    }
+    return set;
+  }
+  var voidElements = makeSet(['area', 'base', 'br', 'col', 'command', 'embed', 'hr', 'img', 'input', 'keygen', 'link', 'meta', 'param', 'source', 'track', 'wbr']);
+  var plaintextParents = makeSet(['style', 'script', 'xmp', 'iframe', 'noembed', 'noframes', 'plaintext', 'noscript']);
+  function getOuterHTML(node, parentNode, composed) {
+    switch (node.nodeType) {
+      case Node.ELEMENT_NODE:
+        var tagName = node.localName;
+        var s = '<' + tagName;
+        var attrs = node.attributes;
+        for (var i = 0, attr; attr = attrs[i]; i++) {
+          s += ' ' + attr.name + '="' + escapeAttr(attr.value) + '"';
+        }
+        s += '>';
+        if (voidElements[tagName]) {
+          return s;
+        }
+        return s + getInnerHTML(node, composed) + '</' + tagName + '>';
+      case Node.TEXT_NODE:
+        var data = node.data;
+        if (parentNode && plaintextParents[parentNode.localName]) {
+          return data;
+        }
+        return escapeData(data);
+      case Node.COMMENT_NODE:
+        return '<!--' + node.data + '-->';
+      default:
+        console.error(node);
+        throw new Error('not implemented');
+    }
+  }
+  function getInnerHTML(node, composed) {
+    if (node instanceof HTMLTemplateElement) node = node.content;
+    var s = '';
+    var c$ = Polymer.dom(node).childNodes;
+    for (var i = 0, l = c$.length, child; i < l && (child = c$[i]); i++) {
+      s += getOuterHTML(child, node, composed);
+    }
+    return s;
+  }
+  return { getInnerHTML: getInnerHTML };
+}();(function () {
+  'use strict';
+
+  var nativeInsertBefore = Element.prototype.insertBefore;
+  var nativeAppendChild = Element.prototype.appendChild;
+  var nativeRemoveChild = Element.prototype.removeChild;
+  Polymer.TreeApi = {
+    arrayCopyChildNodes: function arrayCopyChildNodes(parent) {
+      var copy = [],
+          i = 0;
+      for (var n = parent.firstChild; n; n = n.nextSibling) {
+        copy[i++] = n;
+      }
+      return copy;
+    },
+    arrayCopyChildren: function arrayCopyChildren(parent) {
+      var copy = [],
+          i = 0;
+      for (var n = parent.firstElementChild; n; n = n.nextElementSibling) {
+        copy[i++] = n;
+      }
+      return copy;
+    },
+    arrayCopy: function arrayCopy(a$) {
+      var l = a$.length;
+      var copy = new Array(l);
+      for (var i = 0; i < l; i++) {
+        copy[i] = a$[i];
+      }
+      return copy;
+    }
+  };
+  Polymer.TreeApi.Logical = {
+    hasParentNode: function hasParentNode(node) {
+      return Boolean(node.__dom && node.__dom.parentNode);
+    },
+    hasChildNodes: function hasChildNodes(node) {
+      return Boolean(node.__dom && node.__dom.childNodes !== undefined);
+    },
+    getChildNodes: function getChildNodes(node) {
+      return this.hasChildNodes(node) ? this._getChildNodes(node) : node.childNodes;
+    },
+    _getChildNodes: function _getChildNodes(node) {
+      if (!node.__dom.childNodes) {
+        node.__dom.childNodes = [];
+        for (var n = node.__dom.firstChild; n; n = n.__dom.nextSibling) {
+          node.__dom.childNodes.push(n);
+        }
+      }
+      return node.__dom.childNodes;
+    },
+    getParentNode: function getParentNode(node) {
+      return node.__dom && node.__dom.parentNode !== undefined ? node.__dom.parentNode : node.parentNode;
+    },
+    getFirstChild: function getFirstChild(node) {
+      return node.__dom && node.__dom.firstChild !== undefined ? node.__dom.firstChild : node.firstChild;
+    },
+    getLastChild: function getLastChild(node) {
+      return node.__dom && node.__dom.lastChild !== undefined ? node.__dom.lastChild : node.lastChild;
+    },
+    getNextSibling: function getNextSibling(node) {
+      return node.__dom && node.__dom.nextSibling !== undefined ? node.__dom.nextSibling : node.nextSibling;
+    },
+    getPreviousSibling: function getPreviousSibling(node) {
+      return node.__dom && node.__dom.previousSibling !== undefined ? node.__dom.previousSibling : node.previousSibling;
+    },
+    getFirstElementChild: function getFirstElementChild(node) {
+      return node.__dom && node.__dom.firstChild !== undefined ? this._getFirstElementChild(node) : node.firstElementChild;
+    },
+    _getFirstElementChild: function _getFirstElementChild(node) {
+      var n = node.__dom.firstChild;
+      while (n && n.nodeType !== Node.ELEMENT_NODE) {
+        n = n.__dom.nextSibling;
+      }
+      return n;
+    },
+    getLastElementChild: function getLastElementChild(node) {
+      return node.__dom && node.__dom.lastChild !== undefined ? this._getLastElementChild(node) : node.lastElementChild;
+    },
+    _getLastElementChild: function _getLastElementChild(node) {
+      var n = node.__dom.lastChild;
+      while (n && n.nodeType !== Node.ELEMENT_NODE) {
+        n = n.__dom.previousSibling;
+      }
+      return n;
+    },
+    getNextElementSibling: function getNextElementSibling(node) {
+      return node.__dom && node.__dom.nextSibling !== undefined ? this._getNextElementSibling(node) : node.nextElementSibling;
+    },
+    _getNextElementSibling: function _getNextElementSibling(node) {
+      var n = node.__dom.nextSibling;
+      while (n && n.nodeType !== Node.ELEMENT_NODE) {
+        n = n.__dom.nextSibling;
+      }
+      return n;
+    },
+    getPreviousElementSibling: function getPreviousElementSibling(node) {
+      return node.__dom && node.__dom.previousSibling !== undefined ? this._getPreviousElementSibling(node) : node.previousElementSibling;
+    },
+    _getPreviousElementSibling: function _getPreviousElementSibling(node) {
+      var n = node.__dom.previousSibling;
+      while (n && n.nodeType !== Node.ELEMENT_NODE) {
+        n = n.__dom.previousSibling;
+      }
+      return n;
+    },
+    saveChildNodes: function saveChildNodes(node) {
+      if (!this.hasChildNodes(node)) {
+        node.__dom = node.__dom || {};
+        node.__dom.firstChild = node.firstChild;
+        node.__dom.lastChild = node.lastChild;
+        node.__dom.childNodes = [];
+        for (var n = node.firstChild; n; n = n.nextSibling) {
+          n.__dom = n.__dom || {};
+          n.__dom.parentNode = node;
+          node.__dom.childNodes.push(n);
+          n.__dom.nextSibling = n.nextSibling;
+          n.__dom.previousSibling = n.previousSibling;
+        }
+      }
+    },
+    recordInsertBefore: function recordInsertBefore(node, container, ref_node) {
+      container.__dom.childNodes = null;
+      if (node.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
+        for (var n = node.firstChild; n; n = n.nextSibling) {
+          this._linkNode(n, container, ref_node);
+        }
+      } else {
+        this._linkNode(node, container, ref_node);
+      }
+    },
+    _linkNode: function _linkNode(node, container, ref_node) {
+      node.__dom = node.__dom || {};
+      container.__dom = container.__dom || {};
+      if (ref_node) {
+        ref_node.__dom = ref_node.__dom || {};
+      }
+      node.__dom.previousSibling = ref_node ? ref_node.__dom.previousSibling : container.__dom.lastChild;
+      if (node.__dom.previousSibling) {
+        node.__dom.previousSibling.__dom.nextSibling = node;
+      }
+      node.__dom.nextSibling = ref_node || null;
+      if (node.__dom.nextSibling) {
+        node.__dom.nextSibling.__dom.previousSibling = node;
+      }
+      node.__dom.parentNode = container;
+      if (ref_node) {
+        if (ref_node === container.__dom.firstChild) {
+          container.__dom.firstChild = node;
+        }
+      } else {
+        container.__dom.lastChild = node;
+        if (!container.__dom.firstChild) {
+          container.__dom.firstChild = node;
+        }
+      }
+      container.__dom.childNodes = null;
+    },
+    recordRemoveChild: function recordRemoveChild(node, container) {
+      node.__dom = node.__dom || {};
+      container.__dom = container.__dom || {};
+      if (node === container.__dom.firstChild) {
+        container.__dom.firstChild = node.__dom.nextSibling;
+      }
+      if (node === container.__dom.lastChild) {
+        container.__dom.lastChild = node.__dom.previousSibling;
+      }
+      var p = node.__dom.previousSibling;
+      var n = node.__dom.nextSibling;
+      if (p) {
+        p.__dom.nextSibling = n;
+      }
+      if (n) {
+        n.__dom.previousSibling = p;
+      }
+      node.__dom.parentNode = node.__dom.previousSibling = node.__dom.nextSibling = undefined;
+      container.__dom.childNodes = null;
+    }
+  };
+  Polymer.TreeApi.Composed = {
+    getChildNodes: function getChildNodes(node) {
+      return Polymer.TreeApi.arrayCopyChildNodes(node);
+    },
+    getParentNode: function getParentNode(node) {
+      return node.parentNode;
+    },
+    clearChildNodes: function clearChildNodes(node) {
+      node.textContent = '';
+    },
+    insertBefore: function insertBefore(parentNode, newChild, refChild) {
+      return nativeInsertBefore.call(parentNode, newChild, refChild || null);
+    },
+    appendChild: function appendChild(parentNode, newChild) {
+      return nativeAppendChild.call(parentNode, newChild);
+    },
+    removeChild: function removeChild(parentNode, node) {
+      return nativeRemoveChild.call(parentNode, node);
+    }
+  };
+})();Polymer.DomApi = function () {
+  'use strict';
+
+  var Settings = Polymer.Settings;
+  var TreeApi = Polymer.TreeApi;
+  var DomApi = function DomApi(node) {
+    this.node = needsToWrap ? DomApi.wrap(node) : node;
+  };
+  var needsToWrap = Settings.hasShadow && !Settings.nativeShadow;
+  DomApi.wrap = window.wrap ? window.wrap : function (node) {
+    return node;
+  };
+  DomApi.prototype = {
+    flush: function flush() {
+      Polymer.dom.flush();
+    },
+    deepContains: function deepContains(node) {
+      if (this.node.contains(node)) {
+        return true;
+      }
+      var n = node;
+      var doc = node.ownerDocument;
+      while (n && n !== doc && n !== this.node) {
+        n = Polymer.dom(n).parentNode || n.host;
+      }
+      return n === this.node;
+    },
+    queryDistributedElements: function queryDistributedElements(selector) {
+      var c$ = this.getEffectiveChildNodes();
+      var list = [];
+      for (var i = 0, l = c$.length, c; i < l && (c = c$[i]); i++) {
+        if (c.nodeType === Node.ELEMENT_NODE && DomApi.matchesSelector.call(c, selector)) {
+          list.push(c);
+        }
+      }
+      return list;
+    },
+    getEffectiveChildNodes: function getEffectiveChildNodes() {
+      var list = [];
+      var c$ = this.childNodes;
+      for (var i = 0, l = c$.length, c; i < l && (c = c$[i]); i++) {
+        if (c.localName === CONTENT) {
+          var d$ = dom(c).getDistributedNodes();
+          for (var j = 0; j < d$.length; j++) {
+            list.push(d$[j]);
+          }
+        } else {
+          list.push(c);
+        }
+      }
+      return list;
+    },
+    observeNodes: function observeNodes(callback) {
+      if (callback) {
+        if (!this.observer) {
+          this.observer = this.node.localName === CONTENT ? new DomApi.DistributedNodesObserver(this) : new DomApi.EffectiveNodesObserver(this);
+        }
+        return this.observer.addListener(callback);
+      }
+    },
+    unobserveNodes: function unobserveNodes(handle) {
+      if (this.observer) {
+        this.observer.removeListener(handle);
+      }
+    },
+    notifyObserver: function notifyObserver() {
+      if (this.observer) {
+        this.observer.notify();
+      }
+    },
+    _query: function _query(matcher, node, halter) {
+      node = node || this.node;
+      var list = [];
+      this._queryElements(TreeApi.Logical.getChildNodes(node), matcher, halter, list);
+      return list;
+    },
+    _queryElements: function _queryElements(elements, matcher, halter, list) {
+      for (var i = 0, l = elements.length, c; i < l && (c = elements[i]); i++) {
+        if (c.nodeType === Node.ELEMENT_NODE) {
+          if (this._queryElement(c, matcher, halter, list)) {
+            return true;
+          }
+        }
+      }
+    },
+    _queryElement: function _queryElement(node, matcher, halter, list) {
+      var result = matcher(node);
+      if (result) {
+        list.push(node);
+      }
+      if (halter && halter(result)) {
+        return result;
+      }
+      this._queryElements(TreeApi.Logical.getChildNodes(node), matcher, halter, list);
+    }
+  };
+  var CONTENT = DomApi.CONTENT = 'content';
+  var dom = DomApi.factory = function (node) {
+    node = node || document;
+    if (!node.__domApi) {
+      node.__domApi = new DomApi.ctor(node);
+    }
+    return node.__domApi;
+  };
+  DomApi.hasApi = function (node) {
+    return Boolean(node.__domApi);
+  };
+  DomApi.ctor = DomApi;
+  Polymer.dom = function (obj, patch) {
+    if (obj instanceof Event) {
+      return Polymer.EventApi.factory(obj);
+    } else {
+      return DomApi.factory(obj, patch);
+    }
+  };
+  var p = Element.prototype;
+  DomApi.matchesSelector = p.matches || p.matchesSelector || p.mozMatchesSelector || p.msMatchesSelector || p.oMatchesSelector || p.webkitMatchesSelector;
+  return DomApi;
+}();(function () {
+  'use strict';
+
+  var Settings = Polymer.Settings;
+  var DomApi = Polymer.DomApi;
+  var dom = DomApi.factory;
+  var TreeApi = Polymer.TreeApi;
+  var getInnerHTML = Polymer.domInnerHTML.getInnerHTML;
+  var CONTENT = DomApi.CONTENT;
+  if (Settings.useShadow) {
+    return;
+  }
+  var nativeCloneNode = Element.prototype.cloneNode;
+  var nativeImportNode = Document.prototype.importNode;
+  Polymer.Base.mixin(DomApi.prototype, {
+    _lazyDistribute: function _lazyDistribute(host) {
+      if (host.shadyRoot && host.shadyRoot._distributionClean) {
+        host.shadyRoot._distributionClean = false;
+        Polymer.dom.addDebouncer(host.debounce('_distribute', host._distributeContent));
+      }
+    },
+    appendChild: function appendChild(node) {
+      return this.insertBefore(node);
+    },
+    insertBefore: function insertBefore(node, ref_node) {
+      if (ref_node && TreeApi.Logical.getParentNode(ref_node) !== this.node) {
+        throw Error('The ref_node to be inserted before is not a child ' + 'of this node');
+      }
+      if (node.nodeType !== Node.DOCUMENT_FRAGMENT_NODE) {
+        var parent = TreeApi.Logical.getParentNode(node);
+        if (parent) {
+          if (DomApi.hasApi(parent)) {
+            dom(parent).notifyObserver();
+          }
+          this._removeNode(node);
+        } else {
+          this._removeOwnerShadyRoot(node);
+        }
+      }
+      if (!this._addNode(node, ref_node)) {
+        if (ref_node) {
+          ref_node = ref_node.localName === CONTENT ? this._firstComposedNode(ref_node) : ref_node;
+        }
+        var container = this.node._isShadyRoot ? this.node.host : this.node;
+        if (ref_node) {
+          TreeApi.Composed.insertBefore(container, node, ref_node);
+        } else {
+          TreeApi.Composed.appendChild(container, node);
+        }
+      }
+      this.notifyObserver();
+      return node;
+    },
+    _addNode: function _addNode(node, ref_node) {
+      var root = this.getOwnerRoot();
+      if (root) {
+        var ipAdded = this._maybeAddInsertionPoint(node, this.node);
+        if (!root._invalidInsertionPoints) {
+          root._invalidInsertionPoints = ipAdded;
+        }
+        this._addNodeToHost(root.host, node);
+      }
+      if (TreeApi.Logical.hasChildNodes(this.node)) {
+        TreeApi.Logical.recordInsertBefore(node, this.node, ref_node);
+      }
+      var handled = this._maybeDistribute(node) || this.node.shadyRoot;
+      if (handled) {
+        if (node.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
+          while (node.firstChild) {
+            TreeApi.Composed.removeChild(node, node.firstChild);
+          }
+        } else {
+          var parent = TreeApi.Composed.getParentNode(node);
+          if (parent) {
+            TreeApi.Composed.removeChild(parent, node);
+          }
+        }
+      }
+      return handled;
+    },
+    removeChild: function removeChild(node) {
+      if (TreeApi.Logical.getParentNode(node) !== this.node) {
+        throw Error('The node to be removed is not a child of this node: ' + node);
+      }
+      if (!this._removeNode(node)) {
+        var container = this.node._isShadyRoot ? this.node.host : this.node;
+        var parent = TreeApi.Composed.getParentNode(node);
+        if (container === parent) {
+          TreeApi.Composed.removeChild(container, node);
+        }
+      }
+      this.notifyObserver();
+      return node;
+    },
+    _removeNode: function _removeNode(node) {
+      var logicalParent = TreeApi.Logical.hasParentNode(node) && TreeApi.Logical.getParentNode(node);
+      var distributed;
+      var root = this._ownerShadyRootForNode(node);
+      if (logicalParent) {
+        distributed = dom(node)._maybeDistributeParent();
+        TreeApi.Logical.recordRemoveChild(node, logicalParent);
+        if (root && this._removeDistributedChildren(root, node)) {
+          root._invalidInsertionPoints = true;
+          this._lazyDistribute(root.host);
+        }
+      }
+      this._removeOwnerShadyRoot(node);
+      if (root) {
+        this._removeNodeFromHost(root.host, node);
+      }
+      return distributed;
+    },
+    replaceChild: function replaceChild(node, ref_node) {
+      this.insertBefore(node, ref_node);
+      this.removeChild(ref_node);
+      return node;
+    },
+    _hasCachedOwnerRoot: function _hasCachedOwnerRoot(node) {
+      return Boolean(node._ownerShadyRoot !== undefined);
+    },
+    getOwnerRoot: function getOwnerRoot() {
+      return this._ownerShadyRootForNode(this.node);
+    },
+    _ownerShadyRootForNode: function _ownerShadyRootForNode(node) {
+      if (!node) {
+        return;
+      }
+      var root = node._ownerShadyRoot;
+      if (root === undefined) {
+        if (node._isShadyRoot) {
+          root = node;
+        } else {
+          var parent = TreeApi.Logical.getParentNode(node);
+          if (parent) {
+            root = parent._isShadyRoot ? parent : this._ownerShadyRootForNode(parent);
+          } else {
+            root = null;
+          }
+        }
+        if (root || document.documentElement.contains(node)) {
+          node._ownerShadyRoot = root;
+        }
+      }
+      return root;
+    },
+    _maybeDistribute: function _maybeDistribute(node) {
+      var fragContent = node.nodeType === Node.DOCUMENT_FRAGMENT_NODE && !node.__noContent && dom(node).querySelector(CONTENT);
+      var wrappedContent = fragContent && TreeApi.Logical.getParentNode(fragContent).nodeType !== Node.DOCUMENT_FRAGMENT_NODE;
+      var hasContent = fragContent || node.localName === CONTENT;
+      if (hasContent) {
+        var root = this.getOwnerRoot();
+        if (root) {
+          this._lazyDistribute(root.host);
+        }
+      }
+      var needsDist = this._nodeNeedsDistribution(this.node);
+      if (needsDist) {
+        this._lazyDistribute(this.node);
+      }
+      return needsDist || hasContent && !wrappedContent;
+    },
+    _maybeAddInsertionPoint: function _maybeAddInsertionPoint(node, parent) {
+      var added;
+      if (node.nodeType === Node.DOCUMENT_FRAGMENT_NODE && !node.__noContent) {
+        var c$ = dom(node).querySelectorAll(CONTENT);
+        for (var i = 0, n, np, na; i < c$.length && (n = c$[i]); i++) {
+          np = TreeApi.Logical.getParentNode(n);
+          if (np === node) {
+            np = parent;
+          }
+          na = this._maybeAddInsertionPoint(n, np);
+          added = added || na;
+        }
+      } else if (node.localName === CONTENT) {
+        TreeApi.Logical.saveChildNodes(parent);
+        TreeApi.Logical.saveChildNodes(node);
+        added = true;
+      }
+      return added;
+    },
+    _updateInsertionPoints: function _updateInsertionPoints(host) {
+      var i$ = host.shadyRoot._insertionPoints = dom(host.shadyRoot).querySelectorAll(CONTENT);
+      for (var i = 0, c; i < i$.length; i++) {
+        c = i$[i];
+        TreeApi.Logical.saveChildNodes(c);
+        TreeApi.Logical.saveChildNodes(TreeApi.Logical.getParentNode(c));
+      }
+    },
+    _nodeNeedsDistribution: function _nodeNeedsDistribution(node) {
+      return node && node.shadyRoot && DomApi.hasInsertionPoint(node.shadyRoot);
+    },
+    _addNodeToHost: function _addNodeToHost(host, node) {
+      if (host._elementAdd) {
+        host._elementAdd(node);
+      }
+    },
+    _removeNodeFromHost: function _removeNodeFromHost(host, node) {
+      if (host._elementRemove) {
+        host._elementRemove(node);
+      }
+    },
+    _removeDistributedChildren: function _removeDistributedChildren(root, container) {
+      var hostNeedsDist;
+      var ip$ = root._insertionPoints;
+      for (var i = 0; i < ip$.length; i++) {
+        var content = ip$[i];
+        if (this._contains(container, content)) {
+          var dc$ = dom(content).getDistributedNodes();
+          for (var j = 0; j < dc$.length; j++) {
+            hostNeedsDist = true;
+            var node = dc$[j];
+            var parent = TreeApi.Composed.getParentNode(node);
+            if (parent) {
+              TreeApi.Composed.removeChild(parent, node);
+            }
+          }
+        }
+      }
+      return hostNeedsDist;
+    },
+    _contains: function _contains(container, node) {
+      while (node) {
+        if (node == container) {
+          return true;
+        }
+        node = TreeApi.Logical.getParentNode(node);
+      }
+    },
+    _removeOwnerShadyRoot: function _removeOwnerShadyRoot(node) {
+      if (this._hasCachedOwnerRoot(node)) {
+        var c$ = TreeApi.Logical.getChildNodes(node);
+        for (var i = 0, l = c$.length, n; i < l && (n = c$[i]); i++) {
+          this._removeOwnerShadyRoot(n);
+        }
+      }
+      node._ownerShadyRoot = undefined;
+    },
+    _firstComposedNode: function _firstComposedNode(content) {
+      var n$ = dom(content).getDistributedNodes();
+      for (var i = 0, l = n$.length, n, p$; i < l && (n = n$[i]); i++) {
+        p$ = dom(n).getDestinationInsertionPoints();
+        if (p$[p$.length - 1] === content) {
+          return n;
+        }
+      }
+    },
+    querySelector: function querySelector(selector) {
+      var result = this._query(function (n) {
+        return DomApi.matchesSelector.call(n, selector);
+      }, this.node, function (n) {
+        return Boolean(n);
+      })[0];
+      return result || null;
+    },
+    querySelectorAll: function querySelectorAll(selector) {
+      return this._query(function (n) {
+        return DomApi.matchesSelector.call(n, selector);
+      }, this.node);
+    },
+    getDestinationInsertionPoints: function getDestinationInsertionPoints() {
+      return this.node._destinationInsertionPoints || [];
+    },
+    getDistributedNodes: function getDistributedNodes() {
+      return this.node._distributedNodes || [];
+    },
+    _clear: function _clear() {
+      while (this.childNodes.length) {
+        this.removeChild(this.childNodes[0]);
+      }
+    },
+    setAttribute: function setAttribute(name, value) {
+      this.node.setAttribute(name, value);
+      this._maybeDistributeParent();
+    },
+    removeAttribute: function removeAttribute(name) {
+      this.node.removeAttribute(name);
+      this._maybeDistributeParent();
+    },
+    _maybeDistributeParent: function _maybeDistributeParent() {
+      if (this._nodeNeedsDistribution(this.parentNode)) {
+        this._lazyDistribute(this.parentNode);
+        return true;
+      }
+    },
+    cloneNode: function cloneNode(deep) {
+      var n = nativeCloneNode.call(this.node, false);
+      if (deep) {
+        var c$ = this.childNodes;
+        var d = dom(n);
+        for (var i = 0, nc; i < c$.length; i++) {
+          nc = dom(c$[i]).cloneNode(true);
+          d.appendChild(nc);
+        }
+      }
+      return n;
+    },
+    importNode: function importNode(externalNode, deep) {
+      var doc = this.node instanceof Document ? this.node : this.node.ownerDocument;
+      var n = nativeImportNode.call(doc, externalNode, false);
+      if (deep) {
+        var c$ = TreeApi.Logical.getChildNodes(externalNode);
+        var d = dom(n);
+        for (var i = 0, nc; i < c$.length; i++) {
+          nc = dom(doc).importNode(c$[i], true);
+          d.appendChild(nc);
+        }
+      }
+      return n;
+    },
+    _getComposedInnerHTML: function _getComposedInnerHTML() {
+      return getInnerHTML(this.node, true);
+    }
+  });
+  Object.defineProperties(DomApi.prototype, {
+    activeElement: {
+      get: function get() {
+        var active = document.activeElement;
+        if (!active) {
+          return null;
+        }
+        var isShadyRoot = !!this.node._isShadyRoot;
+        if (this.node !== document) {
+          if (!isShadyRoot) {
+            return null;
+          }
+          if (this.node.host === active || !this.node.host.contains(active)) {
+            return null;
+          }
+        }
+        var activeRoot = dom(active).getOwnerRoot();
+        while (activeRoot && activeRoot !== this.node) {
+          active = activeRoot.host;
+          activeRoot = dom(active).getOwnerRoot();
+        }
+        if (this.node === document) {
+          return activeRoot ? null : active;
+        } else {
+          return activeRoot === this.node ? active : null;
+        }
+      },
+      configurable: true
+    },
+    childNodes: {
+      get: function get() {
+        var c$ = TreeApi.Logical.getChildNodes(this.node);
+        return Array.isArray(c$) ? c$ : TreeApi.arrayCopyChildNodes(this.node);
+      },
+      configurable: true
+    },
+    children: {
+      get: function get() {
+        if (TreeApi.Logical.hasChildNodes(this.node)) {
+          return Array.prototype.filter.call(this.childNodes, function (n) {
+            return n.nodeType === Node.ELEMENT_NODE;
+          });
+        } else {
+          return TreeApi.arrayCopyChildren(this.node);
+        }
+      },
+      configurable: true
+    },
+    parentNode: {
+      get: function get() {
+        return TreeApi.Logical.getParentNode(this.node);
+      },
+      configurable: true
+    },
+    firstChild: {
+      get: function get() {
+        return TreeApi.Logical.getFirstChild(this.node);
+      },
+      configurable: true
+    },
+    lastChild: {
+      get: function get() {
+        return TreeApi.Logical.getLastChild(this.node);
+      },
+      configurable: true
+    },
+    nextSibling: {
+      get: function get() {
+        return TreeApi.Logical.getNextSibling(this.node);
+      },
+      configurable: true
+    },
+    previousSibling: {
+      get: function get() {
+        return TreeApi.Logical.getPreviousSibling(this.node);
+      },
+      configurable: true
+    },
+    firstElementChild: {
+      get: function get() {
+        return TreeApi.Logical.getFirstElementChild(this.node);
+      },
+      configurable: true
+    },
+    lastElementChild: {
+      get: function get() {
+        return TreeApi.Logical.getLastElementChild(this.node);
+      },
+      configurable: true
+    },
+    nextElementSibling: {
+      get: function get() {
+        return TreeApi.Logical.getNextElementSibling(this.node);
+      },
+      configurable: true
+    },
+    previousElementSibling: {
+      get: function get() {
+        return TreeApi.Logical.getPreviousElementSibling(this.node);
+      },
+      configurable: true
+    },
+    textContent: {
+      get: function get() {
+        var nt = this.node.nodeType;
+        if (nt === Node.TEXT_NODE || nt === Node.COMMENT_NODE) {
+          return this.node.textContent;
+        } else {
+          var tc = [];
+          for (var i = 0, cn = this.childNodes, c; c = cn[i]; i++) {
+            if (c.nodeType !== Node.COMMENT_NODE) {
+              tc.push(c.textContent);
+            }
+          }
+          return tc.join('');
+        }
+      },
+      set: function set(text) {
+        var nt = this.node.nodeType;
+        if (nt === Node.TEXT_NODE || nt === Node.COMMENT_NODE) {
+          this.node.textContent = text;
+        } else {
+          this._clear();
+          if (text) {
+            this.appendChild(document.createTextNode(text));
+          }
+        }
+      },
+      configurable: true
+    },
+    innerHTML: {
+      get: function get() {
+        var nt = this.node.nodeType;
+        if (nt === Node.TEXT_NODE || nt === Node.COMMENT_NODE) {
+          return null;
+        } else {
+          return getInnerHTML(this.node);
+        }
+      },
+      set: function set(text) {
+        var nt = this.node.nodeType;
+        if (nt !== Node.TEXT_NODE || nt !== Node.COMMENT_NODE) {
+          this._clear();
+          var d = document.createElement('div');
+          d.innerHTML = text;
+          var c$ = TreeApi.arrayCopyChildNodes(d);
+          for (var i = 0; i < c$.length; i++) {
+            this.appendChild(c$[i]);
+          }
+        }
+      },
+      configurable: true
+    }
+  });
+  DomApi.hasInsertionPoint = function (root) {
+    return Boolean(root && root._insertionPoints.length);
+  };
+})();(function () {
+  'use strict';
+
+  var Settings = Polymer.Settings;
+  var TreeApi = Polymer.TreeApi;
+  var DomApi = Polymer.DomApi;
+  if (!Settings.useShadow) {
+    return;
+  }
+  Polymer.Base.mixin(DomApi.prototype, {
+    querySelectorAll: function querySelectorAll(selector) {
+      return TreeApi.arrayCopy(this.node.querySelectorAll(selector));
+    },
+    getOwnerRoot: function getOwnerRoot() {
+      var n = this.node;
+      while (n) {
+        if (n.nodeType === Node.DOCUMENT_FRAGMENT_NODE && n.host) {
+          return n;
+        }
+        n = n.parentNode;
+      }
+    },
+    importNode: function importNode(externalNode, deep) {
+      var doc = this.node instanceof Document ? this.node : this.node.ownerDocument;
+      return doc.importNode(externalNode, deep);
+    },
+    getDestinationInsertionPoints: function getDestinationInsertionPoints() {
+      var n$ = this.node.getDestinationInsertionPoints && this.node.getDestinationInsertionPoints();
+      return n$ ? TreeApi.arrayCopy(n$) : [];
+    },
+    getDistributedNodes: function getDistributedNodes() {
+      var n$ = this.node.getDistributedNodes && this.node.getDistributedNodes();
+      return n$ ? TreeApi.arrayCopy(n$) : [];
+    }
+  });
+  Object.defineProperties(DomApi.prototype, {
+    activeElement: {
+      get: function get() {
+        var node = DomApi.wrap(this.node);
+        var activeElement = node.activeElement;
+        return node.contains(activeElement) ? activeElement : null;
+      },
+      configurable: true
+    },
+    childNodes: {
+      get: function get() {
+        return TreeApi.arrayCopyChildNodes(this.node);
+      },
+      configurable: true
+    },
+    children: {
+      get: function get() {
+        return TreeApi.arrayCopyChildren(this.node);
+      },
+      configurable: true
+    },
+    textContent: {
+      get: function get() {
+        return this.node.textContent;
+      },
+      set: function set(value) {
+        return this.node.textContent = value;
+      },
+      configurable: true
+    },
+    innerHTML: {
+      get: function get() {
+        return this.node.innerHTML;
+      },
+      set: function set(value) {
+        return this.node.innerHTML = value;
+      },
+      configurable: true
+    }
+  });
+  var forwardMethods = function forwardMethods(m$) {
+    for (var i = 0; i < m$.length; i++) {
+      forwardMethod(m$[i]);
+    }
+  };
+  var forwardMethod = function forwardMethod(method) {
+    DomApi.prototype[method] = function () {
+      return this.node[method].apply(this.node, arguments);
+    };
+  };
+  forwardMethods(['cloneNode', 'appendChild', 'insertBefore', 'removeChild', 'replaceChild', 'setAttribute', 'removeAttribute', 'querySelector']);
+  var forwardProperties = function forwardProperties(f$) {
+    for (var i = 0; i < f$.length; i++) {
+      forwardProperty(f$[i]);
+    }
+  };
+  var forwardProperty = function forwardProperty(name) {
+    Object.defineProperty(DomApi.prototype, name, {
+      get: function get() {
+        return this.node[name];
+      },
+      configurable: true
+    });
+  };
+  forwardProperties(['parentNode', 'firstChild', 'lastChild', 'nextSibling', 'previousSibling', 'firstElementChild', 'lastElementChild', 'nextElementSibling', 'previousElementSibling']);
+})();Polymer.Base.mixin(Polymer.dom, {
+  _flushGuard: 0,
+  _FLUSH_MAX: 100,
+  _needsTakeRecords: !Polymer.Settings.useNativeCustomElements,
+  _debouncers: [],
+  _staticFlushList: [],
+  _finishDebouncer: null,
+  flush: function flush() {
+    this._flushGuard = 0;
+    this._prepareFlush();
+    while (this._debouncers.length && this._flushGuard < this._FLUSH_MAX) {
+      while (this._debouncers.length) {
+        this._debouncers.shift().complete();
+      }
+      if (this._finishDebouncer) {
+        this._finishDebouncer.complete();
+      }
+      this._prepareFlush();
+      this._flushGuard++;
+    }
+    if (this._flushGuard >= this._FLUSH_MAX) {
+      console.warn('Polymer.dom.flush aborted. Flush may not be complete.');
+    }
+  },
+  _prepareFlush: function _prepareFlush() {
+    if (this._needsTakeRecords) {
+      CustomElements.takeRecords();
+    }
+    for (var i = 0; i < this._staticFlushList.length; i++) {
+      this._staticFlushList[i]();
+    }
+  },
+  addStaticFlush: function addStaticFlush(fn) {
+    this._staticFlushList.push(fn);
+  },
+  removeStaticFlush: function removeStaticFlush(fn) {
+    var i = this._staticFlushList.indexOf(fn);
+    if (i >= 0) {
+      this._staticFlushList.splice(i, 1);
+    }
+  },
+  addDebouncer: function addDebouncer(debouncer) {
+    this._debouncers.push(debouncer);
+    this._finishDebouncer = Polymer.Debounce(this._finishDebouncer, this._finishFlush);
+  },
+  _finishFlush: function _finishFlush() {
+    Polymer.dom._debouncers = [];
+  }
+});Polymer.EventApi = function () {
+  'use strict';
+
+  var DomApi = Polymer.DomApi.ctor;
+  var Settings = Polymer.Settings;
+  DomApi.Event = function (event) {
+    this.event = event;
+  };
+  if (Settings.useShadow) {
+    DomApi.Event.prototype = {
+      get rootTarget() {
+        return this.event.path[0];
+      },
+      get localTarget() {
+        return this.event.target;
+      },
+      get path() {
+        var path = this.event.path;
+        if (!Array.isArray(path)) {
+          path = Array.prototype.slice.call(path);
+        }
+        return path;
+      }
+    };
+  } else {
+    DomApi.Event.prototype = {
+      get rootTarget() {
+        return this.event.target;
+      },
+      get localTarget() {
+        var current = this.event.currentTarget;
+        var currentRoot = current && Polymer.dom(current).getOwnerRoot();
+        var p$ = this.path;
+        for (var i = 0; i < p$.length; i++) {
+          if (Polymer.dom(p$[i]).getOwnerRoot() === currentRoot) {
+            return p$[i];
+          }
+        }
+      },
+      get path() {
+        if (!this.event._path) {
+          var path = [];
+          var current = this.rootTarget;
+          while (current) {
+            path.push(current);
+            var insertionPoints = Polymer.dom(current).getDestinationInsertionPoints();
+            if (insertionPoints.length) {
+              for (var i = 0; i < insertionPoints.length - 1; i++) {
+                path.push(insertionPoints[i]);
+              }
+              current = insertionPoints[insertionPoints.length - 1];
+            } else {
+              current = Polymer.dom(current).parentNode || current.host;
+            }
+          }
+          path.push(window);
+          this.event._path = path;
+        }
+        return this.event._path;
+      }
+    };
+  }
+  var factory = function factory(event) {
+    if (!event.__eventApi) {
+      event.__eventApi = new DomApi.Event(event);
+    }
+    return event.__eventApi;
+  };
+  return { factory: factory };
+}();(function () {
+  'use strict';
+
+  var DomApi = Polymer.DomApi.ctor;
+  var useShadow = Polymer.Settings.useShadow;
+  Object.defineProperty(DomApi.prototype, 'classList', {
+    get: function get() {
+      if (!this._classList) {
+        this._classList = new DomApi.ClassList(this);
+      }
+      return this._classList;
+    },
+    configurable: true
+  });
+  DomApi.ClassList = function (host) {
+    this.domApi = host;
+    this.node = host.node;
+  };
+  DomApi.ClassList.prototype = {
+    add: function add() {
+      this.node.classList.add.apply(this.node.classList, arguments);
+      this._distributeParent();
+    },
+    remove: function remove() {
+      this.node.classList.remove.apply(this.node.classList, arguments);
+      this._distributeParent();
+    },
+    toggle: function toggle() {
+      this.node.classList.toggle.apply(this.node.classList, arguments);
+      this._distributeParent();
+    },
+    _distributeParent: function _distributeParent() {
+      if (!useShadow) {
+        this.domApi._maybeDistributeParent();
+      }
+    },
+    contains: function contains() {
+      return this.node.classList.contains.apply(this.node.classList, arguments);
+    }
+  };
+})();(function () {
+  'use strict';
+
+  var DomApi = Polymer.DomApi.ctor;
+  var Settings = Polymer.Settings;
+  DomApi.EffectiveNodesObserver = function (domApi) {
+    this.domApi = domApi;
+    this.node = this.domApi.node;
+    this._listeners = [];
+  };
+  DomApi.EffectiveNodesObserver.prototype = {
+    addListener: function addListener(callback) {
+      if (!this._isSetup) {
+        this._setup();
+        this._isSetup = true;
+      }
+      var listener = {
+        fn: callback,
+        _nodes: []
+      };
+      this._listeners.push(listener);
+      this._scheduleNotify();
+      return listener;
+    },
+    removeListener: function removeListener(handle) {
+      var i = this._listeners.indexOf(handle);
+      if (i >= 0) {
+        this._listeners.splice(i, 1);
+        handle._nodes = [];
+      }
+      if (!this._hasListeners()) {
+        this._cleanup();
+        this._isSetup = false;
+      }
+    },
+    _setup: function _setup() {
+      this._observeContentElements(this.domApi.childNodes);
+    },
+    _cleanup: function _cleanup() {
+      this._unobserveContentElements(this.domApi.childNodes);
+    },
+    _hasListeners: function _hasListeners() {
+      return Boolean(this._listeners.length);
+    },
+    _scheduleNotify: function _scheduleNotify() {
+      if (this._debouncer) {
+        this._debouncer.stop();
+      }
+      this._debouncer = Polymer.Debounce(this._debouncer, this._notify);
+      this._debouncer.context = this;
+      Polymer.dom.addDebouncer(this._debouncer);
+    },
+    notify: function notify() {
+      if (this._hasListeners()) {
+        this._scheduleNotify();
+      }
+    },
+    _notify: function _notify() {
+      this._beforeCallListeners();
+      this._callListeners();
+    },
+    _beforeCallListeners: function _beforeCallListeners() {
+      this._updateContentElements();
+    },
+    _updateContentElements: function _updateContentElements() {
+      this._observeContentElements(this.domApi.childNodes);
+    },
+    _observeContentElements: function _observeContentElements(elements) {
+      for (var i = 0, n; i < elements.length && (n = elements[i]); i++) {
+        if (this._isContent(n)) {
+          n.__observeNodesMap = n.__observeNodesMap || new WeakMap();
+          if (!n.__observeNodesMap.has(this)) {
+            n.__observeNodesMap.set(this, this._observeContent(n));
+          }
+        }
+      }
+    },
+    _observeContent: function _observeContent(content) {
+      var self = this;
+      var h = Polymer.dom(content).observeNodes(function () {
+        self._scheduleNotify();
+      });
+      h._avoidChangeCalculation = true;
+      return h;
+    },
+    _unobserveContentElements: function _unobserveContentElements(elements) {
+      for (var i = 0, n, h; i < elements.length && (n = elements[i]); i++) {
+        if (this._isContent(n)) {
+          h = n.__observeNodesMap.get(this);
+          if (h) {
+            Polymer.dom(n).unobserveNodes(h);
+            n.__observeNodesMap.delete(this);
+          }
+        }
+      }
+    },
+    _isContent: function _isContent(node) {
+      return node.localName === 'content';
+    },
+    _callListeners: function _callListeners() {
+      var o$ = this._listeners;
+      var nodes = this._getEffectiveNodes();
+      for (var i = 0, o; i < o$.length && (o = o$[i]); i++) {
+        var info = this._generateListenerInfo(o, nodes);
+        if (info || o._alwaysNotify) {
+          this._callListener(o, info);
+        }
+      }
+    },
+    _getEffectiveNodes: function _getEffectiveNodes() {
+      return this.domApi.getEffectiveChildNodes();
+    },
+    _generateListenerInfo: function _generateListenerInfo(listener, newNodes) {
+      if (listener._avoidChangeCalculation) {
+        return true;
+      }
+      var oldNodes = listener._nodes;
+      var info = {
+        target: this.node,
+        addedNodes: [],
+        removedNodes: []
+      };
+      var splices = Polymer.ArraySplice.calculateSplices(newNodes, oldNodes);
+      for (var i = 0, s; i < splices.length && (s = splices[i]); i++) {
+        for (var j = 0, n; j < s.removed.length && (n = s.removed[j]); j++) {
+          info.removedNodes.push(n);
+        }
+      }
+      for (i = 0, s; i < splices.length && (s = splices[i]); i++) {
+        for (j = s.index; j < s.index + s.addedCount; j++) {
+          info.addedNodes.push(newNodes[j]);
+        }
+      }
+      listener._nodes = newNodes;
+      if (info.addedNodes.length || info.removedNodes.length) {
+        return info;
+      }
+    },
+    _callListener: function _callListener(listener, info) {
+      return listener.fn.call(this.node, info);
+    },
+    enableShadowAttributeTracking: function enableShadowAttributeTracking() {}
+  };
+  if (Settings.useShadow) {
+    var baseSetup = DomApi.EffectiveNodesObserver.prototype._setup;
+    var baseCleanup = DomApi.EffectiveNodesObserver.prototype._cleanup;
+    Polymer.Base.mixin(DomApi.EffectiveNodesObserver.prototype, {
+      _setup: function _setup() {
+        if (!this._observer) {
+          var self = this;
+          this._mutationHandler = function (mxns) {
+            if (mxns && mxns.length) {
+              self._scheduleNotify();
+            }
+          };
+          this._observer = new MutationObserver(this._mutationHandler);
+          this._boundFlush = function () {
+            self._flush();
+          };
+          Polymer.dom.addStaticFlush(this._boundFlush);
+          this._observer.observe(this.node, { childList: true });
+        }
+        baseSetup.call(this);
+      },
+      _cleanup: function _cleanup() {
+        this._observer.disconnect();
+        this._observer = null;
+        this._mutationHandler = null;
+        Polymer.dom.removeStaticFlush(this._boundFlush);
+        baseCleanup.call(this);
+      },
+      _flush: function _flush() {
+        if (this._observer) {
+          this._mutationHandler(this._observer.takeRecords());
+        }
+      },
+      enableShadowAttributeTracking: function enableShadowAttributeTracking() {
+        if (this._observer) {
+          this._makeContentListenersAlwaysNotify();
+          this._observer.disconnect();
+          this._observer.observe(this.node, {
+            childList: true,
+            attributes: true,
+            subtree: true
+          });
+          var root = this.domApi.getOwnerRoot();
+          var host = root && root.host;
+          if (host && Polymer.dom(host).observer) {
+            Polymer.dom(host).observer.enableShadowAttributeTracking();
+          }
+        }
+      },
+      _makeContentListenersAlwaysNotify: function _makeContentListenersAlwaysNotify() {
+        for (var i = 0, h; i < this._listeners.length; i++) {
+          h = this._listeners[i];
+          h._alwaysNotify = h._isContentListener;
+        }
+      }
+    });
+  }
+})();(function () {
+  'use strict';
+
+  var DomApi = Polymer.DomApi.ctor;
+  var Settings = Polymer.Settings;
+  DomApi.DistributedNodesObserver = function (domApi) {
+    DomApi.EffectiveNodesObserver.call(this, domApi);
+  };
+  DomApi.DistributedNodesObserver.prototype = Object.create(DomApi.EffectiveNodesObserver.prototype);
+  Polymer.Base.mixin(DomApi.DistributedNodesObserver.prototype, {
+    _setup: function _setup() {},
+    _cleanup: function _cleanup() {},
+    _beforeCallListeners: function _beforeCallListeners() {},
+    _getEffectiveNodes: function _getEffectiveNodes() {
+      return this.domApi.getDistributedNodes();
+    }
+  });
+  if (Settings.useShadow) {
+    Polymer.Base.mixin(DomApi.DistributedNodesObserver.prototype, {
+      _setup: function _setup() {
+        if (!this._observer) {
+          var root = this.domApi.getOwnerRoot();
+          var host = root && root.host;
+          if (host) {
+            var self = this;
+            this._observer = Polymer.dom(host).observeNodes(function () {
+              self._scheduleNotify();
+            });
+            this._observer._isContentListener = true;
+            if (this._hasAttrSelect()) {
+              Polymer.dom(host).observer.enableShadowAttributeTracking();
+            }
+          }
+        }
+      },
+      _hasAttrSelect: function _hasAttrSelect() {
+        var select = this.node.getAttribute('select');
+        return select && select.match(/[[.]+/);
+      },
+      _cleanup: function _cleanup() {
+        var root = this.domApi.getOwnerRoot();
+        var host = root && root.host;
+        if (host) {
+          Polymer.dom(host).unobserveNodes(this._observer);
+        }
+        this._observer = null;
+      }
+    });
+  }
+})();(function () {
+  var DomApi = Polymer.DomApi;
+  var TreeApi = Polymer.TreeApi;
+  Polymer.Base._addFeature({
+    _prepShady: function _prepShady() {
+      this._useContent = this._useContent || Boolean(this._template);
+    },
+    _setupShady: function _setupShady() {
+      this.shadyRoot = null;
+      if (!this.__domApi) {
+        this.__domApi = null;
+      }
+      if (!this.__dom) {
+        this.__dom = null;
+      }
+      if (!this._ownerShadyRoot) {
+        this._ownerShadyRoot = undefined;
+      }
+    },
+    _poolContent: function _poolContent() {
+      if (this._useContent) {
+        TreeApi.Logical.saveChildNodes(this);
+      }
+    },
+    _setupRoot: function _setupRoot() {
+      if (this._useContent) {
+        this._createLocalRoot();
+        if (!this.dataHost) {
+          upgradeLogicalChildren(TreeApi.Logical.getChildNodes(this));
+        }
+      }
+    },
+    _createLocalRoot: function _createLocalRoot() {
+      this.shadyRoot = this.root;
+      this.shadyRoot._distributionClean = false;
+      this.shadyRoot._hasDistributed = false;
+      this.shadyRoot._isShadyRoot = true;
+      this.shadyRoot._dirtyRoots = [];
+      var i$ = this.shadyRoot._insertionPoints = !this._notes || this._notes._hasContent ? this.shadyRoot.querySelectorAll('content') : [];
+      TreeApi.Logical.saveChildNodes(this.shadyRoot);
+      for (var i = 0, c; i < i$.length; i++) {
+        c = i$[i];
+        TreeApi.Logical.saveChildNodes(c);
+        TreeApi.Logical.saveChildNodes(c.parentNode);
+      }
+      this.shadyRoot.host = this;
+    },
+    distributeContent: function distributeContent(updateInsertionPoints) {
+      if (this.shadyRoot) {
+        this.shadyRoot._invalidInsertionPoints = this.shadyRoot._invalidInsertionPoints || updateInsertionPoints;
+        var host = getTopDistributingHost(this);
+        Polymer.dom(this)._lazyDistribute(host);
+      }
+    },
+    _distributeContent: function _distributeContent() {
+      if (this._useContent && !this.shadyRoot._distributionClean) {
+        if (this.shadyRoot._invalidInsertionPoints) {
+          Polymer.dom(this)._updateInsertionPoints(this);
+          this.shadyRoot._invalidInsertionPoints = false;
+        }
+        this._beginDistribute();
+        this._distributeDirtyRoots();
+        this._finishDistribute();
+      }
+    },
+    _beginDistribute: function _beginDistribute() {
+      if (this._useContent && DomApi.hasInsertionPoint(this.shadyRoot)) {
+        this._resetDistribution();
+        this._distributePool(this.shadyRoot, this._collectPool());
+      }
+    },
+    _distributeDirtyRoots: function _distributeDirtyRoots() {
+      var c$ = this.shadyRoot._dirtyRoots;
+      for (var i = 0, l = c$.length, c; i < l && (c = c$[i]); i++) {
+        c._distributeContent();
+      }
+      this.shadyRoot._dirtyRoots = [];
+    },
+    _finishDistribute: function _finishDistribute() {
+      if (this._useContent) {
+        this.shadyRoot._distributionClean = true;
+        if (DomApi.hasInsertionPoint(this.shadyRoot)) {
+          this._composeTree();
+          notifyContentObservers(this.shadyRoot);
+        } else {
+          if (!this.shadyRoot._hasDistributed) {
+            TreeApi.Composed.clearChildNodes(this);
+            this.appendChild(this.shadyRoot);
+          } else {
+            var children = this._composeNode(this);
+            this._updateChildNodes(this, children);
+          }
+        }
+        if (!this.shadyRoot._hasDistributed) {
+          notifyInitialDistribution(this);
+        }
+        this.shadyRoot._hasDistributed = true;
+      }
+    },
+    elementMatches: function elementMatches(selector, node) {
+      node = node || this;
+      return DomApi.matchesSelector.call(node, selector);
+    },
+    _resetDistribution: function _resetDistribution() {
+      var children = TreeApi.Logical.getChildNodes(this);
+      for (var i = 0; i < children.length; i++) {
+        var child = children[i];
+        if (child._destinationInsertionPoints) {
+          child._destinationInsertionPoints = undefined;
+        }
+        if (isInsertionPoint(child)) {
+          clearDistributedDestinationInsertionPoints(child);
+        }
+      }
+      var root = this.shadyRoot;
+      var p$ = root._insertionPoints;
+      for (var j = 0; j < p$.length; j++) {
+        p$[j]._distributedNodes = [];
+      }
+    },
+    _collectPool: function _collectPool() {
+      var pool = [];
+      var children = TreeApi.Logical.getChildNodes(this);
+      for (var i = 0; i < children.length; i++) {
+        var child = children[i];
+        if (isInsertionPoint(child)) {
+          pool.push.apply(pool, child._distributedNodes);
+        } else {
+          pool.push(child);
+        }
+      }
+      return pool;
+    },
+    _distributePool: function _distributePool(node, pool) {
+      var p$ = node._insertionPoints;
+      for (var i = 0, l = p$.length, p; i < l && (p = p$[i]); i++) {
+        this._distributeInsertionPoint(p, pool);
+        maybeRedistributeParent(p, this);
+      }
+    },
+    _distributeInsertionPoint: function _distributeInsertionPoint(content, pool) {
+      var anyDistributed = false;
+      for (var i = 0, l = pool.length, node; i < l; i++) {
+        node = pool[i];
+        if (!node) {
+          continue;
+        }
+        if (this._matchesContentSelect(node, content)) {
+          distributeNodeInto(node, content);
+          pool[i] = undefined;
+          anyDistributed = true;
+        }
+      }
+      if (!anyDistributed) {
+        var children = TreeApi.Logical.getChildNodes(content);
+        for (var j = 0; j < children.length; j++) {
+          distributeNodeInto(children[j], content);
+        }
+      }
+    },
+    _composeTree: function _composeTree() {
+      this._updateChildNodes(this, this._composeNode(this));
+      var p$ = this.shadyRoot._insertionPoints;
+      for (var i = 0, l = p$.length, p, parent; i < l && (p = p$[i]); i++) {
+        parent = TreeApi.Logical.getParentNode(p);
+        if (!parent._useContent && parent !== this && parent !== this.shadyRoot) {
+          this._updateChildNodes(parent, this._composeNode(parent));
+        }
+      }
+    },
+    _composeNode: function _composeNode(node) {
+      var children = [];
+      var c$ = TreeApi.Logical.getChildNodes(node.shadyRoot || node);
+      for (var i = 0; i < c$.length; i++) {
+        var child = c$[i];
+        if (isInsertionPoint(child)) {
+          var distributedNodes = child._distributedNodes;
+          for (var j = 0; j < distributedNodes.length; j++) {
+            var distributedNode = distributedNodes[j];
+            if (isFinalDestination(child, distributedNode)) {
+              children.push(distributedNode);
+            }
+          }
+        } else {
+          children.push(child);
+        }
+      }
+      return children;
+    },
+    _updateChildNodes: function _updateChildNodes(container, children) {
+      var composed = TreeApi.Composed.getChildNodes(container);
+      var splices = Polymer.ArraySplice.calculateSplices(children, composed);
+      for (var i = 0, d = 0, s; i < splices.length && (s = splices[i]); i++) {
+        for (var j = 0, n; j < s.removed.length && (n = s.removed[j]); j++) {
+          if (TreeApi.Composed.getParentNode(n) === container) {
+            TreeApi.Composed.removeChild(container, n);
+          }
+          composed.splice(s.index + d, 1);
+        }
+        d -= s.addedCount;
+      }
+      for (var i = 0, s, next; i < splices.length && (s = splices[i]); i++) {
+        next = composed[s.index];
+        for (j = s.index, n; j < s.index + s.addedCount; j++) {
+          n = children[j];
+          TreeApi.Composed.insertBefore(container, n, next);
+          composed.splice(j, 0, n);
+        }
+      }
+    },
+    _matchesContentSelect: function _matchesContentSelect(node, contentElement) {
+      var select = contentElement.getAttribute('select');
+      if (!select) {
+        return true;
+      }
+      select = select.trim();
+      if (!select) {
+        return true;
+      }
+      if (!(node instanceof Element)) {
+        return false;
+      }
+      var validSelectors = /^(:not\()?[*.#[a-zA-Z_|]/;
+      if (!validSelectors.test(select)) {
+        return false;
+      }
+      return this.elementMatches(select, node);
+    },
+    _elementAdd: function _elementAdd() {},
+    _elementRemove: function _elementRemove() {}
+  });
+  var domHostDesc = {
+    get: function get() {
+      var root = Polymer.dom(this).getOwnerRoot();
+      return root && root.host;
+    },
+    configurable: true
+  };
+  Object.defineProperty(Polymer.Base, 'domHost', domHostDesc);
+  Polymer.BaseDescriptors.domHost = domHostDesc;
+  function distributeNodeInto(child, insertionPoint) {
+    insertionPoint._distributedNodes.push(child);
+    var points = child._destinationInsertionPoints;
+    if (!points) {
+      child._destinationInsertionPoints = [insertionPoint];
+    } else {
+      points.push(insertionPoint);
+    }
+  }
+  function clearDistributedDestinationInsertionPoints(content) {
+    var e$ = content._distributedNodes;
+    if (e$) {
+      for (var i = 0; i < e$.length; i++) {
+        var d = e$[i]._destinationInsertionPoints;
+        if (d) {
+          d.splice(d.indexOf(content) + 1, d.length);
+        }
+      }
+    }
+  }
+  function maybeRedistributeParent(content, host) {
+    var parent = TreeApi.Logical.getParentNode(content);
+    if (parent && parent.shadyRoot && DomApi.hasInsertionPoint(parent.shadyRoot) && parent.shadyRoot._distributionClean) {
+      parent.shadyRoot._distributionClean = false;
+      host.shadyRoot._dirtyRoots.push(parent);
+    }
+  }
+  function isFinalDestination(insertionPoint, node) {
+    var points = node._destinationInsertionPoints;
+    return points && points[points.length - 1] === insertionPoint;
+  }
+  function isInsertionPoint(node) {
+    return node.localName == 'content';
+  }
+  function getTopDistributingHost(host) {
+    while (host && hostNeedsRedistribution(host)) {
+      host = host.domHost;
+    }
+    return host;
+  }
+  function hostNeedsRedistribution(host) {
+    var c$ = TreeApi.Logical.getChildNodes(host);
+    for (var i = 0, c; i < c$.length; i++) {
+      c = c$[i];
+      if (c.localName && c.localName === 'content') {
+        return host.domHost;
+      }
+    }
+  }
+  function notifyContentObservers(root) {
+    for (var i = 0, c; i < root._insertionPoints.length; i++) {
+      c = root._insertionPoints[i];
+      if (DomApi.hasApi(c)) {
+        Polymer.dom(c).notifyObserver();
+      }
+    }
+  }
+  function notifyInitialDistribution(host) {
+    if (DomApi.hasApi(host)) {
+      Polymer.dom(host).notifyObserver();
+    }
+  }
+  var needsUpgrade = window.CustomElements && !CustomElements.useNative;
+  function upgradeLogicalChildren(children) {
+    if (needsUpgrade && children) {
+      for (var i = 0; i < children.length; i++) {
+        CustomElements.upgrade(children[i]);
+      }
+    }
+  }
+})();if (Polymer.Settings.useShadow) {
+  Polymer.Base._addFeature({
+    _poolContent: function _poolContent() {},
+    _beginDistribute: function _beginDistribute() {},
+    distributeContent: function distributeContent() {},
+    _distributeContent: function _distributeContent() {},
+    _finishDistribute: function _finishDistribute() {},
+    _createLocalRoot: function _createLocalRoot() {
+      this.createShadowRoot();
+      this.shadowRoot.appendChild(this.root);
+      this.root = this.shadowRoot;
+    }
+  });
+}Polymer.Async = {
+  _currVal: 0,
+  _lastVal: 0,
+  _callbacks: [],
+  _twiddleContent: 0,
+  _twiddle: document.createTextNode(''),
+  run: function run(callback, waitTime) {
+    if (waitTime > 0) {
+      return ~setTimeout(callback, waitTime);
+    } else {
+      this._twiddle.textContent = this._twiddleContent++;
+      this._callbacks.push(callback);
+      return this._currVal++;
+    }
+  },
+  cancel: function cancel(handle) {
+    if (handle < 0) {
+      clearTimeout(~handle);
+    } else {
+      var idx = handle - this._lastVal;
+      if (idx >= 0) {
+        if (!this._callbacks[idx]) {
+          throw 'invalid async handle: ' + handle;
+        }
+        this._callbacks[idx] = null;
+      }
+    }
+  },
+  _atEndOfMicrotask: function _atEndOfMicrotask() {
+    var len = this._callbacks.length;
+    for (var i = 0; i < len; i++) {
+      var cb = this._callbacks[i];
+      if (cb) {
+        try {
+          cb();
+        } catch (e) {
+          i++;
+          this._callbacks.splice(0, i);
+          this._lastVal += i;
+          this._twiddle.textContent = this._twiddleContent++;
+          throw e;
+        }
+      }
+    }
+    this._callbacks.splice(0, len);
+    this._lastVal += len;
+  }
+};
+new window.MutationObserver(function () {
+  Polymer.Async._atEndOfMicrotask();
+}).observe(Polymer.Async._twiddle, { characterData: true });Polymer.Debounce = function () {
+  var Async = Polymer.Async;
+  var Debouncer = function Debouncer(context) {
+    this.context = context;
+    var self = this;
+    this.boundComplete = function () {
+      self.complete();
+    };
+  };
+  Debouncer.prototype = {
+    go: function go(callback, wait) {
+      var h;
+      this.finish = function () {
+        Async.cancel(h);
+      };
+      h = Async.run(this.boundComplete, wait);
+      this.callback = callback;
+    },
+    stop: function stop() {
+      if (this.finish) {
+        this.finish();
+        this.finish = null;
+        this.callback = null;
+      }
+    },
+    complete: function complete() {
+      if (this.finish) {
+        var callback = this.callback;
+        this.stop();
+        callback.call(this.context);
+      }
+    }
+  };
+  function debounce(debouncer, callback, wait) {
+    if (debouncer) {
+      debouncer.stop();
+    } else {
+      debouncer = new Debouncer(this);
+    }
+    debouncer.go(callback, wait);
+    return debouncer;
+  }
+  return debounce;
+}();Polymer.Base._addFeature({
+  _setupDebouncers: function _setupDebouncers() {
+    this._debouncers = {};
+  },
+  debounce: function debounce(jobName, callback, wait) {
+    return this._debouncers[jobName] = Polymer.Debounce.call(this, this._debouncers[jobName], callback, wait);
+  },
+  isDebouncerActive: function isDebouncerActive(jobName) {
+    var debouncer = this._debouncers[jobName];
+    return !!(debouncer && debouncer.finish);
+  },
+  flushDebouncer: function flushDebouncer(jobName) {
+    var debouncer = this._debouncers[jobName];
+    if (debouncer) {
+      debouncer.complete();
+    }
+  },
+  cancelDebouncer: function cancelDebouncer(jobName) {
+    var debouncer = this._debouncers[jobName];
+    if (debouncer) {
+      debouncer.stop();
+    }
+  }
+});Polymer.DomModule = document.createElement('dom-module');
+Polymer.Base._addFeature({
+  _registerFeatures: function _registerFeatures() {
+    this._prepIs();
+    this._prepBehaviors();
+    this._prepConstructor();
+    this._prepTemplate();
+    this._prepShady();
+    this._prepPropertyInfo();
+  },
+  _prepBehavior: function _prepBehavior(b) {
+    this._addHostAttributes(b.hostAttributes);
+  },
+  _initFeatures: function _initFeatures() {
+    this._registerHost();
+    if (this._template) {
+      this._poolContent();
+      this._beginHosting();
+      this._stampTemplate();
+      this._endHosting();
+    }
+    this._marshalHostAttributes();
+    this._setupDebouncers();
+    this._marshalBehaviors();
+    this._tryReady();
+  },
+  _marshalBehavior: function _marshalBehavior(b) {}
+});</script></head><body></body></html>

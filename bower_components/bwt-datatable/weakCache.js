@@ -1,1 +1,38 @@
-var WeakCache=function(b){var c=[],d=[];return{set:function(f,g){var h=d.indexOf(f);-1<h?(c[h]=g,c.splice(c.length,0,c.splice(h,1)[0]),d.splice(d.length,0,d.splice(h,1)[0])):(d.push(f),c.push(g),d.length>b&&(d.shift(),c.shift()))},has:function(f){return-1<d.indexOf(f)},get:function(f){var g=d.indexOf(f);return c[g]},delete:function(f){var g=d.indexOf(f);c.splice(g,1),d.splice(g,1)}}};
+/*
+ IMPORTANT: Right now this Cache is **not** weak in the sense that it discards items based memory pressure, however
+ it is written in a way that will allow this later to be added without rewriting the rest of the code and right now
+ 'emulates' the behaviour by having a fixed maximum of items.
+ */
+var WeakCache = function WeakCache(limit) {
+	var values = [];
+	var keys = [];
+	return {
+		set: function set(key, obj) {
+			var index = keys.indexOf(key);
+			if (index > -1) {
+				values[index] = obj;
+				values.splice(values.length, 0, values.splice(index, 1)[0]);
+				keys.splice(keys.length, 0, keys.splice(index, 1)[0]);
+			} else {
+				keys.push(key);
+				values.push(obj);
+				if (keys.length > limit) {
+					keys.shift();
+					values.shift();
+				}
+			}
+		},
+		has: function has(key) {
+			return keys.indexOf(key) > -1;
+		},
+		get: function get(key) {
+			var index = keys.indexOf(key);
+			return values[index];
+		},
+		delete: function _delete(key) {
+			var index = keys.indexOf(key);
+			values.splice(index, 1);
+			keys.splice(index, 1);
+		}
+	};
+};

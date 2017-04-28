@@ -1,1 +1,499 @@
-var _typeof="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(Y){return typeof Y}:function(Y){return Y&&"function"==typeof Symbol&&Y.constructor===Symbol&&Y!==Symbol.prototype?"symbol":typeof Y};(function(Y){"object"===("undefined"==typeof module?"undefined":_typeof(module))&&module.exports?module.exports=Y:Y(Highcharts)})(function(Y){function Z(Da,Ea,Fa){this.init(Da,Ea,Fa)}var $=Y.arrayMin,_=Y.arrayMax,aa=Y.each,ba=Y.extend,ca=Y.isNumber,da=Y.merge,ea=Y.map,fa=Y.pick,ga=Y.pInt,ha=Y.correctFloat,ia=Y.getOptions().plotOptions,ja=Y.seriesTypes,ka=Y.extendClass,la=Y.splat,ma=Y.wrap,na=Y.Axis,oa=Y.Tick,pa=Y.Point,qa=Y.Pointer,ra=Y.CenteredSeriesMixin,sa=Y.TrackerMixin,ta=Y.Series,ua=Math,va=ua.round,wa=ua.floor,xa=ua.max,ya=Y.Color,za=function(){};ba(Z.prototype,{init:function(Ea,Fa,Ga){var Ha=this,Ia=Ha.defaultOptions;Ha.chart=Fa,Ha.options=Ea=da(Ia,Fa.angular?{background:{}}:void 0,Ea),(Ea=Ea.background)&&aa([].concat(la(Ea)).reverse(),function(Ja){var Ka=Ja.backgroundColor,La=Ga.userOptions,Ja=da(Ha.defaultBackgroundOptions,Ja);Ka&&(Ja.backgroundColor=Ka),Ja.color=Ja.backgroundColor,Ga.options.plotBands.unshift(Ja),La.plotBands=La.plotBands||[],La.plotBands!==Ga.options.plotBands&&La.plotBands.unshift(Ja)})},defaultOptions:{center:["50%","50%"],size:"85%",startAngle:0},defaultBackgroundOptions:{shape:"circle",borderWidth:1,borderColor:"silver",backgroundColor:{linearGradient:{x1:0,y1:0,x2:0,y2:1},stops:[[0,"#FFF"],[1,"#DDD"]]},from:-Number.MAX_VALUE,innerRadius:0,to:Number.MAX_VALUE,outerRadius:"105%"}});var Aa=na.prototype,oa=oa.prototype,Ba={getOffset:za,redraw:function(){this.isDirty=!1},render:function(){this.isDirty=!1},setScale:za,setCategories:za,setTitle:za},Ca={isRadial:!0,defaultRadialGaugeOptions:{labels:{align:"center",x:0,y:null},minorGridLineWidth:0,minorTickInterval:"auto",minorTickLength:10,minorTickPosition:"inside",minorTickWidth:1,tickLength:10,tickPosition:"inside",tickWidth:2,title:{rotation:0},zIndex:2},defaultRadialXOptions:{gridLineWidth:1,labels:{align:null,distance:15,x:0,y:null},maxPadding:0,minPadding:0,showLastLabel:!1,tickLength:0},defaultRadialYOptions:{gridLineInterpolation:"circle",labels:{align:"right",x:-3,y:-2},showLastLabel:!1,title:{x:4,text:null,rotation:90}},setOptions:function(Ea){Ea=this.options=da(this.defaultOptions,this.defaultRadialOptions,Ea),Ea.plotBands||(Ea.plotBands=[])},getOffset:function(){Aa.getOffset.call(this),this.chart.axisOffset[this.side]=0,this.center=this.pane.center=ra.getCenter.call(this.pane)},getLinePath:function(Ea,Fa){var Ga=this.center,Fa=fa(Fa,Ga[2]/2-this.offset);return this.chart.renderer.symbols.arc(this.left+Ga[0],this.top+Ga[1],Fa,Fa,{start:this.startAngleRad,end:this.endAngleRad,open:!0,innerR:0})},setAxisTranslation:function(){Aa.setAxisTranslation.call(this),this.center&&(this.transA=this.isCircular?(this.endAngleRad-this.startAngleRad)/(this.max-this.min||1):this.center[2]/2/(this.max-this.min||1),this.minPixelPadding=this.isXAxis?this.transA*this.minPointOffset:0)},beforeSetTickPositions:function(){this.autoConnect&&(this.max+=this.categories&&1||this.pointRange||this.closestPointRange||0)},setAxisSize:function(){Aa.setAxisSize.call(this),this.isRadial&&(this.center=this.pane.center=Y.CenteredSeriesMixin.getCenter.call(this.pane),this.isCircular&&(this.sector=this.endAngleRad-this.startAngleRad),this.len=this.width=this.height=this.center[2]*fa(this.sector,1)/2)},getPosition:function(Ea,Fa){return this.postTranslate(this.isCircular?this.translate(Ea):0,fa(this.isCircular?Fa:this.translate(Ea),this.center[2]/2)-this.offset)},postTranslate:function(Ea,Fa){var Ga=this.chart,Ha=this.center,Ea=this.startAngleRad+Ea;return{x:Ga.plotLeft+Ha[0]+Math.cos(Ea)*Fa,y:Ga.plotTop+Ha[1]+Math.sin(Ea)*Fa}},getPlotBandPath:function(Ea,Fa,Ga){var Na,Ha=this.center,Ia=this.startAngleRad,Ja=Ha[2]/2,Ka=[fa(Ga.outerRadius,"100%"),Ga.innerRadius,fa(Ga.thickness,10)],La=Math.min(this.offset,0),Ma=/%$/,Oa=this.isCircular;return"polygon"===this.options.gridLineInterpolation?Ha=this.getPlotLinePath(Ea).concat(this.getPlotLinePath(Fa,!0)):(Ea=Math.max(Ea,this.min),Fa=Math.min(Fa,this.max),Oa||(Ka[0]=this.translate(Ea),Ka[1]=this.translate(Fa)),Ka=ea(Ka,function(Pa){return Ma.test(Pa)&&(Pa=ga(Pa,10)*Ja/100),Pa}),"circle"!==Ga.shape&&Oa?(Ea=Ia+this.translate(Ea),Fa=Ia+this.translate(Fa)):(Ea=-Math.PI/2,Fa=1.5*Math.PI,Na=!0),Ka[0]-=La,Ka[2]-=La,Ha=this.chart.renderer.symbols.arc(this.left+Ha[0],this.top+Ha[1],Ka[0],Ka[0],{start:Math.min(Ea,Fa),end:Math.max(Ea,Fa),innerR:fa(Ka[1],Ka[0]-Ka[2]),open:Na})),Ha},getPlotLinePath:function(Ea,Fa){var Ka,La,Ma,Ga=this,Ha=Ga.center,Ia=Ga.chart,Ja=Ga.getPosition(Ea);return Ga.isCircular?Ma=["M",Ha[0]+Ia.plotLeft,Ha[1]+Ia.plotTop,"L",Ja.x,Ja.y]:"circle"===Ga.options.gridLineInterpolation?(Ea=Ga.translate(Ea))&&(Ma=Ga.getLinePath(0,Ea)):(aa(Ia.xAxis,function(Na){Na.pane===Ga.pane&&(Ka=Na)}),Ma=[],Ea=Ga.translate(Ea),Ha=Ka.tickPositions,Ka.autoConnect&&(Ha=Ha.concat([Ha[0]])),Fa&&(Ha=[].concat(Ha).reverse()),aa(Ha,function(Na,Oa){La=Ka.getPosition(Na,Ea),Ma.push(Oa?"L":"M",La.x,La.y)})),Ma},getTitlePosition:function(){var Ea=this.center,Fa=this.chart,Ga=this.options.title;return{x:Fa.plotLeft+Ea[0]+(Ga.x||0),y:Fa.plotTop+Ea[1]-{high:0.5,middle:0.25,low:0}[Ga.align]*Ea[2]+(Ga.y||0)}}};ma(Aa,"init",function(Da,Ea,Fa){var Ga,Ha=Ea.angular,Ia=Ea.polar,Ja=Fa.isX,Ka=Ha&&Ja,La,Ma;Ma=Ea.options;var Na=Fa.pane||0;Ha?(ba(this,Ka?Ba:Ca),La=!Ja)&&(this.defaultRadialOptions=this.defaultRadialGaugeOptions):Ia&&(ba(this,Ca),this.defaultRadialOptions=(La=Ja)?this.defaultRadialXOptions:da(this.defaultYAxisOptions,this.defaultRadialYOptions)),(Ha||Ia)&&(Ea.inverted=!1,Ma.chart.zoomType=null),Da.call(this,Ea,Fa),!Ka&&(Ha||Ia)&&(Da=this.options,!Ea.panes&&(Ea.panes=[]),this.pane=(Ga=Ea.panes[Na]=Ea.panes[Na]||new Z(la(Ma.pane)[Na],Ea,this),Ea=Ga),Ma=Ea.options,this.startAngleRad=Ea=(Ma.startAngle-90)*Math.PI/180,this.endAngleRad=Ma=(fa(Ma.endAngle,Ma.startAngle+360)-90)*Math.PI/180,this.offset=Da.offset||0,(this.isCircular=La)&&void 0===Fa.max&&Ma-Ea==2*Math.PI&&(this.autoConnect=!0))}),ma(Aa,"autoLabelAlign",function(Da){if(!this.isRadial)return Da.apply(this,[].slice.call(arguments,1))}),ma(oa,"getPosition",function(Da,Ea,Fa,Ga,Ha){var Ia=this.axis;return Ia.getPosition?Ia.getPosition(Fa):Da.call(this,Ea,Fa,Ga,Ha)}),ma(oa,"getLabelPosition",function(Da,Ea,Fa,Ga,Ha,Ia,Ja,Ka,La){var Ma=this.axis,Na=Ia.y,Oa=20,Pa=Ia.align,Qa=180*((Ma.translate(this.pos)+Ma.startAngleRad+Math.PI/2)/Math.PI)%360;return Ma.isRadial?(Da=Ma.getPosition(this.pos,Ma.center[2]/2+fa(Ia.distance,-25)),"auto"===Ia.rotation?Ga.attr({rotation:Qa}):null===Na&&(Na=Ma.chart.renderer.fontMetrics(Ga.styles.fontSize).b-Ga.getBBox().height/2),null===Pa&&(Ma.isCircular?(this.label.getBBox().width>Ma.len*Ma.tickInterval/(Ma.max-Ma.min)&&(Oa=0),Pa=Qa>Oa&&Qa<180-Oa?"left":Qa>180+Oa&&Qa<360-Oa?"right":"center"):Pa="center",Ga.attr({align:Pa})),Da.x+=Ia.x,Da.y+=Na):Da=Da.call(this,Ea,Fa,Ga,Ha,Ia,Ja,Ka,La),Da}),ma(oa,"getMarkPath",function(Da,Ea,Fa,Ga,Ha,Ia,Ja){var Ka=this.axis;return Ka.isRadial?(Da=Ka.getPosition(this.pos,Ka.center[2]/2+Ga),Ea=["M",Ea,Fa,"L",Da.x,Da.y]):Ea=Da.call(this,Ea,Fa,Ga,Ha,Ia,Ja),Ea}),ia.arearange=da(ia.area,{lineWidth:1,marker:null,threshold:null,tooltip:{pointFormat:"<span style=\"color:{series.color}\">\u25CF</span> {series.name}: <b>{point.low}</b> - <b>{point.high}</b><br/>"},trackByArea:!0,dataLabels:{align:null,verticalAlign:null,xLow:0,xHigh:0,yLow:0,yHigh:0},states:{hover:{halo:!1}}}),ja.arearange=ka(ja.area,{type:"arearange",pointArrayMap:["low","high"],dataLabelCollections:["dataLabel","dataLabelUpper"],toYData:function(Ea){return[Ea.low,Ea.high]},pointValKey:"low",deferTranslatePolar:!0,highToXY:function(Ea){var Fa=this.chart,Ga=this.xAxis.postTranslate(Ea.rectPlotX,this.yAxis.len-Ea.plotHigh);Ea.plotHighX=Ga.x-Fa.plotLeft,Ea.plotHigh=Ga.y-Fa.plotTop},translate:function(){var Ea=this,Fa=Ea.yAxis;ja.area.prototype.translate.apply(Ea),aa(Ea.points,function(Ga){var Ha=Ga.low,Ia=Ga.high,Ja=Ga.plotY;null===Ia||null===Ha?Ga.isNull=!0:(Ga.plotLow=Ja,Ga.plotHigh=Fa.translate(Ia,0,1,0,1))}),this.chart.polar&&aa(this.points,function(Ga){Ea.highToXY(Ga)})},getGraphPath:function(){var Ja,Ka,La,Ea=this.points,Fa=[],Ga=[],Ha=Ea.length,Ia=ta.prototype.getGraphPath;La=this.options;for(var Ma=La.step,Ha=Ea.length;Ha--;)Ja=Ea[Ha],Ja.isNull||Ea[Ha+1]&&!Ea[Ha+1].isNull||Ga.push({plotX:Ja.plotX,plotY:Ja.plotLow}),Ka={plotX:Ja.plotX,plotY:Ja.plotHigh,isNull:Ja.isNull},Ga.push(Ka),Fa.push(Ka),Ja.isNull||Ea[Ha-1]&&!Ea[Ha-1].isNull||Ga.push({plotX:Ja.plotX,plotY:Ja.plotLow});return Ea=Ia.call(this,Ea),Ma&&(!0===Ma&&(Ma="left"),La.step={left:"right",center:"center",right:"left"}[Ma]),Fa=Ia.call(this,Fa),Ga=Ia.call(this,Ga),La.step=Ma,La=[].concat(Ea,Fa),this.chart.polar||"M"!==Ga[0]||(Ga[0]="L"),this.graphPath=La,this.areaPath=this.areaPath.concat(Ea,Ga),La.isArea=!0,La.xMap=Ea.xMap,this.areaPath.xMap=Ea.xMap,La},drawDataLabels:function(){var Ga,Na,Oa,Ea=this.data,Fa=Ea.length,Ha=[],Ia=ta.prototype,Ja=this.options.dataLabels,Ka=Ja.align,La=Ja.verticalAlign,Ma=Ja.inside,Pa=this.chart.inverted;if(Ja.enabled||this._hasPointLabels){for(Ga=Fa;Ga--;)(Na=Ea[Ga])&&(Oa=Ma?Na.plotHigh<Na.plotLow:Na.plotHigh>Na.plotLow,Na.y=Na.high,Na._plotY=Na.plotY,Na.plotY=Na.plotHigh,Ha[Ga]=Na.dataLabel,Na.dataLabel=Na.dataLabelUpper,Na.below=Oa,Pa?!Ka&&(Ja.align=Oa?"right":"left"):!La&&(Ja.verticalAlign=Oa?"top":"bottom"),Ja.x=Ja.xHigh,Ja.y=Ja.yHigh);for(Ia.drawDataLabels&&Ia.drawDataLabels.apply(this,arguments),Ga=Fa;Ga--;)(Na=Ea[Ga])&&(Oa=Ma?Na.plotHigh<Na.plotLow:Na.plotHigh>Na.plotLow,Na.dataLabelUpper=Na.dataLabel,Na.dataLabel=Ha[Ga],Na.y=Na.low,Na.plotY=Na._plotY,Na.below=!Oa,Pa?!Ka&&(Ja.align=Oa?"left":"right"):!La&&(Ja.verticalAlign=Oa?"bottom":"top"),Ja.x=Ja.xLow,Ja.y=Ja.yLow);Ia.drawDataLabels&&Ia.drawDataLabels.apply(this,arguments)}Ja.align=Ka,Ja.verticalAlign=La},alignDataLabel:function(){ja.column.prototype.alignDataLabel.apply(this,arguments)},setStackedPoints:za,getSymbol:za,drawPoints:za}),ia.areasplinerange=da(ia.arearange),ja.areasplinerange=ka(ja.arearange,{type:"areasplinerange",getPointSpline:ja.spline.prototype.getPointSpline}),function(){var Da=ja.column.prototype;ia.columnrange=da(ia.column,ia.arearange,{lineWidth:1,pointRange:null}),ja.columnrange=ka(ja.arearange,{type:"columnrange",translate:function(){var Ja,Ma,Fa=this,Ga=Fa.yAxis,Ha=Fa.xAxis,Ia=Ha.startAngleRad,Ka=Fa.chart,La=Fa.xAxis.isRadial;Da.translate.apply(Fa),aa(Fa.points,function(Na){var Qa,Ra,Oa=Na.shapeArgs,Pa=Fa.options.minPointLength;Na.plotHigh=Ma=Ga.translate(Na.high,0,1,0,1),Na.plotLow=Na.plotY,Ra=Ma,Qa=fa(Na.rectPlotY,Na.plotY)-Ma,Math.abs(Qa)<Pa?(Pa-=Qa,Qa+=Pa,Ra-=Pa/2):0>Qa&&(Qa*=-1,Ra-=Qa),La?(Ja=Na.barX+Ia,Na.shapeType="path",Na.shapeArgs={d:Fa.polarArc(Ra+Qa,Ra,Ja,Ja+Na.pointWidth)}):(Oa.height=Qa,Oa.y=Ra,Na.tooltipPos=Ka.inverted?[Ga.len+Ga.pos-Ka.plotLeft-Ra-Qa/2,Ha.len+Ha.pos-Ka.plotTop-Oa.x-Oa.width/2,Qa]:[Ha.left-Ka.plotLeft+Oa.x+Oa.width/2,Ga.pos-Ka.plotTop+Ra+Qa/2,Qa])})},directTouch:!0,trackerGroups:["group","dataLabelsGroup"],drawGraph:za,crispCol:Da.crispCol,pointAttrToOptions:Da.pointAttrToOptions,drawPoints:Da.drawPoints,drawTracker:Da.drawTracker,getColumnMetrics:Da.getColumnMetrics,animate:function(){return Da.animate.apply(this,arguments)},polarArc:function(){return Da.polarArc.apply(this,arguments)}})}(),ia.gauge=da(ia.line,{dataLabels:{enabled:!0,defer:!1,y:15,borderWidth:1,borderColor:"silver",borderRadius:3,crop:!1,verticalAlign:"top",zIndex:2},dial:{},pivot:{},tooltip:{headerFormat:""},showInLegend:!1}),sa={type:"gauge",pointClass:ka(pa,{setState:function(Ea){this.state=Ea}}),angular:!0,directTouch:!0,drawGraph:za,fixedBox:!0,forceDL:!0,noSharedTooltip:!0,trackerGroups:["group","dataLabelsGroup"],translate:function(){var Ea=this.yAxis,Fa=this.options,Ga=Ea.center;this.generatePoints(),aa(this.points,function(Ha){var Ia=da(Fa.dial,Ha.dial),Ja=ga(fa(Ia.radius,80))*Ga[2]/200,Ka=ga(fa(Ia.baseLength,70))*Ja/100,La=ga(fa(Ia.rearLength,10))*Ja/100,Ma=Ia.baseWidth||3,Na=Ia.topWidth||1,Oa=Fa.overshoot,Pa=Ea.startAngleRad+Ea.translate(Ha.y,null,null,null,!0);ca(Oa)?(Oa=Oa/180*Math.PI,Pa=Math.max(Ea.startAngleRad-Oa,Math.min(Ea.endAngleRad+Oa,Pa))):!1===Fa.wrap&&(Pa=Math.max(Ea.startAngleRad,Math.min(Ea.endAngleRad,Pa))),Pa=180*Pa/Math.PI,Ha.shapeType="path",Ha.shapeArgs={d:Ia.path||["M",-La,-Ma/2,"L",Ka,-Ma/2,Ja,-Na/2,Ja,Na/2,Ka,Ma/2,-La,Ma/2,"z"],translateX:Ga[0],translateY:Ga[1],rotation:Pa},Ha.plotX=Ga[0],Ha.plotY=Ga[1]})},drawPoints:function(){var Ea=this,Fa=Ea.yAxis.center,Ga=Ea.pivot,Ha=Ea.options,Ia=Ha.pivot,Ja=Ea.chart.renderer;aa(Ea.points,function(Ka){var La=Ka.graphic,Ma=Ka.shapeArgs,Na=Ma.d,Oa=da(Ha.dial,Ka.dial);La?(La.animate(Ma),Ma.d=Na):Ka.graphic=Ja[Ka.shapeType](Ma).attr({stroke:Oa.borderColor||"none","stroke-width":Oa.borderWidth||0,fill:Oa.backgroundColor||"black",rotation:Ma.rotation,zIndex:1}).add(Ea.group)}),Ga?Ga.animate({translateX:Fa[0],translateY:Fa[1]}):Ea.pivot=Ja.circle(0,0,fa(Ia.radius,5)).attr({"stroke-width":Ia.borderWidth||0,stroke:Ia.borderColor||"silver",fill:Ia.backgroundColor||"black",zIndex:2}).translate(Fa[0],Fa[1]).add(Ea.group)},animate:function(Ea){var Fa=this;Ea||(aa(Fa.points,function(Ga){var Ha=Ga.graphic;Ha&&(Ha.attr({rotation:180*Fa.yAxis.startAngleRad/Math.PI}),Ha.animate({rotation:Ga.shapeArgs.rotation},Fa.options.animation))}),Fa.animate=null)},render:function(){this.group=this.plotGroup("group","series",this.visible?"visible":"hidden",this.options.zIndex,this.chart.seriesGroup),ta.prototype.render.call(this),this.group.clip(this.chart.clipRect)},setData:function(Ea,Fa){ta.prototype.setData.call(this,Ea,!1),this.processData(),this.generatePoints(),fa(Fa,!0)&&this.chart.redraw()},drawTracker:sa&&sa.drawTrackerPoint},ja.gauge=ka(ja.line,sa),ia.boxplot=da(ia.column,{fillColor:"#FFFFFF",lineWidth:1,medianWidth:2,states:{hover:{brightness:-0.3}},threshold:null,tooltip:{pointFormat:"<span style=\"color:{point.color}\">\u25CF</span> <b> {series.name}</b><br/>Maximum: {point.high}<br/>Upper quartile: {point.q3}<br/>Median: {point.median}<br/>Lower quartile: {point.q1}<br/>Minimum: {point.low}<br/>"},whiskerLength:"50%",whiskerWidth:2}),ja.boxplot=ka(ja.column,{type:"boxplot",pointArrayMap:["low","q1","median","q3","high"],toYData:function(Ea){return[Ea.low,Ea.q1,Ea.median,Ea.q3,Ea.high]},pointValKey:"high",pointAttrToOptions:{fill:"fillColor",stroke:"color","stroke-width":"lineWidth"},drawDataLabels:za,translate:function(){var Ea=this.yAxis,Fa=this.pointArrayMap;ja.column.prototype.translate.apply(this),aa(this.points,function(Ga){aa(Fa,function(Ha){null!==Ga[Ha]&&(Ga[Ha+"Plot"]=Ea.translate(Ga[Ha],0,1,0,1))})})},drawPoints:function(){var Ha,Ia,Ja,Ka,La,Ma,Na,Oa,Pa,Qa,Ra,Sa,Ta,Ua,Va,Wa,Xa,Ya,Za,$a,_a,ab,cb,Ea=this,Fa=Ea.options,Ga=Ea.chart.renderer,bb=!1!==Ea.doQuartiles,db=Ea.options.whiskerLength;aa(Ea.points,function(eb){Pa=eb.graphic,_a=eb.shapeArgs,Ra={},Ua={},Wa={},ab=eb.color||Ea.color,void 0!==eb.plotY&&((Ha=eb.pointAttr[eb.selected?"selected":""],Xa=_a.width,Ya=wa(_a.x),Za=Ya+Xa,$a=va(Xa/2),Ia=wa(bb?eb.q1Plot:eb.lowPlot),Ja=wa(bb?eb.q3Plot:eb.lowPlot),Ka=wa(eb.highPlot),La=wa(eb.lowPlot),Ra.stroke=eb.stemColor||Fa.stemColor||ab,Ra["stroke-width"]=fa(eb.stemWidth,Fa.stemWidth,Fa.lineWidth),Ra.dashstyle=eb.stemDashStyle||Fa.stemDashStyle,Ua.stroke=eb.whiskerColor||Fa.whiskerColor||ab,Ua["stroke-width"]=fa(eb.whiskerWidth,Fa.whiskerWidth,Fa.lineWidth),Wa.stroke=eb.medianColor||Fa.medianColor||ab,Wa["stroke-width"]=fa(eb.medianWidth,Fa.medianWidth,Fa.lineWidth),Na=Ra["stroke-width"]%2/2,Oa=Ya+$a+Na,Qa=["M",Oa,Ja,"L",Oa,Ka,"M",Oa,Ia,"L",Oa,La],bb&&(Na=Ha["stroke-width"]%2/2,Oa=wa(Oa)+Na,Ia=wa(Ia)+Na,Ja=wa(Ja)+Na,Ya+=Na,Za+=Na,Sa=["M",Ya,Ja,"L",Ya,Ia,"L",Za,Ia,"L",Za,Ja,"L",Ya,Ja,"z"]),db&&(Na=Ua["stroke-width"]%2/2,Ka+=Na,La+=Na,cb=/%$/.test(db)?$a*parseFloat(db)/100:db/2,Ta=["M",Oa-cb,Ka,"L",Oa+cb,Ka,"M",Oa-cb,La,"L",Oa+cb,La]),Na=Wa["stroke-width"]%2/2,Ma=va(eb.medianPlot)+Na,Va=["M",Ya,Ma,"L",Za,Ma],Pa)?(eb.stem.animate({d:Qa}),db&&eb.whiskers.animate({d:Ta}),bb&&eb.box.animate({d:Sa}),eb.medianShape.animate({d:Va})):(eb.graphic=Pa=Ga.g().add(Ea.group),eb.stem=Ga.path(Qa).attr(Ra).add(Pa),db&&(eb.whiskers=Ga.path(Ta).attr(Ua).add(Pa)),bb&&(eb.box=Ga.path(Sa).attr(Ha).add(Pa)),eb.medianShape=Ga.path(Va).attr(Wa).add(Pa)))})},setStackedPoints:za}),ia.errorbar=da(ia.boxplot,{color:"#000000",grouping:!1,linkedTo:":previous",tooltip:{pointFormat:"<span style=\"color:{point.color}\">\u25CF</span> {series.name}: <b>{point.low}</b> - <b>{point.high}</b><br/>"},whiskerWidth:null}),ja.errorbar=ka(ja.boxplot,{type:"errorbar",pointArrayMap:["low","high"],toYData:function(Ea){return[Ea.low,Ea.high]},pointValKey:"high",doQuartiles:!1,drawDataLabels:ja.arearange?ja.arearange.prototype.drawDataLabels:za,getColumnMetrics:function(){return this.linkedParent&&this.linkedParent.columnMetrics||ja.column.prototype.getColumnMetrics.call(this)}}),ia.waterfall=da(ia.column,{lineWidth:1,lineColor:"#333",dashStyle:"dot",borderColor:"#333",dataLabels:{inside:!0},states:{hover:{lineWidthPlus:0}}}),ja.waterfall=ka(ja.column,{type:"waterfall",upColorProp:"fill",pointValKey:"y",translate:function(){var Ga,Ha,Ia,Ja,Ka,La,Ma,Na,Oa,Ea=this.options,Fa=this.yAxis,Pa=fa(Ea.minPointLength,5),Qa=Ea.threshold,Ra=Ea.stacking;for(ja.column.prototype.translate.apply(this),this.minPointLengthOffset=0,Ma=Na=Qa,Ha=this.points,(Ga=0,Ea=Ha.length);Ga<Ea;Ga++)Ia=Ha[Ga],La=this.processedYData[Ga],Ja=Ia.shapeArgs,Oa=(Ka=Ra&&Fa.stacks[(this.negStacks&&La<Qa?"-":"")+this.stackKey])?Ka[Ia.x].points[this.index+","+Ga]:[0,La],Ia.isSum?Ia.y=ha(La):Ia.isIntermediateSum&&(Ia.y=ha(La-Na)),Ka=xa(Ma,Ma+Ia.y)+Oa[0],Ja.y=Fa.translate(Ka,0,1),Ia.isSum?(Ja.y=Fa.translate(Oa[1],0,1),Ja.height=Math.min(Fa.translate(Oa[0],0,1),Fa.len)-Ja.y+this.minPointLengthOffset):Ia.isIntermediateSum?(Ja.y=Fa.translate(Oa[1],0,1),Ja.height=Math.min(Fa.translate(Na,0,1),Fa.len)-Ja.y+this.minPointLengthOffset,Na=Oa[1]):(0!==Ma&&(Ja.height=0<La?Fa.translate(Ma,0,1)-Ja.y:Fa.translate(Ma,0,1)-Fa.translate(Ma-La,0,1)),Ma+=La),0>Ja.height&&(Ja.y+=Ja.height,Ja.height*=-1),Ia.plotY=Ja.y=va(Ja.y)-this.borderWidth%2/2,Ja.height=xa(va(Ja.height),1e-3),Ia.yBottom=Ja.y+Ja.height,Ja.height<=Pa&&(Ja.height=Pa,this.minPointLengthOffset+=Pa),Ja.y-=this.minPointLengthOffset,Ja=Ia.plotY+(Ia.negative?Ja.height:0)-this.minPointLengthOffset,this.chart.inverted?Ia.tooltipPos[0]=Fa.len-Ja:Ia.tooltipPos[1]=Ja},processData:function(Ea){var Ha,Ja,Ka,La,Ma,Na,Oa,Fa=this.yData,Ga=this.options.data,Ia=Fa.length;for(Ka=Ja=La=Ma=this.options.threshold||0,Oa=0;Oa<Ia;Oa++)Na=Fa[Oa],Ha=Ga&&Ga[Oa]?Ga[Oa]:{},"sum"===Na||Ha.isSum?Fa[Oa]=ha(Ka):"intermediateSum"===Na||Ha.isIntermediateSum?Fa[Oa]=ha(Ja):(Ka+=Na,Ja+=Na),La=Math.min(Ka,La),Ma=Math.max(Ka,Ma);ta.prototype.processData.call(this,Ea),this.dataMin=La,this.dataMax=Ma},toYData:function(Ea){return Ea.isSum?0===Ea.x?null:"sum":Ea.isIntermediateSum?0===Ea.x?null:"intermediateSum":Ea.y},getAttribs:function(){ja.column.prototype.getAttribs.apply(this,arguments);var Ea=this,Fa=Ea.options,Ga=Fa.states,Ha=Fa.upColor||Ea.color,Fa=Y.Color(Ha).brighten(Fa.states.hover.brightness).get(),Ia=da(Ea.pointAttr),Ja=Ea.upColorProp;Ia[""][Ja]=Ha,Ia.hover[Ja]=Ga.hover.upColor||Fa,Ia.select[Ja]=Ga.select.upColor||Ha,aa(Ea.points,function(Ka){Ka.options.color||(0<Ka.y?(Ka.pointAttr=Ia,Ka.color=Ha):Ka.pointAttr=Ea.pointAttr)})},getGraphPath:function(){var Ia,Ja,Ka,Ea=this.data,Fa=Ea.length,Ga=va(this.options.lineWidth+this.borderWidth)%2/2,Ha=[];for(Ka=1;Ka<Fa;Ka++)Ja=Ea[Ka].shapeArgs,Ia=Ea[Ka-1].shapeArgs,Ja=["M",Ia.x+Ia.width,Ia.y+Ga,"L",Ja.x,Ia.y+Ga],0>Ea[Ka-1].y&&(Ja[2]+=Ia.height,Ja[5]+=Ia.height),Ha=Ha.concat(Ja);return Ha},getExtremes:za,drawGraph:ta.prototype.drawGraph}),ia.polygon=da(ia.scatter,{marker:{enabled:!1,states:{hover:{enabled:!1}}},stickyTracking:!1,tooltip:{followPointer:!0,pointFormat:""},trackByArea:!0}),ja.polygon=ka(ja.scatter,{type:"polygon",getGraphPath:function(){for(var Ea=ta.prototype.getGraphPath.call(this),Fa=Ea.length+1;Fa--;)(Fa===Ea.length||"M"===Ea[Fa]&&0<Fa)&&Ea.splice(Fa,0,"z");return this.areaPath=Ea},drawGraph:function(){this.options.fillColor=this.color,ja.area.prototype.drawGraph.call(this)},drawLegendSymbol:Y.LegendSymbolMixin.drawRectangle,drawTracker:ta.prototype.drawTracker,setStackedPoints:za}),ia.bubble=da(ia.scatter,{dataLabels:{formatter:function(){return this.point.z},inside:!0,verticalAlign:"middle"},marker:{lineColor:null,lineWidth:1},minSize:8,maxSize:"20%",softThreshold:!1,states:{hover:{halo:{size:5}}},tooltip:{pointFormat:"({point.x}, {point.y}), Size: {point.z}"},turboThreshold:0,zThreshold:0,zoneAxis:"z"}),sa=ka(pa,{haloPath:function(){return pa.prototype.haloPath.call(this,this.shapeArgs.r+this.series.options.states.hover.halo.size)},ttBelow:!1}),ja.bubble=ka(ja.scatter,{type:"bubble",pointClass:sa,pointArrayMap:["y","z"],parallelArrays:["x","y","z"],trackerGroups:["group","dataLabelsGroup"],bubblePadding:!0,zoneAxis:"z",pointAttrToOptions:{stroke:"lineColor","stroke-width":"lineWidth",fill:"fillColor"},applyOpacity:function(Ea){var Fa=this.options.marker,Ga=fa(Fa.fillOpacity,0.5),Ea=Ea||Fa.fillColor||this.color;return 1!==Ga&&(Ea=ya(Ea).setOpacity(Ga).get("rgba")),Ea},convertAttribs:function(){var Ea=ta.prototype.convertAttribs.apply(this,arguments);return Ea.fill=this.applyOpacity(Ea.fill),Ea},getRadii:function(Ea,Fa,Ga,Ha){var Ia,Ja,Ka,La=this.zData,Ma=[],Na=this.options,Oa="width"!==Na.sizeBy,Pa=Na.zThreshold,Qa=Fa-Ea;for(Ja=0,Ia=La.length;Ja<Ia;Ja++)Ka=La[Ja],Na.sizeByAbsoluteValue&&null!==Ka&&(Ka=Math.abs(Ka-Pa),Fa=Math.max(Fa-Pa,Math.abs(Ea-Pa)),Ea=0),null===Ka?Ka=null:Ka<Ea?Ka=Ga/2-1:(Ka=0<Qa?(Ka-Ea)/Qa:0.5,Oa&&0<=Ka&&(Ka=Math.sqrt(Ka)),Ka=ua.ceil(Ga+Ka*(Ha-Ga))/2),Ma.push(Ka);this.radii=Ma},animate:function(Ea){var Fa=this.options.animation;Ea||(aa(this.points,function(Ga){var Ha=Ga.graphic,Ga=Ga.shapeArgs;Ha&&Ga&&(Ha.attr("r",1),Ha.animate({r:Ga.r},Fa))}),this.animate=null)},translate:function(){var Ea,Ga,Ha,Fa=this.data,Ia=this.radii;for(ja.scatter.prototype.translate.call(this),Ea=Fa.length;Ea--;)Ga=Fa[Ea],Ha=Ia?Ia[Ea]:0,ca(Ha)&&Ha>=this.minPxSize/2?(Ga.shapeType="circle",Ga.shapeArgs={x:Ga.plotX,y:Ga.plotY,r:Ha},Ga.dlBox={x:Ga.plotX-Ha,y:Ga.plotY-Ha,width:2*Ha,height:2*Ha}):Ga.shapeArgs=Ga.plotY=Ga.dlBox=void 0},drawLegendSymbol:function(Ea,Fa){var Ga=this.chart.renderer,Ha=Ga.fontMetrics(Ea.itemStyle.fontSize).f/2;Fa.legendSymbol=Ga.circle(Ha,Ea.baseline-Ha,Ha).attr({zIndex:3}).add(Fa.legendGroup),Fa.legendSymbol.isMarker=!0},drawPoints:ja.column.prototype.drawPoints,alignDataLabel:ja.column.prototype.alignDataLabel,buildKDTree:za,applyZones:za}),na.prototype.beforePadding=function(){var Da=this,Ea=this.len,Fa=this.chart,Ga=0,Ha=Ea,Ia=this.isXAxis,Ja=Ia?"xData":"yData",Ka=this.min,La={},Ma=ua.min(Fa.plotWidth,Fa.plotHeight),Na=Number.MAX_VALUE,Oa=-Number.MAX_VALUE,Pa=this.max-Ka,Qa=Ea/Pa,Ra=[];aa(this.series,function(Sa){var Ta=Sa.options;Sa.bubblePadding&&(Sa.visible||!Fa.options.chart.ignoreHiddenSeries)&&(Da.allowZoomOutside=!0,Ra.push(Sa),Ia)&&(aa(["minSize","maxSize"],function(Ua){var Va=Ta[Ua],Wa=/%$/.test(Va),Va=ga(Va);La[Ua]=Wa?Ma*Va/100:Va}),Sa.minPxSize=La.minSize,Sa.maxPxSize=La.maxSize,Sa=Sa.zData,Sa.length&&(Na=fa(Ta.zMin,ua.min(Na,ua.max($(Sa),!1===Ta.displayNegative?Ta.zThreshold:-Number.MAX_VALUE))),Oa=fa(Ta.zMax,ua.max(Oa,_(Sa)))))}),aa(Ra,function(Sa){var Va,Ta=Sa[Ja],Ua=Ta.length;if(Ia&&Sa.getRadii(Na,Oa,Sa.minPxSize,Sa.maxPxSize),0<Pa)for(;Ua--;)ca(Ta[Ua])&&Da.dataMin<=Ta[Ua]&&Ta[Ua]<=Da.dataMax&&(Va=Sa.radii[Ua],Ga=Math.min((Ta[Ua]-Ka)*Qa-Va,Ga),Ha=Math.max((Ta[Ua]-Ka)*Qa+Va,Ha))}),Ra.length&&0<Pa&&!this.isLog&&(Ha-=Ea,Qa*=(Ea+Ga-Ha)/Ea,aa([["min","userMin",Ga],["max","userMax",Ha]],function(Sa){void 0===fa(Da.options[Sa[0]],Da[Sa[1]])&&(Da[Sa[0]]+=Sa[2]/Qa)}))},function(){function Da(Ha,Ia){var Ja=this.chart,Ka=this.options.animation,La=this.group,Ma=this.markerGroup,Na=this.xAxis.center,Oa=Ja.plotLeft,Pa=Ja.plotTop;Ja.polar?Ja.renderer.isSVG&&(!0===Ka&&(Ka={}),Ia?(Ja={translateX:Na[0]+Oa,translateY:Na[1]+Pa,scaleX:1e-3,scaleY:1e-3},La.attr(Ja),Ma&&Ma.attr(Ja)):(Ja={translateX:Oa,translateY:Pa,scaleX:1,scaleY:1},La.animate(Ja,Ka),Ma&&Ma.animate(Ja,Ka),this.animate=null)):Ha.call(this,Ia)}var Ga,Ea=ta.prototype,Fa=qa.prototype;Ea.searchPointByAngle=function(Ha){var Ia=this.chart,Ja=this.xAxis.pane.center;return this.searchKDTree({clientX:180+Math.atan2(Ha.chartX-Ja[0]-Ia.plotLeft,Ha.chartY-Ja[1]-Ia.plotTop)*(-180/Math.PI)})},ma(Ea,"buildKDTree",function(Ha){this.chart.polar&&(this.kdByAngle?this.searchPoint=this.searchPointByAngle:this.kdDimensions=2),Ha.apply(this)}),Ea.toXY=function(Ha){var Ia,Ja=this.chart,Ka=Ha.plotX;Ia=Ha.plotY,Ha.rectPlotX=Ka,Ha.rectPlotY=Ia,Ia=this.xAxis.postTranslate(Ha.plotX,this.yAxis.len-Ia),Ha.plotX=Ha.polarPlotX=Ia.x-Ja.plotLeft,Ha.plotY=Ha.polarPlotY=Ia.y-Ja.plotTop,this.kdByAngle?(Ja=(180*(Ka/Math.PI)+this.xAxis.pane.options.startAngle)%360,0>Ja&&(Ja+=360),Ha.clientX=Ja):Ha.clientX=Ha.plotX},ja.spline&&ma(ja.spline.prototype,"getPointSpline",function(Ha,Ia,Ja,Ka){var La,Ma,Na,Oa,Pa,Qa,Ra;return this.chart.polar?(La=Ja.plotX,Ma=Ja.plotY,Ha=Ia[Ka-1],Na=Ia[Ka+1],this.connectEnds&&(Ha||(Ha=Ia[Ia.length-2]),Na||(Na=Ia[1])),Ha&&Na&&(Oa=Ha.plotX,Pa=Ha.plotY,Ia=Na.plotX,Qa=Na.plotY,Oa=(1.5*La+Oa)/2.5,Pa=(1.5*Ma+Pa)/2.5,Na=(1.5*La+Ia)/2.5,Ra=(1.5*Ma+Qa)/2.5,Ia=Math.sqrt(Math.pow(Oa-La,2)+Math.pow(Pa-Ma,2)),Qa=Math.sqrt(Math.pow(Na-La,2)+Math.pow(Ra-Ma,2)),Oa=Math.atan2(Pa-Ma,Oa-La),Pa=Math.atan2(Ra-Ma,Na-La),Ra=Math.PI/2+(Oa+Pa)/2,Math.abs(Oa-Ra)>Math.PI/2&&(Ra-=Math.PI),Oa=La+Math.cos(Ra)*Ia,Pa=Ma+Math.sin(Ra)*Ia,Na=La+Math.cos(Math.PI+Ra)*Qa,Ra=Ma+Math.sin(Math.PI+Ra)*Qa,Ja.rightContX=Na,Ja.rightContY=Ra),Ka?(Ja=["C",Ha.rightContX||Ha.plotX,Ha.rightContY||Ha.plotY,Oa||La,Pa||Ma,La,Ma],Ha.rightContX=Ha.rightContY=null):Ja=["M",La,Ma]):Ja=Ha.call(this,Ia,Ja,Ka),Ja}),ma(Ea,"translate",function(Ha){var Ia=this.chart;if(Ha.call(this),Ia.polar&&(this.kdByAngle=Ia.tooltip&&Ia.tooltip.shared,!this.preventPostTranslate))for(Ha=this.points,Ia=Ha.length;Ia--;)this.toXY(Ha[Ia])}),ma(Ea,"getGraphPath",function(Ha,Ia){var Ka,La,Ja=this;if(this.chart.polar){for(Ia=Ia||this.points,Ka=0;Ka<Ia.length;Ka++)if(!Ia[Ka].isNull){La=Ka;break}!1!==this.options.connectEnds&&void 0!=La&&(this.connectEnds=!0,Ia.splice(Ia.length,0,Ia[La])),aa(Ia,function(Ma){void 0===Ma.polarPlotY&&Ja.toXY(Ma)})}return Ha.apply(this,[].slice.call(arguments,1))}),ma(Ea,"animate",Da),ja.column&&(Ga=ja.column.prototype,Ga.polarArc=function(Ha,Ia,Ja,Ka){var La=this.xAxis.center,Ma=this.yAxis.len;return this.chart.renderer.symbols.arc(La[0],La[1],Ma-Ia,null,{start:Ja,end:Ka,innerR:Ma-fa(Ha,Ma)})},ma(Ga,"animate",Da),ma(Ga,"translate",function(Ha){var Ka,La,Ma,Ia=this.xAxis,Ja=Ia.startAngleRad;if(this.preventPostTranslate=!0,Ha.call(this),Ia.isRadial)for(Ka=this.points,Ma=Ka.length;Ma--;)La=Ka[Ma],Ha=La.barX+Ja,La.shapeType="path",La.shapeArgs={d:this.polarArc(La.yBottom,La.plotY,Ha,Ha+La.pointWidth)},this.toXY(La),La.tooltipPos=[La.plotX,La.plotY],La.ttBelow=La.plotY>Ia.center[1]}),ma(Ga,"alignDataLabel",function(Ha,Ia,Ja,Ka,La,Ma){this.chart.polar?(Ha=180*(Ia.rectPlotX/Math.PI),null===Ka.align&&(Ka.align=20<Ha&&160>Ha?"left":200<Ha&&340>Ha?"right":"center"),null===Ka.verticalAlign&&(Ka.verticalAlign=45>Ha||315<Ha?"bottom":135<Ha&&225>Ha?"top":"middle"),Ea.alignDataLabel.call(this,Ia,Ja,Ka,La,Ma)):Ha.call(this,Ia,Ja,Ka,La,Ma)})),ma(Fa,"getCoordinates",function(Ha,Ia){var Ja=this.chart,Ka={xAxis:[],yAxis:[]};return Ja.polar?aa(Ja.axes,function(La){var Ma=La.isXAxis,Na=La.center,Oa=Ia.chartX-Na[0]-Ja.plotLeft,Na=Ia.chartY-Na[1]-Ja.plotTop;Ka[Ma?"xAxis":"yAxis"].push({axis:La,value:La.translate(Ma?Math.PI-Math.atan2(Oa,Na):Math.sqrt(Math.pow(Oa,2)+Math.pow(Na,2)),!0)})}):Ka=Ha.call(this,Ia),Ka})}()});
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+/*
+ Highcharts JS v4.2.6 (2016-08-02)
+
+ (c) 2009-2016 Torstein Honsi
+
+ License: www.highcharts.com/license
+*/
+(function (m) {
+  (typeof module === "undefined" ? "undefined" : _typeof(module)) === "object" && module.exports ? module.exports = m : m(Highcharts);
+})(function (m) {
+  function M(a, b, c) {
+    this.init(a, b, c);
+  }var R = m.arrayMin,
+      S = m.arrayMax,
+      t = m.each,
+      H = m.extend,
+      I = m.isNumber,
+      u = m.merge,
+      T = m.map,
+      r = m.pick,
+      B = m.pInt,
+      G = m.correctFloat,
+      p = m.getOptions().plotOptions,
+      i = m.seriesTypes,
+      v = m.extendClass,
+      N = m.splat,
+      w = m.wrap,
+      O = m.Axis,
+      z = m.Tick,
+      J = m.Point,
+      U = m.Pointer,
+      V = m.CenteredSeriesMixin,
+      C = m.TrackerMixin,
+      x = m.Series,
+      y = Math,
+      F = y.round,
+      D = y.floor,
+      P = y.max,
+      W = m.Color,
+      n = function n() {};H(M.prototype, { init: function init(a, b, c) {
+      var d = this,
+          g = d.defaultOptions;d.chart = b;d.options = a = u(g, b.angular ? { background: {} } : void 0, a);(a = a.background) && t([].concat(N(a)).reverse(), function (a) {
+        var b = a.backgroundColor,
+            g = c.userOptions,
+            a = u(d.defaultBackgroundOptions, a);if (b) a.backgroundColor = b;a.color = a.backgroundColor;c.options.plotBands.unshift(a);g.plotBands = g.plotBands || [];g.plotBands !== c.options.plotBands && g.plotBands.unshift(a);
+      });
+    }, defaultOptions: { center: ["50%", "50%"], size: "85%", startAngle: 0 }, defaultBackgroundOptions: { shape: "circle",
+      borderWidth: 1, borderColor: "silver", backgroundColor: { linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 }, stops: [[0, "#FFF"], [1, "#DDD"]] }, from: -Number.MAX_VALUE, innerRadius: 0, to: Number.MAX_VALUE, outerRadius: "105%" } });var A = O.prototype,
+      z = z.prototype,
+      X = { getOffset: n, redraw: function redraw() {
+      this.isDirty = !1;
+    }, render: function render() {
+      this.isDirty = !1;
+    }, setScale: n, setCategories: n, setTitle: n },
+      Q = { isRadial: !0, defaultRadialGaugeOptions: { labels: { align: "center", x: 0, y: null }, minorGridLineWidth: 0, minorTickInterval: "auto", minorTickLength: 10, minorTickPosition: "inside",
+      minorTickWidth: 1, tickLength: 10, tickPosition: "inside", tickWidth: 2, title: { rotation: 0 }, zIndex: 2 }, defaultRadialXOptions: { gridLineWidth: 1, labels: { align: null, distance: 15, x: 0, y: null }, maxPadding: 0, minPadding: 0, showLastLabel: !1, tickLength: 0 }, defaultRadialYOptions: { gridLineInterpolation: "circle", labels: { align: "right", x: -3, y: -2 }, showLastLabel: !1, title: { x: 4, text: null, rotation: 90 } }, setOptions: function setOptions(a) {
+      a = this.options = u(this.defaultOptions, this.defaultRadialOptions, a);if (!a.plotBands) a.plotBands = [];
+    }, getOffset: function getOffset() {
+      A.getOffset.call(this);
+      this.chart.axisOffset[this.side] = 0;this.center = this.pane.center = V.getCenter.call(this.pane);
+    }, getLinePath: function getLinePath(a, b) {
+      var c = this.center,
+          b = r(b, c[2] / 2 - this.offset);return this.chart.renderer.symbols.arc(this.left + c[0], this.top + c[1], b, b, { start: this.startAngleRad, end: this.endAngleRad, open: !0, innerR: 0 });
+    }, setAxisTranslation: function setAxisTranslation() {
+      A.setAxisTranslation.call(this);if (this.center) this.transA = this.isCircular ? (this.endAngleRad - this.startAngleRad) / (this.max - this.min || 1) : this.center[2] / 2 / (this.max - this.min || 1), this.minPixelPadding = this.isXAxis ? this.transA * this.minPointOffset : 0;
+    }, beforeSetTickPositions: function beforeSetTickPositions() {
+      this.autoConnect && (this.max += this.categories && 1 || this.pointRange || this.closestPointRange || 0);
+    }, setAxisSize: function setAxisSize() {
+      A.setAxisSize.call(this);if (this.isRadial) {
+        this.center = this.pane.center = m.CenteredSeriesMixin.getCenter.call(this.pane);if (this.isCircular) this.sector = this.endAngleRad - this.startAngleRad;this.len = this.width = this.height = this.center[2] * r(this.sector, 1) / 2;
+      }
+    }, getPosition: function getPosition(a, b) {
+      return this.postTranslate(this.isCircular ? this.translate(a) : 0, r(this.isCircular ? b : this.translate(a), this.center[2] / 2) - this.offset);
+    }, postTranslate: function postTranslate(a, b) {
+      var c = this.chart,
+          d = this.center,
+          a = this.startAngleRad + a;return { x: c.plotLeft + d[0] + Math.cos(a) * b, y: c.plotTop + d[1] + Math.sin(a) * b };
+    }, getPlotBandPath: function getPlotBandPath(a, b, c) {
+      var d = this.center,
+          g = this.startAngleRad,
+          e = d[2] / 2,
+          j = [r(c.outerRadius, "100%"), c.innerRadius, r(c.thickness, 10)],
+          l = Math.min(this.offset, 0),
+          h = /%$/,
+          f,
+          k = this.isCircular;this.options.gridLineInterpolation === "polygon" ? d = this.getPlotLinePath(a).concat(this.getPlotLinePath(b, !0)) : (a = Math.max(a, this.min), b = Math.min(b, this.max), k || (j[0] = this.translate(a), j[1] = this.translate(b)), j = T(j, function (a) {
+        h.test(a) && (a = B(a, 10) * e / 100);return a;
+      }), c.shape === "circle" || !k ? (a = -Math.PI / 2, b = Math.PI * 1.5, f = !0) : (a = g + this.translate(a), b = g + this.translate(b)), j[0] -= l, j[2] -= l, d = this.chart.renderer.symbols.arc(this.left + d[0], this.top + d[1], j[0], j[0], { start: Math.min(a, b), end: Math.max(a, b), innerR: r(j[1], j[0] - j[2]), open: f }));return d;
+    },
+    getPlotLinePath: function getPlotLinePath(a, b) {
+      var c = this,
+          d = c.center,
+          g = c.chart,
+          e = c.getPosition(a),
+          j,
+          l,
+          h;c.isCircular ? h = ["M", d[0] + g.plotLeft, d[1] + g.plotTop, "L", e.x, e.y] : c.options.gridLineInterpolation === "circle" ? (a = c.translate(a)) && (h = c.getLinePath(0, a)) : (t(g.xAxis, function (a) {
+        a.pane === c.pane && (j = a);
+      }), h = [], a = c.translate(a), d = j.tickPositions, j.autoConnect && (d = d.concat([d[0]])), b && (d = [].concat(d).reverse()), t(d, function (e, b) {
+        l = j.getPosition(e, a);h.push(b ? "L" : "M", l.x, l.y);
+      }));return h;
+    }, getTitlePosition: function getTitlePosition() {
+      var a = this.center,
+          b = this.chart,
+          c = this.options.title;return { x: b.plotLeft + a[0] + (c.x || 0), y: b.plotTop + a[1] - { high: 0.5, middle: 0.25, low: 0 }[c.align] * a[2] + (c.y || 0) };
+    } };w(A, "init", function (a, b, c) {
+    var k;var d = b.angular,
+        g = b.polar,
+        e = c.isX,
+        j = d && e,
+        l,
+        h;h = b.options;var f = c.pane || 0;if (d) {
+      if (H(this, j ? X : Q), l = !e) this.defaultRadialOptions = this.defaultRadialGaugeOptions;
+    } else if (g) H(this, Q), this.defaultRadialOptions = (l = e) ? this.defaultRadialXOptions : u(this.defaultYAxisOptions, this.defaultRadialYOptions);if (d || g) b.inverted = !1, h.chart.zoomType = null;a.call(this, b, c);if (!j && (d || g)) {
+      a = this.options;if (!b.panes) b.panes = [];this.pane = (k = b.panes[f] = b.panes[f] || new M(N(h.pane)[f], b, this), b = k);h = b.options;this.startAngleRad = b = (h.startAngle - 90) * Math.PI / 180;this.endAngleRad = h = (r(h.endAngle, h.startAngle + 360) - 90) * Math.PI / 180;this.offset = a.offset || 0;if ((this.isCircular = l) && c.max === void 0 && h - b === 2 * Math.PI) this.autoConnect = !0;
+    }
+  });w(A, "autoLabelAlign", function (a) {
+    if (!this.isRadial) return a.apply(this, [].slice.call(arguments, 1));
+  });w(z, "getPosition", function (a, b, c, d, g) {
+    var e = this.axis;return e.getPosition ? e.getPosition(c) : a.call(this, b, c, d, g);
+  });w(z, "getLabelPosition", function (a, b, c, d, g, e, j, l, h) {
+    var f = this.axis,
+        k = e.y,
+        o = 20,
+        s = e.align,
+        i = (f.translate(this.pos) + f.startAngleRad + Math.PI / 2) / Math.PI * 180 % 360;f.isRadial ? (a = f.getPosition(this.pos, f.center[2] / 2 + r(e.distance, -25)), e.rotation === "auto" ? d.attr({ rotation: i }) : k === null && (k = f.chart.renderer.fontMetrics(d.styles.fontSize).b - d.getBBox().height / 2), s === null && (f.isCircular ? (this.label.getBBox().width > f.len * f.tickInterval / (f.max - f.min) && (o = 0), s = i > o && i < 180 - o ? "left" : i > 180 + o && i < 360 - o ? "right" : "center") : s = "center", d.attr({ align: s })), a.x += e.x, a.y += k) : a = a.call(this, b, c, d, g, e, j, l, h);return a;
+  });w(z, "getMarkPath", function (a, b, c, d, g, e, j) {
+    var l = this.axis;l.isRadial ? (a = l.getPosition(this.pos, l.center[2] / 2 + d), b = ["M", b, c, "L", a.x, a.y]) : b = a.call(this, b, c, d, g, e, j);return b;
+  });p.arearange = u(p.area, { lineWidth: 1, marker: null, threshold: null, tooltip: { pointFormat: "<span style=\"color:{series.color}\">\u25CF</span> {series.name}: <b>{point.low}</b> - <b>{point.high}</b><br/>" },
+    trackByArea: !0, dataLabels: { align: null, verticalAlign: null, xLow: 0, xHigh: 0, yLow: 0, yHigh: 0 }, states: { hover: { halo: !1 } } });i.arearange = v(i.area, { type: "arearange", pointArrayMap: ["low", "high"], dataLabelCollections: ["dataLabel", "dataLabelUpper"], toYData: function toYData(a) {
+      return [a.low, a.high];
+    }, pointValKey: "low", deferTranslatePolar: !0, highToXY: function highToXY(a) {
+      var b = this.chart,
+          c = this.xAxis.postTranslate(a.rectPlotX, this.yAxis.len - a.plotHigh);a.plotHighX = c.x - b.plotLeft;a.plotHigh = c.y - b.plotTop;
+    }, translate: function translate() {
+      var a = this,
+          b = a.yAxis;i.area.prototype.translate.apply(a);t(a.points, function (a) {
+        var d = a.low,
+            g = a.high,
+            e = a.plotY;g === null || d === null ? a.isNull = !0 : (a.plotLow = e, a.plotHigh = b.translate(g, 0, 1, 0, 1));
+      });this.chart.polar && t(this.points, function (b) {
+        a.highToXY(b);
+      });
+    }, getGraphPath: function getGraphPath() {
+      var a = this.points,
+          b = [],
+          c = [],
+          d = a.length,
+          g = x.prototype.getGraphPath,
+          e,
+          j,
+          l;l = this.options;for (var h = l.step, d = a.length; d--;) {
+        e = a[d], !e.isNull && (!a[d + 1] || a[d + 1].isNull) && c.push({ plotX: e.plotX, plotY: e.plotLow }), j = { plotX: e.plotX, plotY: e.plotHigh,
+          isNull: e.isNull }, c.push(j), b.push(j), !e.isNull && (!a[d - 1] || a[d - 1].isNull) && c.push({ plotX: e.plotX, plotY: e.plotLow });
+      }a = g.call(this, a);if (h) h === !0 && (h = "left"), l.step = { left: "right", center: "center", right: "left" }[h];b = g.call(this, b);c = g.call(this, c);l.step = h;l = [].concat(a, b);!this.chart.polar && c[0] === "M" && (c[0] = "L");this.graphPath = l;this.areaPath = this.areaPath.concat(a, c);l.isArea = !0;l.xMap = a.xMap;this.areaPath.xMap = a.xMap;return l;
+    }, drawDataLabels: function drawDataLabels() {
+      var a = this.data,
+          b = a.length,
+          c,
+          d = [],
+          g = x.prototype,
+          e = this.options.dataLabels,
+          j = e.align,
+          l = e.verticalAlign,
+          h = e.inside,
+          f,
+          k,
+          o = this.chart.inverted;if (e.enabled || this._hasPointLabels) {
+        for (c = b; c--;) {
+          if (f = a[c]) {
+            k = h ? f.plotHigh < f.plotLow : f.plotHigh > f.plotLow;f.y = f.high;f._plotY = f.plotY;f.plotY = f.plotHigh;d[c] = f.dataLabel;f.dataLabel = f.dataLabelUpper;f.below = k;if (o) {
+              if (!j) e.align = k ? "right" : "left";
+            } else if (!l) e.verticalAlign = k ? "top" : "bottom";e.x = e.xHigh;e.y = e.yHigh;
+          }
+        }g.drawDataLabels && g.drawDataLabels.apply(this, arguments);for (c = b; c--;) {
+          if (f = a[c]) {
+            k = h ? f.plotHigh < f.plotLow : f.plotHigh > f.plotLow;f.dataLabelUpper = f.dataLabel;f.dataLabel = d[c];f.y = f.low;f.plotY = f._plotY;f.below = !k;if (o) {
+              if (!j) e.align = k ? "left" : "right";
+            } else if (!l) e.verticalAlign = k ? "bottom" : "top";e.x = e.xLow;e.y = e.yLow;
+          }
+        }g.drawDataLabels && g.drawDataLabels.apply(this, arguments);
+      }e.align = j;e.verticalAlign = l;
+    }, alignDataLabel: function alignDataLabel() {
+      i.column.prototype.alignDataLabel.apply(this, arguments);
+    }, setStackedPoints: n, getSymbol: n, drawPoints: n });p.areasplinerange = u(p.arearange);i.areasplinerange = v(i.arearange, { type: "areasplinerange",
+    getPointSpline: i.spline.prototype.getPointSpline });(function () {
+    var a = i.column.prototype;p.columnrange = u(p.column, p.arearange, { lineWidth: 1, pointRange: null });i.columnrange = v(i.arearange, { type: "columnrange", translate: function translate() {
+        var b = this,
+            c = b.yAxis,
+            d = b.xAxis,
+            g = d.startAngleRad,
+            e,
+            j = b.chart,
+            l = b.xAxis.isRadial,
+            h;a.translate.apply(b);t(b.points, function (a) {
+          var k = a.shapeArgs,
+              o = b.options.minPointLength,
+              s,
+              i;a.plotHigh = h = c.translate(a.high, 0, 1, 0, 1);a.plotLow = a.plotY;i = h;s = r(a.rectPlotY, a.plotY) - h;Math.abs(s) < o ? (o -= s, s += o, i -= o / 2) : s < 0 && (s *= -1, i -= s);l ? (e = a.barX + g, a.shapeType = "path", a.shapeArgs = { d: b.polarArc(i + s, i, e, e + a.pointWidth) }) : (k.height = s, k.y = i, a.tooltipPos = j.inverted ? [c.len + c.pos - j.plotLeft - i - s / 2, d.len + d.pos - j.plotTop - k.x - k.width / 2, s] : [d.left - j.plotLeft + k.x + k.width / 2, c.pos - j.plotTop + i + s / 2, s]);
+        });
+      }, directTouch: !0, trackerGroups: ["group", "dataLabelsGroup"], drawGraph: n, crispCol: a.crispCol, pointAttrToOptions: a.pointAttrToOptions, drawPoints: a.drawPoints, drawTracker: a.drawTracker, getColumnMetrics: a.getColumnMetrics,
+      animate: function animate() {
+        return a.animate.apply(this, arguments);
+      }, polarArc: function polarArc() {
+        return a.polarArc.apply(this, arguments);
+      } });
+  })();p.gauge = u(p.line, { dataLabels: { enabled: !0, defer: !1, y: 15, borderWidth: 1, borderColor: "silver", borderRadius: 3, crop: !1, verticalAlign: "top", zIndex: 2 }, dial: {}, pivot: {}, tooltip: { headerFormat: "" }, showInLegend: !1 });C = { type: "gauge", pointClass: v(J, { setState: function setState(a) {
+        this.state = a;
+      } }), angular: !0, directTouch: !0, drawGraph: n, fixedBox: !0, forceDL: !0, noSharedTooltip: !0, trackerGroups: ["group", "dataLabelsGroup"], translate: function translate() {
+      var a = this.yAxis,
+          b = this.options,
+          c = a.center;this.generatePoints();t(this.points, function (d) {
+        var g = u(b.dial, d.dial),
+            e = B(r(g.radius, 80)) * c[2] / 200,
+            j = B(r(g.baseLength, 70)) * e / 100,
+            l = B(r(g.rearLength, 10)) * e / 100,
+            h = g.baseWidth || 3,
+            f = g.topWidth || 1,
+            k = b.overshoot,
+            o = a.startAngleRad + a.translate(d.y, null, null, null, !0);I(k) ? (k = k / 180 * Math.PI, o = Math.max(a.startAngleRad - k, Math.min(a.endAngleRad + k, o))) : b.wrap === !1 && (o = Math.max(a.startAngleRad, Math.min(a.endAngleRad, o)));o = o * 180 / Math.PI;d.shapeType = "path";d.shapeArgs = { d: g.path || ["M", -l, -h / 2, "L", j, -h / 2, e, -f / 2, e, f / 2, j, h / 2, -l, h / 2, "z"], translateX: c[0], translateY: c[1], rotation: o };d.plotX = c[0];d.plotY = c[1];
+      });
+    }, drawPoints: function drawPoints() {
+      var a = this,
+          b = a.yAxis.center,
+          c = a.pivot,
+          d = a.options,
+          g = d.pivot,
+          e = a.chart.renderer;t(a.points, function (b) {
+        var g = b.graphic,
+            c = b.shapeArgs,
+            f = c.d,
+            k = u(d.dial, b.dial);g ? (g.animate(c), c.d = f) : b.graphic = e[b.shapeType](c).attr({ stroke: k.borderColor || "none", "stroke-width": k.borderWidth || 0, fill: k.backgroundColor || "black",
+          rotation: c.rotation, zIndex: 1 }).add(a.group);
+      });c ? c.animate({ translateX: b[0], translateY: b[1] }) : a.pivot = e.circle(0, 0, r(g.radius, 5)).attr({ "stroke-width": g.borderWidth || 0, stroke: g.borderColor || "silver", fill: g.backgroundColor || "black", zIndex: 2 }).translate(b[0], b[1]).add(a.group);
+    }, animate: function animate(a) {
+      var b = this;if (!a) t(b.points, function (a) {
+        var d = a.graphic;d && (d.attr({ rotation: b.yAxis.startAngleRad * 180 / Math.PI }), d.animate({ rotation: a.shapeArgs.rotation }, b.options.animation));
+      }), b.animate = null;
+    }, render: function render() {
+      this.group = this.plotGroup("group", "series", this.visible ? "visible" : "hidden", this.options.zIndex, this.chart.seriesGroup);x.prototype.render.call(this);this.group.clip(this.chart.clipRect);
+    }, setData: function setData(a, b) {
+      x.prototype.setData.call(this, a, !1);this.processData();this.generatePoints();r(b, !0) && this.chart.redraw();
+    }, drawTracker: C && C.drawTrackerPoint };i.gauge = v(i.line, C);p.boxplot = u(p.column, { fillColor: "#FFFFFF", lineWidth: 1, medianWidth: 2, states: { hover: { brightness: -0.3 } }, threshold: null, tooltip: { pointFormat: "<span style=\"color:{point.color}\">\u25CF</span> <b> {series.name}</b><br/>Maximum: {point.high}<br/>Upper quartile: {point.q3}<br/>Median: {point.median}<br/>Lower quartile: {point.q1}<br/>Minimum: {point.low}<br/>" },
+    whiskerLength: "50%", whiskerWidth: 2 });i.boxplot = v(i.column, { type: "boxplot", pointArrayMap: ["low", "q1", "median", "q3", "high"], toYData: function toYData(a) {
+      return [a.low, a.q1, a.median, a.q3, a.high];
+    }, pointValKey: "high", pointAttrToOptions: { fill: "fillColor", stroke: "color", "stroke-width": "lineWidth" }, drawDataLabels: n, translate: function translate() {
+      var a = this.yAxis,
+          b = this.pointArrayMap;i.column.prototype.translate.apply(this);t(this.points, function (c) {
+        t(b, function (b) {
+          c[b] !== null && (c[b + "Plot"] = a.translate(c[b], 0, 1, 0, 1));
+        });
+      });
+    }, drawPoints: function drawPoints() {
+      var a = this,
+          b = a.options,
+          c = a.chart.renderer,
+          d,
+          g,
+          e,
+          j,
+          l,
+          h,
+          f,
+          k,
+          o,
+          i,
+          m,
+          K,
+          L,
+          p,
+          u,
+          n,
+          w,
+          v,
+          x,
+          y,
+          C,
+          B,
+          z = a.doQuartiles !== !1,
+          A,
+          E = a.options.whiskerLength;t(a.points, function (q) {
+        o = q.graphic;C = q.shapeArgs;m = {};p = {};n = {};B = q.color || a.color;if (q.plotY !== void 0) if (d = q.pointAttr[q.selected ? "selected" : ""], w = C.width, v = D(C.x), x = v + w, y = F(w / 2), g = D(z ? q.q1Plot : q.lowPlot), e = D(z ? q.q3Plot : q.lowPlot), j = D(q.highPlot), l = D(q.lowPlot), m.stroke = q.stemColor || b.stemColor || B, m["stroke-width"] = r(q.stemWidth, b.stemWidth, b.lineWidth), m.dashstyle = q.stemDashStyle || b.stemDashStyle, p.stroke = q.whiskerColor || b.whiskerColor || B, p["stroke-width"] = r(q.whiskerWidth, b.whiskerWidth, b.lineWidth), n.stroke = q.medianColor || b.medianColor || B, n["stroke-width"] = r(q.medianWidth, b.medianWidth, b.lineWidth), f = m["stroke-width"] % 2 / 2, k = v + y + f, i = ["M", k, e, "L", k, j, "M", k, g, "L", k, l], z && (f = d["stroke-width"] % 2 / 2, k = D(k) + f, g = D(g) + f, e = D(e) + f, v += f, x += f, K = ["M", v, e, "L", v, g, "L", x, g, "L", x, e, "L", v, e, "z"]), E && (f = p["stroke-width"] % 2 / 2, j += f, l += f, A = /%$/.test(E) ? y * parseFloat(E) / 100 : E / 2, L = ["M", k - A, j, "L", k + A, j, "M", k - A, l, "L", k + A, l]), f = n["stroke-width"] % 2 / 2, h = F(q.medianPlot) + f, u = ["M", v, h, "L", x, h], o) q.stem.animate({ d: i }), E && q.whiskers.animate({ d: L }), z && q.box.animate({ d: K }), q.medianShape.animate({ d: u });else {
+          q.graphic = o = c.g().add(a.group);q.stem = c.path(i).attr(m).add(o);if (E) q.whiskers = c.path(L).attr(p).add(o);if (z) q.box = c.path(K).attr(d).add(o);q.medianShape = c.path(u).attr(n).add(o);
+        }
+      });
+    }, setStackedPoints: n });p.errorbar = u(p.boxplot, { color: "#000000", grouping: !1, linkedTo: ":previous", tooltip: { pointFormat: "<span style=\"color:{point.color}\">\u25CF</span> {series.name}: <b>{point.low}</b> - <b>{point.high}</b><br/>" },
+    whiskerWidth: null });i.errorbar = v(i.boxplot, { type: "errorbar", pointArrayMap: ["low", "high"], toYData: function toYData(a) {
+      return [a.low, a.high];
+    }, pointValKey: "high", doQuartiles: !1, drawDataLabels: i.arearange ? i.arearange.prototype.drawDataLabels : n, getColumnMetrics: function getColumnMetrics() {
+      return this.linkedParent && this.linkedParent.columnMetrics || i.column.prototype.getColumnMetrics.call(this);
+    } });p.waterfall = u(p.column, { lineWidth: 1, lineColor: "#333", dashStyle: "dot", borderColor: "#333", dataLabels: { inside: !0 }, states: { hover: { lineWidthPlus: 0 } } });
+  i.waterfall = v(i.column, { type: "waterfall", upColorProp: "fill", pointValKey: "y", translate: function translate() {
+      var a = this.options,
+          b = this.yAxis,
+          c,
+          d,
+          g,
+          e,
+          j,
+          l,
+          h,
+          f,
+          k,
+          o = r(a.minPointLength, 5),
+          s = a.threshold,
+          m = a.stacking;i.column.prototype.translate.apply(this);this.minPointLengthOffset = 0;h = f = s;d = this.points;for (c = 0, a = d.length; c < a; c++) {
+        g = d[c];l = this.processedYData[c];e = g.shapeArgs;k = (j = m && b.stacks[(this.negStacks && l < s ? "-" : "") + this.stackKey]) ? j[g.x].points[this.index + "," + c] : [0, l];if (g.isSum) g.y = G(l);else if (g.isIntermediateSum) g.y = G(l - f);j = P(h, h + g.y) + k[0];e.y = b.translate(j, 0, 1);if (g.isSum) e.y = b.translate(k[1], 0, 1), e.height = Math.min(b.translate(k[0], 0, 1), b.len) - e.y + this.minPointLengthOffset;else if (g.isIntermediateSum) e.y = b.translate(k[1], 0, 1), e.height = Math.min(b.translate(f, 0, 1), b.len) - e.y + this.minPointLengthOffset, f = k[1];else {
+          if (h !== 0) e.height = l > 0 ? b.translate(h, 0, 1) - e.y : b.translate(h, 0, 1) - b.translate(h - l, 0, 1);h += l;
+        }e.height < 0 && (e.y += e.height, e.height *= -1);g.plotY = e.y = F(e.y) - this.borderWidth % 2 / 2;e.height = P(F(e.height), 0.001);
+        g.yBottom = e.y + e.height;if (e.height <= o) e.height = o, this.minPointLengthOffset += o;e.y -= this.minPointLengthOffset;e = g.plotY + (g.negative ? e.height : 0) - this.minPointLengthOffset;this.chart.inverted ? g.tooltipPos[0] = b.len - e : g.tooltipPos[1] = e;
+      }
+    }, processData: function processData(a) {
+      var b = this.yData,
+          c = this.options.data,
+          d,
+          g = b.length,
+          e,
+          j,
+          l,
+          h,
+          f,
+          k;j = e = l = h = this.options.threshold || 0;for (k = 0; k < g; k++) {
+        f = b[k], d = c && c[k] ? c[k] : {}, f === "sum" || d.isSum ? b[k] = G(j) : f === "intermediateSum" || d.isIntermediateSum ? b[k] = G(e) : (j += f, e += f), l = Math.min(j, l), h = Math.max(j, h);
+      }x.prototype.processData.call(this, a);this.dataMin = l;this.dataMax = h;
+    }, toYData: function toYData(a) {
+      return a.isSum ? a.x === 0 ? null : "sum" : a.isIntermediateSum ? a.x === 0 ? null : "intermediateSum" : a.y;
+    }, getAttribs: function getAttribs() {
+      i.column.prototype.getAttribs.apply(this, arguments);var a = this,
+          b = a.options,
+          c = b.states,
+          d = b.upColor || a.color,
+          b = m.Color(d).brighten(b.states.hover.brightness).get(),
+          g = u(a.pointAttr),
+          e = a.upColorProp;g[""][e] = d;g.hover[e] = c.hover.upColor || b;g.select[e] = c.select.upColor || d;t(a.points, function (b) {
+        if (!b.options.color) b.y > 0 ? (b.pointAttr = g, b.color = d) : b.pointAttr = a.pointAttr;
+      });
+    }, getGraphPath: function getGraphPath() {
+      var a = this.data,
+          b = a.length,
+          c = F(this.options.lineWidth + this.borderWidth) % 2 / 2,
+          d = [],
+          g,
+          e,
+          j;for (j = 1; j < b; j++) {
+        e = a[j].shapeArgs, g = a[j - 1].shapeArgs, e = ["M", g.x + g.width, g.y + c, "L", e.x, g.y + c], a[j - 1].y < 0 && (e[2] += g.height, e[5] += g.height), d = d.concat(e);
+      }return d;
+    }, getExtremes: n, drawGraph: x.prototype.drawGraph });p.polygon = u(p.scatter, { marker: { enabled: !1, states: { hover: { enabled: !1 } } }, stickyTracking: !1, tooltip: { followPointer: !0, pointFormat: "" },
+    trackByArea: !0 });i.polygon = v(i.scatter, { type: "polygon", getGraphPath: function getGraphPath() {
+      for (var a = x.prototype.getGraphPath.call(this), b = a.length + 1; b--;) {
+        (b === a.length || a[b] === "M" && b > 0) && a.splice(b, 0, "z");
+      }return this.areaPath = a;
+    }, drawGraph: function drawGraph() {
+      this.options.fillColor = this.color;i.area.prototype.drawGraph.call(this);
+    }, drawLegendSymbol: m.LegendSymbolMixin.drawRectangle, drawTracker: x.prototype.drawTracker, setStackedPoints: n });p.bubble = u(p.scatter, { dataLabels: { formatter: function formatter() {
+        return this.point.z;
+      }, inside: !0,
+      verticalAlign: "middle" }, marker: { lineColor: null, lineWidth: 1 }, minSize: 8, maxSize: "20%", softThreshold: !1, states: { hover: { halo: { size: 5 } } }, tooltip: { pointFormat: "({point.x}, {point.y}), Size: {point.z}" }, turboThreshold: 0, zThreshold: 0, zoneAxis: "z" });C = v(J, { haloPath: function haloPath() {
+      return J.prototype.haloPath.call(this, this.shapeArgs.r + this.series.options.states.hover.halo.size);
+    }, ttBelow: !1 });i.bubble = v(i.scatter, { type: "bubble", pointClass: C, pointArrayMap: ["y", "z"], parallelArrays: ["x", "y", "z"], trackerGroups: ["group", "dataLabelsGroup"], bubblePadding: !0, zoneAxis: "z", pointAttrToOptions: { stroke: "lineColor", "stroke-width": "lineWidth", fill: "fillColor" }, applyOpacity: function applyOpacity(a) {
+      var b = this.options.marker,
+          c = r(b.fillOpacity, 0.5),
+          a = a || b.fillColor || this.color;c !== 1 && (a = W(a).setOpacity(c).get("rgba"));return a;
+    }, convertAttribs: function convertAttribs() {
+      var a = x.prototype.convertAttribs.apply(this, arguments);a.fill = this.applyOpacity(a.fill);return a;
+    }, getRadii: function getRadii(a, b, c, d) {
+      var g,
+          e,
+          j,
+          l = this.zData,
+          h = [],
+          f = this.options,
+          k = f.sizeBy !== "width",
+          o = f.zThreshold,
+          i = b - a;for (e = 0, g = l.length; e < g; e++) {
+        j = l[e], f.sizeByAbsoluteValue && j !== null && (j = Math.abs(j - o), b = Math.max(b - o, Math.abs(a - o)), a = 0), j === null ? j = null : j < a ? j = c / 2 - 1 : (j = i > 0 ? (j - a) / i : 0.5, k && j >= 0 && (j = Math.sqrt(j)), j = y.ceil(c + j * (d - c)) / 2), h.push(j);
+      }this.radii = h;
+    }, animate: function animate(a) {
+      var b = this.options.animation;if (!a) t(this.points, function (a) {
+        var d = a.graphic,
+            a = a.shapeArgs;d && a && (d.attr("r", 1), d.animate({ r: a.r }, b));
+      }), this.animate = null;
+    }, translate: function translate() {
+      var a,
+          b = this.data,
+          c,
+          d,
+          g = this.radii;i.scatter.prototype.translate.call(this);
+      for (a = b.length; a--;) {
+        c = b[a], d = g ? g[a] : 0, I(d) && d >= this.minPxSize / 2 ? (c.shapeType = "circle", c.shapeArgs = { x: c.plotX, y: c.plotY, r: d }, c.dlBox = { x: c.plotX - d, y: c.plotY - d, width: 2 * d, height: 2 * d }) : c.shapeArgs = c.plotY = c.dlBox = void 0;
+      }
+    }, drawLegendSymbol: function drawLegendSymbol(a, b) {
+      var c = this.chart.renderer,
+          d = c.fontMetrics(a.itemStyle.fontSize).f / 2;b.legendSymbol = c.circle(d, a.baseline - d, d).attr({ zIndex: 3 }).add(b.legendGroup);b.legendSymbol.isMarker = !0;
+    }, drawPoints: i.column.prototype.drawPoints, alignDataLabel: i.column.prototype.alignDataLabel,
+    buildKDTree: n, applyZones: n });O.prototype.beforePadding = function () {
+    var a = this,
+        b = this.len,
+        c = this.chart,
+        d = 0,
+        g = b,
+        e = this.isXAxis,
+        j = e ? "xData" : "yData",
+        l = this.min,
+        h = {},
+        f = y.min(c.plotWidth, c.plotHeight),
+        k = Number.MAX_VALUE,
+        i = -Number.MAX_VALUE,
+        m = this.max - l,
+        p = b / m,
+        n = [];t(this.series, function (b) {
+      var g = b.options;if (b.bubblePadding && (b.visible || !c.options.chart.ignoreHiddenSeries)) if (a.allowZoomOutside = !0, n.push(b), e) t(["minSize", "maxSize"], function (a) {
+        var b = g[a],
+            e = /%$/.test(b),
+            b = B(b);h[a] = e ? f * b / 100 : b;
+      }), b.minPxSize = h.minSize, b.maxPxSize = h.maxSize, b = b.zData, b.length && (k = r(g.zMin, y.min(k, y.max(R(b), g.displayNegative === !1 ? g.zThreshold : -Number.MAX_VALUE))), i = r(g.zMax, y.max(i, S(b))));
+    });t(n, function (b) {
+      var c = b[j],
+          f = c.length,
+          h;e && b.getRadii(k, i, b.minPxSize, b.maxPxSize);if (m > 0) for (; f--;) {
+        I(c[f]) && a.dataMin <= c[f] && c[f] <= a.dataMax && (h = b.radii[f], d = Math.min((c[f] - l) * p - h, d), g = Math.max((c[f] - l) * p + h, g));
+      }
+    });n.length && m > 0 && !this.isLog && (g -= b, p *= (b + d - g) / b, t([["min", "userMin", d], ["max", "userMax", g]], function (b) {
+      r(a.options[b[0]], a[b[1]]) === void 0 && (a[b[0]] += b[2] / p);
+    }));
+  };(function () {
+    function a(a, b) {
+      var c = this.chart,
+          d = this.options.animation,
+          h = this.group,
+          f = this.markerGroup,
+          k = this.xAxis.center,
+          i = c.plotLeft,
+          m = c.plotTop;if (c.polar) {
+        if (c.renderer.isSVG) d === !0 && (d = {}), b ? (c = { translateX: k[0] + i, translateY: k[1] + m, scaleX: 0.001, scaleY: 0.001 }, h.attr(c), f && f.attr(c)) : (c = { translateX: i, translateY: m, scaleX: 1, scaleY: 1 }, h.animate(c, d), f && f.animate(c, d), this.animate = null);
+      } else a.call(this, b);
+    }var b = x.prototype,
+        c = U.prototype,
+        d;b.searchPointByAngle = function (a) {
+      var b = this.chart,
+          c = this.xAxis.pane.center;return this.searchKDTree({ clientX: 180 + Math.atan2(a.chartX - c[0] - b.plotLeft, a.chartY - c[1] - b.plotTop) * (-180 / Math.PI) });
+    };w(b, "buildKDTree", function (a) {
+      if (this.chart.polar) this.kdByAngle ? this.searchPoint = this.searchPointByAngle : this.kdDimensions = 2;a.apply(this);
+    });b.toXY = function (a) {
+      var b,
+          c = this.chart,
+          d = a.plotX;b = a.plotY;a.rectPlotX = d;a.rectPlotY = b;b = this.xAxis.postTranslate(a.plotX, this.yAxis.len - b);a.plotX = a.polarPlotX = b.x - c.plotLeft;a.plotY = a.polarPlotY = b.y - c.plotTop;this.kdByAngle ? (c = (d / Math.PI * 180 + this.xAxis.pane.options.startAngle) % 360, c < 0 && (c += 360), a.clientX = c) : a.clientX = a.plotX;
+    };i.spline && w(i.spline.prototype, "getPointSpline", function (a, b, c, d) {
+      var h, f, k, i, m, p, n;if (this.chart.polar) {
+        h = c.plotX;f = c.plotY;a = b[d - 1];k = b[d + 1];this.connectEnds && (a || (a = b[b.length - 2]), k || (k = b[1]));if (a && k) i = a.plotX, m = a.plotY, b = k.plotX, p = k.plotY, i = (1.5 * h + i) / 2.5, m = (1.5 * f + m) / 2.5, k = (1.5 * h + b) / 2.5, n = (1.5 * f + p) / 2.5, b = Math.sqrt(Math.pow(i - h, 2) + Math.pow(m - f, 2)), p = Math.sqrt(Math.pow(k - h, 2) + Math.pow(n - f, 2)), i = Math.atan2(m - f, i - h), m = Math.atan2(n - f, k - h), n = Math.PI / 2 + (i + m) / 2, Math.abs(i - n) > Math.PI / 2 && (n -= Math.PI), i = h + Math.cos(n) * b, m = f + Math.sin(n) * b, k = h + Math.cos(Math.PI + n) * p, n = f + Math.sin(Math.PI + n) * p, c.rightContX = k, c.rightContY = n;d ? (c = ["C", a.rightContX || a.plotX, a.rightContY || a.plotY, i || h, m || f, h, f], a.rightContX = a.rightContY = null) : c = ["M", h, f];
+      } else c = a.call(this, b, c, d);return c;
+    });w(b, "translate", function (a) {
+      var b = this.chart;a.call(this);if (b.polar && (this.kdByAngle = b.tooltip && b.tooltip.shared, !this.preventPostTranslate)) {
+        a = this.points;for (b = a.length; b--;) {
+          this.toXY(a[b]);
+        }
+      }
+    });w(b, "getGraphPath", function (a, b) {
+      var c = this,
+          d,
+          h;if (this.chart.polar) {
+        b = b || this.points;for (d = 0; d < b.length; d++) {
+          if (!b[d].isNull) {
+            h = d;break;
+          }
+        }if (this.options.connectEnds !== !1 && h !== void 0) this.connectEnds = !0, b.splice(b.length, 0, b[h]);t(b, function (a) {
+          a.polarPlotY === void 0 && c.toXY(a);
+        });
+      }return a.apply(this, [].slice.call(arguments, 1));
+    });w(b, "animate", a);if (i.column) d = i.column.prototype, d.polarArc = function (a, b, c, d) {
+      var h = this.xAxis.center,
+          f = this.yAxis.len;return this.chart.renderer.symbols.arc(h[0], h[1], f - b, null, { start: c, end: d, innerR: f - r(a, f) });
+    }, w(d, "animate", a), w(d, "translate", function (a) {
+      var b = this.xAxis,
+          c = b.startAngleRad,
+          d,
+          h,
+          f;this.preventPostTranslate = !0;a.call(this);if (b.isRadial) {
+        d = this.points;for (f = d.length; f--;) {
+          h = d[f], a = h.barX + c, h.shapeType = "path", h.shapeArgs = { d: this.polarArc(h.yBottom, h.plotY, a, a + h.pointWidth) }, this.toXY(h), h.tooltipPos = [h.plotX, h.plotY], h.ttBelow = h.plotY > b.center[1];
+        }
+      }
+    }), w(d, "alignDataLabel", function (a, c, d, i, h, f) {
+      if (this.chart.polar) {
+        a = c.rectPlotX / Math.PI * 180;if (i.align === null) i.align = a > 20 && a < 160 ? "left" : a > 200 && a < 340 ? "right" : "center";if (i.verticalAlign === null) i.verticalAlign = a < 45 || a > 315 ? "bottom" : a > 135 && a < 225 ? "top" : "middle";b.alignDataLabel.call(this, c, d, i, h, f);
+      } else a.call(this, c, d, i, h, f);
+    });w(c, "getCoordinates", function (a, b) {
+      var c = this.chart,
+          d = { xAxis: [], yAxis: [] };c.polar ? t(c.axes, function (a) {
+        var f = a.isXAxis,
+            g = a.center,
+            i = b.chartX - g[0] - c.plotLeft,
+            g = b.chartY - g[1] - c.plotTop;d[f ? "xAxis" : "yAxis"].push({ axis: a,
+          value: a.translate(f ? Math.PI - Math.atan2(i, g) : Math.sqrt(Math.pow(i, 2) + Math.pow(g, 2)), !0) });
+      }) : d = a.call(this, b);return d;
+    });
+  })();
+});

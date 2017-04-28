@@ -1,1 +1,77 @@
-var _typeof="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(u){return typeof u}:function(u){return u&&"function"==typeof Symbol&&u.constructor===Symbol&&u!==Symbol.prototype?"symbol":typeof u};(function(u){"object"===("undefined"==typeof module?"undefined":_typeof(module))&&module.exports?module.exports=u:u(Highcharts)})(function(u){var A,v=u.getOptions().plotOptions,w=u.pInt,x=u.pick,y=u.each,z=u.isNumber;v.solidgauge=u.merge(v.gauge,{colorByPoint:!0}),A={initDataClasses:function(C){var F,D=this,E=this.chart,G=0,H=this.options;this.dataClasses=F=[],y(C.dataClasses,function(I,J){var K,I=u.merge(I);F.push(I),I.color||("category"===H.dataClassColor?(K=E.options.colors,I.color=K[G++],G===K.length&&(G=0)):I.color=D.tweenColors(u.Color(H.minColor),u.Color(H.maxColor),J/(C.dataClasses.length-1)))})},initStops:function(C){this.stops=C.stops||[[0,this.options.minColor],[1,this.options.maxColor]],y(this.stops,function(D){D.color=u.Color(D[1])})},toColor:function(C,D){var E,G,I,J,F=this.stops,H=this.dataClasses;if(H){for(J=H.length;J--;)if(I=H[J],G=I.from,F=I.to,(void 0===G||C>=G)&&(void 0===F||C<=F)){E=I.color,D&&(D.dataClass=J);break}}else{for(this.isLog&&(C=this.val2lin(C)),E=1-(this.max-C)/(this.max-this.min),J=F.length;J--&&!(E>F[J][0]););G=F[J]||F[J+1],F=F[J+1]||G,E=1-(F[0]-E)/(F[0]-G[0]||1),E=this.tweenColors(G.color,F.color,E)}return E},tweenColors:function(C,D,E){var F;return D.rgba.length&&C.rgba.length?(C=C.rgba,D=D.rgba,F=1!==D[3]||1!==C[3],C=(F?"rgba(":"rgb(")+Math.round(D[0]+(C[0]-D[0])*(1-E))+","+Math.round(D[1]+(C[1]-D[1])*(1-E))+","+Math.round(D[2]+(C[2]-D[2])*(1-E))+(F?","+(D[3]+(C[3]-D[3])*(1-E)):"")+")"):C=D.input||"none",C}},y(["fill","stroke"],function(B){u.Fx.prototype[B+"Setter"]=function(){this.elem.attr(B,A.tweenColors(u.Color(this.start),u.Color(this.end),this.pos))}}),u.seriesTypes.solidgauge=u.extendClass(u.seriesTypes.gauge,{type:"solidgauge",pointAttrToOptions:{},bindAxes:function(){var C;u.seriesTypes.gauge.prototype.bindAxes.call(this),C=this.yAxis,u.extend(C,A),C.options.dataClasses&&C.initDataClasses(C.options),C.initStops(C.options)},drawPoints:function(){var C=this,D=C.yAxis,E=D.center,F=C.options,G=C.chart.renderer,H=F.overshoot,I=z(H)?H/180*Math.PI:0;u.each(C.points,function(J){var K=J.graphic,L=D.startAngleRad+D.translate(J.y,null,null,null,!0),M=w(x(J.options.radius,F.radius,100))*E[2]/200,N=w(x(J.options.innerRadius,F.innerRadius,60))*E[2]/200,O=D.toColor(J.y,J),P=Math.min(D.startAngleRad,D.endAngleRad),Q=Math.max(D.startAngleRad,D.endAngleRad);"none"===O&&(O=J.color||C.color||"none"),"none"!==O&&(J.color=O),L=Math.max(P-I,Math.min(Q+I,L)),!1===F.wrap&&(L=Math.max(P,Math.min(Q,L))),P=Math.min(L,D.startAngleRad),L=Math.max(L,D.startAngleRad),L-P>2*Math.PI&&(L=P+2*Math.PI),J.shapeArgs=N={x:E[0],y:E[1],r:M,innerR:N,start:P,end:L,fill:O},J.startR=M,K?(J=N.d,K.animate(N),J)&&(N.d=J):(K={stroke:F.borderColor||"none","stroke-width":F.borderWidth||0,fill:O,"sweep-flag":0},"square"!==F.linecap&&(K["stroke-linecap"]=K["stroke-linejoin"]="round"),J.graphic=G.arc(N).attr(K).add(C.group))})},animate:function(C){C||(this.startAngleRad=this.yAxis.startAngleRad,u.seriesTypes.pie.prototype.animate.call(this,C))}})});
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+/*
+  Highcharts JS v4.2.6 (2016-08-02)
+ Solid angular gauge module
+
+ (c) 2010-2016 Torstein Honsi
+
+ License: www.highcharts.com/license
+*/
+(function (a) {
+  (typeof module === "undefined" ? "undefined" : _typeof(module)) === "object" && module.exports ? module.exports = a : a(Highcharts);
+})(function (a) {
+  var q = a.getOptions().plotOptions,
+      r = a.pInt,
+      s = a.pick,
+      k = a.each,
+      t = a.isNumber,
+      l;q.solidgauge = a.merge(q.gauge, { colorByPoint: !0 });l = { initDataClasses: function initDataClasses(b) {
+      var e = this,
+          i = this.chart,
+          c,
+          g = 0,
+          d = this.options;this.dataClasses = c = [];k(b.dataClasses, function (f, h) {
+        var p,
+            f = a.merge(f);c.push(f);if (!f.color) d.dataClassColor === "category" ? (p = i.options.colors, f.color = p[g++], g === p.length && (g = 0)) : f.color = e.tweenColors(a.Color(d.minColor), a.Color(d.maxColor), h / (b.dataClasses.length - 1));
+      });
+    }, initStops: function initStops(b) {
+      this.stops = b.stops || [[0, this.options.minColor], [1, this.options.maxColor]];k(this.stops, function (b) {
+        b.color = a.Color(b[1]);
+      });
+    }, toColor: function toColor(b, e) {
+      var a,
+          c = this.stops,
+          g,
+          d = this.dataClasses,
+          f,
+          h;if (d) for (h = d.length; h--;) {
+        if (f = d[h], g = f.from, c = f.to, (g === void 0 || b >= g) && (c === void 0 || b <= c)) {
+          a = f.color;if (e) e.dataClass = h;break;
+        }
+      } else {
+        this.isLog && (b = this.val2lin(b));a = 1 - (this.max - b) / (this.max - this.min);for (h = c.length; h--;) {
+          if (a > c[h][0]) break;
+        }g = c[h] || c[h + 1];c = c[h + 1] || g;a = 1 - (c[0] - a) / (c[0] - g[0] || 1);a = this.tweenColors(g.color, c.color, a);
+      }return a;
+    }, tweenColors: function tweenColors(b, a, i) {
+      var c;!a.rgba.length || !b.rgba.length ? b = a.input || "none" : (b = b.rgba, a = a.rgba, c = a[3] !== 1 || b[3] !== 1, b = (c ? "rgba(" : "rgb(") + Math.round(a[0] + (b[0] - a[0]) * (1 - i)) + "," + Math.round(a[1] + (b[1] - a[1]) * (1 - i)) + "," + Math.round(a[2] + (b[2] - a[2]) * (1 - i)) + (c ? "," + (a[3] + (b[3] - a[3]) * (1 - i)) : "") + ")");return b;
+    } };k(["fill", "stroke"], function (b) {
+    a.Fx.prototype[b + "Setter"] = function () {
+      this.elem.attr(b, l.tweenColors(a.Color(this.start), a.Color(this.end), this.pos));
+    };
+  });a.seriesTypes.solidgauge = a.extendClass(a.seriesTypes.gauge, { type: "solidgauge", pointAttrToOptions: {}, bindAxes: function bindAxes() {
+      var b;a.seriesTypes.gauge.prototype.bindAxes.call(this);b = this.yAxis;a.extend(b, l);b.options.dataClasses && b.initDataClasses(b.options);b.initStops(b.options);
+    }, drawPoints: function drawPoints() {
+      var b = this,
+          e = b.yAxis,
+          i = e.center,
+          c = b.options,
+          g = b.chart.renderer,
+          d = c.overshoot,
+          f = t(d) ? d / 180 * Math.PI : 0;a.each(b.points, function (a) {
+        var d = a.graphic,
+            j = e.startAngleRad + e.translate(a.y, null, null, null, !0),
+            k = r(s(a.options.radius, c.radius, 100)) * i[2] / 200,
+            m = r(s(a.options.innerRadius, c.innerRadius, 60)) * i[2] / 200,
+            n = e.toColor(a.y, a),
+            o = Math.min(e.startAngleRad, e.endAngleRad),
+            l = Math.max(e.startAngleRad, e.endAngleRad);n === "none" && (n = a.color || b.color || "none");if (n !== "none") a.color = n;j = Math.max(o - f, Math.min(l + f, j));c.wrap === !1 && (j = Math.max(o, Math.min(l, j)));o = Math.min(j, e.startAngleRad);j = Math.max(j, e.startAngleRad);j - o > 2 * Math.PI && (j = o + 2 * Math.PI);a.shapeArgs = m = { x: i[0], y: i[1], r: k, innerR: m, start: o,
+          end: j, fill: n };a.startR = k;if (d) {
+          if (a = m.d, d.animate(m), a) m.d = a;
+        } else d = { stroke: c.borderColor || "none", "stroke-width": c.borderWidth || 0, fill: n, "sweep-flag": 0 }, c.linecap !== "square" && (d["stroke-linecap"] = d["stroke-linejoin"] = "round"), a.graphic = g.arc(m).attr(d).add(b.group);
+      });
+    }, animate: function animate(b) {
+      if (!b) this.startAngleRad = this.yAxis.startAngleRad, a.seriesTypes.pie.prototype.animate.call(this, b);
+    } });
+});

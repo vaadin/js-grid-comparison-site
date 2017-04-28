@@ -1,1 +1,232 @@
-var _typeof="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(E){return typeof E}:function(E){return E&&"function"==typeof Symbol&&E.constructor===Symbol&&E!==Symbol.prototype?"symbol":typeof E};(function(E){"object"===("undefined"==typeof module?"undefined":_typeof(module))&&module.exports?module.exports=E:E(Highcharts)})(function(E){var F=E.seriesTypes,G=E.map,H=E.merge,I=E.extend,J=E.extendClass,K=E.getOptions().plotOptions,L=function(){},M=E.each,N=E.grep,O=E.pick,P=E.Series,Q=E.stableSort,R=E.Color,S=function(W,X,Y){var Z,Y=Y||this;for(Z in W)W.hasOwnProperty(Z)&&X.call(Y,W[Z],Z,W)},T=function(W,X,Y,Z){return Z=Z||this,W=W||[],M(W,function($,_){Y=X.call(Z,Y,$,_,W)}),Y},U=function V(W,X,Y){Y=Y||this,W=X.call(Y,W),!1!==W&&V(W,X,Y)};K.treemap=H(K.scatter,{showInLegend:!1,marker:!1,borderColor:"#E0E0E0",borderWidth:1,dataLabels:{enabled:!0,defer:!1,verticalAlign:"middle",formatter:function(){return this.point.name||this.point.id},inside:!0},tooltip:{headerFormat:"",pointFormat:"<b>{point.name}</b>: {point.value}</b><br/>"},layoutAlgorithm:"sliceAndDice",layoutStartingDirection:"vertical",alternateStartingDirection:!1,levelIsConstant:!0,opacity:0.15,states:{hover:{borderColor:"#A0A0A0",brightness:F.heatmap?0:0.1,opacity:0.75,shadow:!1}},drillUpButton:{position:{align:"right",x:-10,y:10}}}),F.treemap=J(F.scatter,H({pointAttrToOptions:{},pointArrayMap:["value"],axisTypes:F.heatmap?["xAxis","yAxis","colorAxis"]:["xAxis","yAxis"],optionalAxis:"colorAxis",getSymbol:L,parallelArrays:["x","y","value","colorValue"],colorKey:"colorValue",translateColors:F.heatmap&&F.heatmap.prototype.translateColors},{type:"treemap",trackerGroups:["group","dataLabelsGroup"],pointClass:J(E.Point,{setVisible:F.pie.prototype.pointClass.prototype.setVisible}),getListOfParents:function(W,X){var Y=T(W,function(Z,$,_){return $=O($.parent,""),void 0===Z[$]&&(Z[$]=[]),Z[$].push(_),Z},{});return S(Y,function(Z,$,_){""!==$&&-1===E.inArray($,X)&&(M(Z,function(aa){_[""].push(aa)}),delete _[$])}),Y},getTree:function(){var W,X=this;return W=G(this.data,function(Y){return Y.id}),W=X.getListOfParents(this.data,W),X.nodeMap=[],W=X.buildNode("",-1,0,W,null),U(this.nodeMap[this.rootNode],function(Y){var Z=!1,$=Y.parent;return Y.visible=!0,($||""===$)&&(Z=X.nodeMap[$]),Z}),U(this.nodeMap[this.rootNode].children,function(Y){var Z=!1;return M(Y,function($){$.visible=!0,$.children.length&&(Z=(Z||[]).concat($.children))}),Z}),this.setTreeValues(W),W},init:function(W,X){P.prototype.init.call(this,W,X),this.options.allowDrillToNode&&this.drillTo()},buildNode:function(W,X,Y,Z,$){var ca,_=this,aa=[],ba=_.points[X];return M(Z[W]||[],function(da){ca=_.buildNode(_.points[da].id,da,Y+1,Z,W),aa.push(ca)}),X={id:W,i:X,children:aa,level:Y,parent:$,visible:!1},_.nodeMap[X.id]=X,ba&&(ba.node=X),X},setTreeValues:function(W){var _,X=this,Y=X.options,Z=0,$=[],aa=X.points[W.i];return M(W.children,function(ba){ba=X.setTreeValues(ba),$.push(ba),ba.ignore?U(ba.children,function(ca){var da=!1;return M(ca,function(ea){I(ea,{ignore:!0,isLeaf:!1,visible:!1}),ea.children.length&&(da=(da||[]).concat(ea.children))}),da}):Z+=ba.val}),Q($,function(ba,ca){return ba.sortIndex-ca.sortIndex}),_=O(aa&&aa.options.value,Z),aa&&(aa.value=_),I(W,{children:$,childrenTotal:Z,ignore:!(O(aa&&aa.visible,!0)&&0<_),isLeaf:W.visible&&!Z,levelDynamic:Y.levelIsConstant?W.level:W.level-X.nodeMap[X.rootNode].level,name:O(aa&&aa.name,""),sortIndex:O(aa&&aa.sortIndex,-_),val:_}),W},calculateChildrenAreas:function(W,X){var Y=this,Z=Y.options,$=this.levelMap[W.levelDynamic+1],_=O(Y[$&&$.layoutAlgorithm]&&$.layoutAlgorithm,Z.layoutAlgorithm),aa=Z.alternateStartingDirection,ba=[],Z=N(W.children,function(ca){return!ca.ignore});$&&$.layoutStartingDirection&&(X.direction="vertical"===$.layoutStartingDirection?0:1),ba=Y[_](X,Z),M(Z,function(ca,da){var ea=ba[da];ca.values=H(ea,{val:ca.childrenTotal,direction:aa?1-X.direction:X.direction}),ca.pointValues=H(ea,{x:ea.x/Y.axisRatio,width:ea.width/Y.axisRatio}),ca.children.length&&Y.calculateChildrenAreas(ca,ca.values)})},setPointValues:function(){var W=this.xAxis,X=this.yAxis;M(this.points,function(Y){var _,aa,Z=Y.node,$=Z.pointValues;$&&Z.visible?(Z=Math.round(W.translate($.x,0,0,0,1)),_=Math.round(W.translate($.x+$.width,0,0,0,1)),aa=Math.round(X.translate($.y,0,0,0,1)),$=Math.round(X.translate($.y+$.height,0,0,0,1)),Y.shapeType="rect",Y.shapeArgs={x:Math.min(Z,_),y:Math.min(aa,$),width:Math.abs(_-Z),height:Math.abs($-aa)},Y.plotX=Y.shapeArgs.x+Y.shapeArgs.width/2,Y.plotY=Y.shapeArgs.y+Y.shapeArgs.height/2):(delete Y.plotX,delete Y.plotY)})},setColorRecursive:function(W,X){var Z,$,Y=this;W&&(Z=Y.points[W.i],$=Y.levelMap[W.levelDynamic],X=O(Z&&Z.options.color,$&&$.color,X),Z&&(Z.color=X),W.children.length&&M(W.children,function(_){Y.setColorRecursive(_,X)}))},algorithmGroup:function(W,X,Y,Z){this.height=W,this.width=X,this.plot=Z,this.startDirection=this.direction=Y,this.lH=this.nH=this.lW=this.nW=this.total=0,this.elArr=[],this.lP={total:0,lH:0,nH:0,lW:0,nW:0,nR:0,lR:0,aspectRatio:function(_,aa){return Math.max(_/aa,aa/_)}},this.addElement=function($){this.lP.total=this.elArr[this.elArr.length-1],this.total+=$,0===this.direction?(this.lW=this.nW,this.lP.lH=this.lP.total/this.lW,this.lP.lR=this.lP.aspectRatio(this.lW,this.lP.lH),this.nW=this.total/this.height,this.lP.nH=this.lP.total/this.nW,this.lP.nR=this.lP.aspectRatio(this.nW,this.lP.nH)):(this.lH=this.nH,this.lP.lW=this.lP.total/this.lH,this.lP.lR=this.lP.aspectRatio(this.lP.lW,this.lH),this.nH=this.total/this.width,this.lP.nW=this.lP.total/this.nH,this.lP.nR=this.lP.aspectRatio(this.lP.nW,this.nH)),this.elArr.push($)},this.reset=function(){this.lW=this.nW=0,this.elArr=[],this.total=0}},algorithmCalcPoints:function(W,X,Y,Z){var $,_,aa,ba,fa,ca=Y.lW,da=Y.lH,ea=Y.plot,ga=0,ha=Y.elArr.length-1;X?(ca=Y.nW,da=Y.nH):fa=Y.elArr[Y.elArr.length-1],M(Y.elArr,function(ia){(X||ga<ha)&&(0===Y.direction?($=ea.x,_=ea.y,aa=ca,ba=ia/aa):($=ea.x,_=ea.y,ba=da,aa=ia/ba),Z.push({x:$,y:_,width:aa,height:ba}),0===Y.direction?ea.y+=ba:ea.x+=aa),ga+=1}),Y.reset(),0===Y.direction?Y.width-=ca:Y.height-=da,ea.y=ea.parent.y+(ea.parent.height-Y.height),ea.x=ea.parent.x+(ea.parent.width-Y.width),W&&(Y.direction=1-Y.direction),X||Y.addElement(fa)},algorithmLowAspectRatio:function(W,X,Y){var _,Z=[],$=this,aa={x:X.x,y:X.y,parent:X},ba=0,ca=Y.length-1,da=new this.algorithmGroup(X.height,X.width,X.direction,aa);return M(Y,function(ea){_=X.width*X.height*(ea.val/X.val),da.addElement(_),da.lP.nR>da.lP.lR&&$.algorithmCalcPoints(W,!1,da,Z,aa),ba==ca&&$.algorithmCalcPoints(W,!0,da,Z,aa),ba+=1}),Z},algorithmFill:function(W,X,Y){var $,ea,fa,ga,ha,Z=[],_=X.direction,aa=X.x,ba=X.y,ca=X.width,da=X.height;return M(Y,function(ia){$=X.width*X.height*(ia.val/X.val),ea=aa,fa=ba,0===_?(ha=da,ga=$/ha,ca-=ga,aa+=ga):(ga=ca,ha=$/ga,da-=ha,ba+=ha),Z.push({x:ea,y:fa,width:ga,height:ha}),W&&(_=1-_)}),Z},strip:function(W,X){return this.algorithmLowAspectRatio(!1,W,X)},squarified:function(W,X){return this.algorithmLowAspectRatio(!0,W,X)},sliceAndDice:function(W,X){return this.algorithmFill(!0,W,X)},stripes:function(W,X){return this.algorithmFill(!1,W,X)},translate:function(){var W,X;P.prototype.translate.call(this),this.rootNode=O(this.options.rootId,""),this.levelMap=T(this.options.levels,function(Y,Z){return Y[Z.level]=Z,Y},{}),X=this.tree=this.getTree(),this.axisRatio=this.xAxis.len/this.yAxis.len,this.nodeMap[""].pointValues=W={x:0,y:0,width:100,height:100},this.nodeMap[""].values=W=H(W,{width:W.width*this.axisRatio,direction:"vertical"===this.options.layoutStartingDirection?0:1,val:X.val}),this.calculateChildrenAreas(X,W),this.colorAxis?this.translateColors():this.options.colorByPoint||this.setColorRecursive(this.tree,void 0),this.options.allowDrillToNode&&(X=this.nodeMap[this.rootNode].pointValues,this.xAxis.setExtremes(X.x,X.x+X.width,!1),this.yAxis.setExtremes(X.y,X.y+X.height,!1),this.xAxis.setScale(),this.yAxis.setScale()),this.setPointValues()},drawDataLabels:function(){var Y,Z,W=this,X=N(W.points,function($){return $.node.visible});M(X,function($){Z=W.levelMap[$.node.levelDynamic],Y={style:{}},$.node.isLeaf||(Y.enabled=!1),Z&&Z.dataLabels&&(Y=H(Y,Z.dataLabels),W._hasPointLabels=!0),$.shapeArgs&&(Y.style.width=$.shapeArgs.width,$.dataLabel&&$.dataLabel.css({width:$.shapeArgs.width+"px"})),$.dlOptions=H(Y,$.options.dataLabels)}),P.prototype.drawDataLabels.call(this)},alignDataLabel:F.column.prototype.alignDataLabel,pointAttribs:function(W,X){var Y=this.levelMap[W.node.levelDynamic]||{},Z=this.options,$=X&&Z.states[X]||{},Y={stroke:W.borderColor||Y.borderColor||$.borderColor||Z.borderColor,"stroke-width":O(W.borderWidth,Y.borderWidth,$.borderWidth,Z.borderWidth),dashstyle:W.borderDashStyle||Y.borderDashStyle||$.borderDashStyle||Z.borderDashStyle,fill:W.color||this.color,zIndex:"hover"===X?1:0};return W.node.level<=this.nodeMap[this.rootNode].level?(Y.fill="none",Y["stroke-width"]=0):W.node.isLeaf?X&&(Y.fill=R(Y.fill).brighten($.brightness).get()):O(Z.interactByLeaf,!Z.allowDrillToNode)?Y.fill="none":(Z=O($.opacity,Z.opacity),Y.fill=R(Y.fill).setOpacity(Z).get()),Y},drawPoints:function(){var W=this,X=N(W.points,function(Y){return Y.node.visible});M(X,function(Y){var Z="levelGroup-"+Y.node.levelDynamic;W[Z]||(W[Z]=W.chart.renderer.g(Z).attr({zIndex:1E3-Y.node.levelDynamic}).add(W.group)),Y.group=W[Z],Z=W.pointAttribs(Y),Y.pointAttr={"":Z,hover:W.pointAttribs(Y,"hover"),select:{}},Z=parseInt(Z["stroke-width"],10)%2/2,Y.shapeArgs.x-=Z,Y.shapeArgs.y-=Z}),F.column.prototype.drawPoints.call(this),W.options.allowDrillToNode&&M(X,function(Y){var Z;Y.graphic&&(Z=Y.drillId=W.options.interactByLeaf?W.drillToByLeaf(Y):W.drillToByGroup(Y),Y.graphic.css({cursor:Z?"pointer":"default"}))})},drillTo:function(){var W=this;E.addEvent(W,"click",function(X){var Z,X=X.point,Y=X.drillId;Y&&(Z=W.nodeMap[W.rootNode].name||W.rootNode,X.setState(""),W.drillToNode(Y),W.showDrillUpButton(Z))})},drillToByGroup:function(W){var X=!1;return 1!=W.node.level-this.nodeMap[this.rootNode].level||W.node.isLeaf||(X=W.id),X},drillToByLeaf:function(W){var X=!1;if(W.node.parent!==this.rootNode&&W.node.isLeaf)for(W=W.node;!X;)(W=this.nodeMap[W.parent],W.parent===this.rootNode)&&(X=W.id);return X},drillUp:function(){var W=null;this.rootNode&&(W=this.nodeMap[this.rootNode],W=null===W.parent?this.nodeMap[""]:this.nodeMap[W.parent]),null!==W&&(this.drillToNode(W.id),""===W.id?this.drillUpButton=this.drillUpButton.destroy():(W=this.nodeMap[W.parent],this.showDrillUpButton(W.name||W.id)))},drillToNode:function(W){this.options.rootId=W,this.isDirty=!0,this.chart.redraw()},showDrillUpButton:function(W){var Z,$,X=this,W=W||"< Back",Y=X.options.drillUpButton;Y.text&&(W=Y.text),this.drillUpButton?this.drillUpButton.attr({text:W}).align():($=(Z=Y.theme)&&Z.states,this.drillUpButton=this.chart.renderer.button(W,null,null,function(){X.drillUp()},Z,$&&$.hover,$&&$.select).attr({align:Y.position.align,zIndex:9}).add().align(Y.position,!1,Y.relativeTo||"plotBox"))},buildKDTree:L,drawLegendSymbol:E.LegendSymbolMixin.drawRectangle,getExtremes:function(){P.prototype.getExtremes.call(this,this.colorValueData),this.valueMin=this.dataMin,this.valueMax=this.dataMax,P.prototype.getExtremes.call(this)},getExtremesFromAll:!0,bindAxes:function(){var W={endOnTick:!1,gridLineWidth:0,lineWidth:0,min:0,dataMin:0,minPadding:0,max:100,dataMax:100,maxPadding:0,startOnTick:!1,title:null,tickPositions:[]};P.prototype.bindAxes.call(this),E.extend(this.yAxis.options,W),E.extend(this.xAxis.options,W)}}))});
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+/*
+ Highcharts JS v4.2.6 (2016-08-02)
+
+ (c) 2014 Highsoft AS
+ Authors: Jon Arild Nygard / Oystein Moseng
+
+ License: www.highcharts.com/license
+*/
+(function (f) {
+  (typeof module === "undefined" ? "undefined" : _typeof(module)) === "object" && module.exports ? module.exports = f : f(Highcharts);
+})(function (f) {
+  var i = f.seriesTypes,
+      B = f.map,
+      m = f.merge,
+      t = f.extend,
+      u = f.extendClass,
+      v = f.getOptions().plotOptions,
+      w = function w() {},
+      k = f.each,
+      r = f.grep,
+      j = f.pick,
+      n = f.Series,
+      C = f.stableSort,
+      x = f.Color,
+      D = function D(a, b, c) {
+    var d,
+        c = c || this;for (d in a) {
+      a.hasOwnProperty(d) && b.call(c, a[d], d, a);
+    }
+  },
+      y = function y(a, b, c, d) {
+    d = d || this;a = a || [];k(a, function (e, h) {
+      c = b.call(d, c, e, h, a);
+    });return c;
+  },
+      q = function q(a, b, c) {
+    c = c || this;a = b.call(c, a);a !== !1 && q(a, b, c);
+  };v.treemap = m(v.scatter, { showInLegend: !1, marker: !1, borderColor: "#E0E0E0", borderWidth: 1, dataLabels: { enabled: !0, defer: !1, verticalAlign: "middle", formatter: function formatter() {
+        return this.point.name || this.point.id;
+      }, inside: !0 }, tooltip: { headerFormat: "", pointFormat: "<b>{point.name}</b>: {point.value}</b><br/>" }, layoutAlgorithm: "sliceAndDice", layoutStartingDirection: "vertical", alternateStartingDirection: !1, levelIsConstant: !0, opacity: 0.15, states: { hover: { borderColor: "#A0A0A0", brightness: i.heatmap ? 0 : 0.1, opacity: 0.75,
+        shadow: !1 } }, drillUpButton: { position: { align: "right", x: -10, y: 10 } } });i.treemap = u(i.scatter, m({ pointAttrToOptions: {}, pointArrayMap: ["value"], axisTypes: i.heatmap ? ["xAxis", "yAxis", "colorAxis"] : ["xAxis", "yAxis"], optionalAxis: "colorAxis", getSymbol: w, parallelArrays: ["x", "y", "value", "colorValue"], colorKey: "colorValue", translateColors: i.heatmap && i.heatmap.prototype.translateColors }, { type: "treemap", trackerGroups: ["group", "dataLabelsGroup"], pointClass: u(f.Point, { setVisible: i.pie.prototype.pointClass.prototype.setVisible }),
+    getListOfParents: function getListOfParents(a, b) {
+      var c = y(a, function (a, c, b) {
+        c = j(c.parent, "");a[c] === void 0 && (a[c] = []);a[c].push(b);return a;
+      }, {});D(c, function (a, c, h) {
+        c !== "" && f.inArray(c, b) === -1 && (k(a, function (a) {
+          h[""].push(a);
+        }), delete h[c]);
+      });return c;
+    }, getTree: function getTree() {
+      var a,
+          b = this;a = B(this.data, function (a) {
+        return a.id;
+      });a = b.getListOfParents(this.data, a);b.nodeMap = [];a = b.buildNode("", -1, 0, a, null);q(this.nodeMap[this.rootNode], function (a) {
+        var d = !1,
+            e = a.parent;a.visible = !0;if (e || e === "") d = b.nodeMap[e];return d;
+      });q(this.nodeMap[this.rootNode].children, function (a) {
+        var b = !1;k(a, function (a) {
+          a.visible = !0;a.children.length && (b = (b || []).concat(a.children));
+        });return b;
+      });this.setTreeValues(a);return a;
+    }, init: function init(a, b) {
+      n.prototype.init.call(this, a, b);this.options.allowDrillToNode && this.drillTo();
+    }, buildNode: function buildNode(a, b, c, d, e) {
+      var h = this,
+          g = [],
+          z = h.points[b],
+          A;k(d[a] || [], function (b) {
+        A = h.buildNode(h.points[b].id, b, c + 1, d, a);g.push(A);
+      });b = { id: a, i: b, children: g, level: c, parent: e, visible: !1 };h.nodeMap[b.id] = b;if (z) z.node = b;return b;
+    }, setTreeValues: function setTreeValues(a) {
+      var b = this,
+          c = b.options,
+          d = 0,
+          e = [],
+          h,
+          g = b.points[a.i];k(a.children, function (a) {
+        a = b.setTreeValues(a);e.push(a);a.ignore ? q(a.children, function (a) {
+          var c = !1;k(a, function (a) {
+            t(a, { ignore: !0, isLeaf: !1, visible: !1 });a.children.length && (c = (c || []).concat(a.children));
+          });return c;
+        }) : d += a.val;
+      });C(e, function (a, c) {
+        return a.sortIndex - c.sortIndex;
+      });h = j(g && g.options.value, d);if (g) g.value = h;t(a, { children: e, childrenTotal: d, ignore: !(j(g && g.visible, !0) && h > 0), isLeaf: a.visible && !d, levelDynamic: c.levelIsConstant ? a.level : a.level - b.nodeMap[b.rootNode].level,
+        name: j(g && g.name, ""), sortIndex: j(g && g.sortIndex, -h), val: h });return a;
+    }, calculateChildrenAreas: function calculateChildrenAreas(a, b) {
+      var c = this,
+          d = c.options,
+          e = this.levelMap[a.levelDynamic + 1],
+          h = j(c[e && e.layoutAlgorithm] && e.layoutAlgorithm, d.layoutAlgorithm),
+          g = d.alternateStartingDirection,
+          f = [],
+          d = r(a.children, function (a) {
+        return !a.ignore;
+      });if (e && e.layoutStartingDirection) b.direction = e.layoutStartingDirection === "vertical" ? 0 : 1;f = c[h](b, d);k(d, function (a, d) {
+        var e = f[d];a.values = m(e, { val: a.childrenTotal, direction: g ? 1 - b.direction : b.direction });
+        a.pointValues = m(e, { x: e.x / c.axisRatio, width: e.width / c.axisRatio });a.children.length && c.calculateChildrenAreas(a, a.values);
+      });
+    }, setPointValues: function setPointValues() {
+      var a = this.xAxis,
+          b = this.yAxis;k(this.points, function (c) {
+        var d = c.node,
+            e = d.pointValues,
+            h,
+            g;e && d.visible ? (d = Math.round(a.translate(e.x, 0, 0, 0, 1)), h = Math.round(a.translate(e.x + e.width, 0, 0, 0, 1)), g = Math.round(b.translate(e.y, 0, 0, 0, 1)), e = Math.round(b.translate(e.y + e.height, 0, 0, 0, 1)), c.shapeType = "rect", c.shapeArgs = { x: Math.min(d, h), y: Math.min(g, e), width: Math.abs(h - d), height: Math.abs(e - g) }, c.plotX = c.shapeArgs.x + c.shapeArgs.width / 2, c.plotY = c.shapeArgs.y + c.shapeArgs.height / 2) : (delete c.plotX, delete c.plotY);
+      });
+    }, setColorRecursive: function setColorRecursive(a, b) {
+      var c = this,
+          d,
+          e;if (a) {
+        d = c.points[a.i];e = c.levelMap[a.levelDynamic];b = j(d && d.options.color, e && e.color, b);if (d) d.color = b;a.children.length && k(a.children, function (a) {
+          c.setColorRecursive(a, b);
+        });
+      }
+    }, algorithmGroup: function algorithmGroup(a, b, c, d) {
+      this.height = a;this.width = b;this.plot = d;this.startDirection = this.direction = c;this.lH = this.nH = this.lW = this.nW = this.total = 0;this.elArr = [];this.lP = { total: 0, lH: 0, nH: 0, lW: 0, nW: 0, nR: 0, lR: 0, aspectRatio: function aspectRatio(a, c) {
+          return Math.max(a / c, c / a);
+        } };this.addElement = function (a) {
+        this.lP.total = this.elArr[this.elArr.length - 1];this.total += a;this.direction === 0 ? (this.lW = this.nW, this.lP.lH = this.lP.total / this.lW, this.lP.lR = this.lP.aspectRatio(this.lW, this.lP.lH), this.nW = this.total / this.height, this.lP.nH = this.lP.total / this.nW, this.lP.nR = this.lP.aspectRatio(this.nW, this.lP.nH)) : (this.lH = this.nH, this.lP.lW = this.lP.total / this.lH, this.lP.lR = this.lP.aspectRatio(this.lP.lW, this.lH), this.nH = this.total / this.width, this.lP.nW = this.lP.total / this.nH, this.lP.nR = this.lP.aspectRatio(this.lP.nW, this.nH));this.elArr.push(a);
+      };this.reset = function () {
+        this.lW = this.nW = 0;this.elArr = [];this.total = 0;
+      };
+    }, algorithmCalcPoints: function algorithmCalcPoints(a, b, c, d) {
+      var e,
+          h,
+          g,
+          f,
+          j = c.lW,
+          s = c.lH,
+          l = c.plot,
+          i,
+          o = 0,
+          p = c.elArr.length - 1;b ? (j = c.nW, s = c.nH) : i = c.elArr[c.elArr.length - 1];k(c.elArr, function (a) {
+        if (b || o < p) c.direction === 0 ? (e = l.x, h = l.y, g = j, f = a / g) : (e = l.x, h = l.y, f = s, g = a / f), d.push({ x: e, y: h, width: g, height: f }), c.direction === 0 ? l.y += f : l.x += g;o += 1;
+      });c.reset();c.direction === 0 ? c.width -= j : c.height -= s;l.y = l.parent.y + (l.parent.height - c.height);l.x = l.parent.x + (l.parent.width - c.width);if (a) c.direction = 1 - c.direction;b || c.addElement(i);
+    }, algorithmLowAspectRatio: function algorithmLowAspectRatio(a, b, c) {
+      var d = [],
+          e = this,
+          h,
+          g = { x: b.x, y: b.y, parent: b },
+          f = 0,
+          j = c.length - 1,
+          i = new this.algorithmGroup(b.height, b.width, b.direction, g);k(c, function (c) {
+        h = b.width * b.height * (c.val / b.val);i.addElement(h);i.lP.nR > i.lP.lR && e.algorithmCalcPoints(a, !1, i, d, g);f === j && e.algorithmCalcPoints(a, !0, i, d, g);f += 1;
+      });return d;
+    }, algorithmFill: function algorithmFill(a, b, c) {
+      var d = [],
+          e,
+          f = b.direction,
+          g = b.x,
+          i = b.y,
+          j = b.width,
+          m = b.height,
+          l,
+          n,
+          o,
+          p;k(c, function (c) {
+        e = b.width * b.height * (c.val / b.val);l = g;n = i;f === 0 ? (p = m, o = e / p, j -= o, g += o) : (o = j, p = e / o, m -= p, i += p);d.push({ x: l, y: n, width: o, height: p });a && (f = 1 - f);
+      });return d;
+    }, strip: function strip(a, b) {
+      return this.algorithmLowAspectRatio(!1, a, b);
+    }, squarified: function squarified(a, b) {
+      return this.algorithmLowAspectRatio(!0, a, b);
+    }, sliceAndDice: function sliceAndDice(a, b) {
+      return this.algorithmFill(!0, a, b);
+    }, stripes: function stripes(a, b) {
+      return this.algorithmFill(!1, a, b);
+    }, translate: function translate() {
+      var a, b;n.prototype.translate.call(this);this.rootNode = j(this.options.rootId, "");this.levelMap = y(this.options.levels, function (a, b) {
+        a[b.level] = b;return a;
+      }, {});b = this.tree = this.getTree();this.axisRatio = this.xAxis.len / this.yAxis.len;this.nodeMap[""].pointValues = a = { x: 0, y: 0, width: 100, height: 100 };this.nodeMap[""].values = a = m(a, { width: a.width * this.axisRatio, direction: this.options.layoutStartingDirection === "vertical" ? 0 : 1, val: b.val });
+      this.calculateChildrenAreas(b, a);this.colorAxis ? this.translateColors() : this.options.colorByPoint || this.setColorRecursive(this.tree, void 0);if (this.options.allowDrillToNode) b = this.nodeMap[this.rootNode].pointValues, this.xAxis.setExtremes(b.x, b.x + b.width, !1), this.yAxis.setExtremes(b.y, b.y + b.height, !1), this.xAxis.setScale(), this.yAxis.setScale();this.setPointValues();
+    }, drawDataLabels: function drawDataLabels() {
+      var a = this,
+          b = r(a.points, function (a) {
+        return a.node.visible;
+      }),
+          c,
+          d;k(b, function (b) {
+        d = a.levelMap[b.node.levelDynamic];
+        c = { style: {} };if (!b.node.isLeaf) c.enabled = !1;if (d && d.dataLabels) c = m(c, d.dataLabels), a._hasPointLabels = !0;if (b.shapeArgs) c.style.width = b.shapeArgs.width, b.dataLabel && b.dataLabel.css({ width: b.shapeArgs.width + "px" });b.dlOptions = m(c, b.options.dataLabels);
+      });n.prototype.drawDataLabels.call(this);
+    }, alignDataLabel: i.column.prototype.alignDataLabel, pointAttribs: function pointAttribs(a, b) {
+      var c = this.levelMap[a.node.levelDynamic] || {},
+          d = this.options,
+          e = b && d.states[b] || {},
+          c = { stroke: a.borderColor || c.borderColor || e.borderColor || d.borderColor, "stroke-width": j(a.borderWidth, c.borderWidth, e.borderWidth, d.borderWidth), dashstyle: a.borderDashStyle || c.borderDashStyle || e.borderDashStyle || d.borderDashStyle, fill: a.color || this.color, zIndex: b === "hover" ? 1 : 0 };if (a.node.level <= this.nodeMap[this.rootNode].level) c.fill = "none", c["stroke-width"] = 0;else if (a.node.isLeaf) {
+        if (b) c.fill = x(c.fill).brighten(e.brightness).get();
+      } else j(d.interactByLeaf, !d.allowDrillToNode) ? c.fill = "none" : (d = j(e.opacity, d.opacity), c.fill = x(c.fill).setOpacity(d).get());
+      return c;
+    }, drawPoints: function drawPoints() {
+      var a = this,
+          b = r(a.points, function (a) {
+        return a.node.visible;
+      });k(b, function (c) {
+        var b = "levelGroup-" + c.node.levelDynamic;a[b] || (a[b] = a.chart.renderer.g(b).attr({ zIndex: 1E3 - c.node.levelDynamic }).add(a.group));c.group = a[b];b = a.pointAttribs(c);c.pointAttr = { "": b, hover: a.pointAttribs(c, "hover"), select: {} };b = parseInt(b["stroke-width"], 10) % 2 / 2;c.shapeArgs.x -= b;c.shapeArgs.y -= b;
+      });i.column.prototype.drawPoints.call(this);a.options.allowDrillToNode && k(b, function (b) {
+        var d;if (b.graphic) d = b.drillId = a.options.interactByLeaf ? a.drillToByLeaf(b) : a.drillToByGroup(b), b.graphic.css({ cursor: d ? "pointer" : "default" });
+      });
+    }, drillTo: function drillTo() {
+      var a = this;f.addEvent(a, "click", function (b) {
+        var b = b.point,
+            c = b.drillId,
+            d;c && (d = a.nodeMap[a.rootNode].name || a.rootNode, b.setState(""), a.drillToNode(c), a.showDrillUpButton(d));
+      });
+    }, drillToByGroup: function drillToByGroup(a) {
+      var b = !1;if (a.node.level - this.nodeMap[this.rootNode].level === 1 && !a.node.isLeaf) b = a.id;return b;
+    }, drillToByLeaf: function drillToByLeaf(a) {
+      var b = !1;if (a.node.parent !== this.rootNode && a.node.isLeaf) for (a = a.node; !b;) {
+        if (a = this.nodeMap[a.parent], a.parent === this.rootNode) b = a.id;
+      }return b;
+    }, drillUp: function drillUp() {
+      var a = null;this.rootNode && (a = this.nodeMap[this.rootNode], a = a.parent !== null ? this.nodeMap[a.parent] : this.nodeMap[""]);if (a !== null) this.drillToNode(a.id), a.id === "" ? this.drillUpButton = this.drillUpButton.destroy() : (a = this.nodeMap[a.parent], this.showDrillUpButton(a.name || a.id));
+    }, drillToNode: function drillToNode(a) {
+      this.options.rootId = a;this.isDirty = !0;this.chart.redraw();
+    }, showDrillUpButton: function showDrillUpButton(a) {
+      var b = this,
+          a = a || "< Back",
+          c = b.options.drillUpButton,
+          d,
+          e;if (c.text) a = c.text;this.drillUpButton ? this.drillUpButton.attr({ text: a }).align() : (e = (d = c.theme) && d.states, this.drillUpButton = this.chart.renderer.button(a, null, null, function () {
+        b.drillUp();
+      }, d, e && e.hover, e && e.select).attr({ align: c.position.align, zIndex: 9 }).add().align(c.position, !1, c.relativeTo || "plotBox"));
+    }, buildKDTree: w, drawLegendSymbol: f.LegendSymbolMixin.drawRectangle, getExtremes: function getExtremes() {
+      n.prototype.getExtremes.call(this, this.colorValueData);this.valueMin = this.dataMin;this.valueMax = this.dataMax;n.prototype.getExtremes.call(this);
+    }, getExtremesFromAll: !0, bindAxes: function bindAxes() {
+      var a = { endOnTick: !1, gridLineWidth: 0, lineWidth: 0, min: 0, dataMin: 0, minPadding: 0, max: 100, dataMax: 100, maxPadding: 0, startOnTick: !1, title: null, tickPositions: [] };n.prototype.bindAxes.call(this);f.extend(this.yAxis.options, a);f.extend(this.xAxis.options, a);
+    } }));
+});

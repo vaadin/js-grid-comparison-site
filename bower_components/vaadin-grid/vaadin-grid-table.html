@@ -5,4 +5,270 @@
       [last-frozen] .vaadin-grid-column-resize-handle::before{width:18px;transform:translateX(-100%);}:host([column-reordering-allowed]) #header,
       :host([column-resizing]){-ms-user-select:none;-moz-user-select:none;-webkit-user-select:none;user-select:none;}:host([column-resizing]){cursor:col-resize;}:host([ios][column-resizing]) #outerscroller{overflow:hidden;}tr:not([hidden]){display:flex;width:100%;}[frozen]{z-index:2;}[hidden]{display:none;}caption{position:absolute;display:block;padding:0;width:100%;z-index:-100;}::content > vaadin-grid-column,
       ::content > vaadin-grid-selection-column,
-      ::content > vaadin-grid-column-group{display:none;}:host([no-content-pointer-events]) .vaadin-grid-cell ::content > vaadin-grid-cell-content{pointer-events:none;}#reorderghost{visibility:hidden;position:fixed;opacity:0.5;pointer-events:none;}:host([copying]) tr{opacity:0 !important;position:static !important;display:table-row !important;}:host([copying]) .vaadin-grid-cell{display:table-cell !important;}</style></template></dom-module><dom-module id="vaadin-grid-table-themability-styles"><template><style>thead tr:last-child th ::content > vaadin-grid-cell-content{border-bottom:1px solid var(--divider-color, rgba(0, 0, 0, 0.08));}tfoot tr:first-child td ::content > vaadin-grid-cell-content{border-top:1px solid var(--divider-color, rgba(0, 0, 0, 0.08));}tbody tr:not([lastrow]) td ::content > vaadin-grid-cell-content{border-bottom:1px solid var(--divider-color, rgba(0, 0, 0, 0.08));}[last-frozen] ::content > vaadin-grid-cell-content{border-right:1px solid var(--divider-color, rgba(0, 0, 0, 0.08));}.vaadin-grid-column-resize-handle{border-right:1px solid var(--divider-color, rgba(0, 0, 0, 0.08));@apply (--vaadin-grid-column-resize-handle);}table tr .vaadin-grid-cell:not([detailscell]) ::content > vaadin-grid-cell-content{background:#fff;text-align:left;padding:8px;box-sizing:border-box;@apply (--vaadin-grid-cell);}table thead .vaadin-grid-cell:not([detailscell]) ::content > vaadin-grid-cell-content{font-weight:500;@apply (--vaadin-grid-header-cell);}table tfoot .vaadin-grid-cell:not([detailscell]) ::content > vaadin-grid-cell-content{font-weight:500;@apply (--vaadin-grid-footer-cell);}table tbody .vaadin-grid-cell:not([detailscell]) ::content > vaadin-grid-cell-content{@apply (--vaadin-grid-body-cell);}tbody [odd] .vaadin-grid-cell:not([detailscell]) ::content > vaadin-grid-cell-content{@apply (--vaadin-grid-body-row-odd-cell);}table tr .vaadin-grid-cell:not([detailscell])[last-frozen] ::content > vaadin-grid-cell-content{@apply (--vaadin-grid-cell-last-frozen);}:host(:not([scrolling])) tbody tr:hover .vaadin-grid-cell ::content > vaadin-grid-cell-content{@apply (--vaadin-grid-body-row-hover-cell);}table tr .vaadin-grid-cell.vaadin-grid-cell[lastcolumn] ::content > vaadin-grid-cell-content{border-right:none;}</style></template></dom-module><dom-module id="vaadin-grid-table"><template><style include="vaadin-grid-table-scroll-styles"></style><style include="vaadin-grid-row-details-styles"></style><style include="vaadin-grid-table-styles"></style><style include="vaadin-grid-table-themability-styles"></style><style include="vaadin-grid-selection-themability-styles"></style><style include="vaadin-grid-navigation-themability-styles"></style><style include="vaadin-grid-active-item-themability-styles"></style><style include="vaadin-grid-data-provider-themability-styles"></style><style include="vaadin-grid-row-details-themability-styles"></style><style include="vaadin-grid-column-reordering-themability-styles"></style><vaadin-grid-table-focus-trap id="headerFocusTrap" on-focus="_onHeaderFocus" on-focusin="_onHeaderFocus" on-focusout="_onFocusout"></vaadin-grid-table-focus-trap><content select="#headerFocusTrap"></content><vaadin-grid-table-focus-trap id="bodyFocusTrap" on-focus="_onBodyFocus" on-focusin="_onBodyFocus" on-focusout="_onFocusout"></vaadin-grid-table-focus-trap><content select="#bodyFocusTrap"></content><content select="vaadin-grid-column, vaadin-grid-selection-column, vaadin-grid-column-group"></content><div id="spinner"></div><table id="table" overflow-hidden$="[[_hideTableOverflow(scrollbarWidth, safari)]]"><caption><div id="fixedsizer" is="vaadin-grid-sizer" top="[[_estScrollHeight]]" column-tree="[[columnTree]]"></div></caption><thead id="header" target="[[target]]" is="vaadin-grid-table-header" column-tree="[[columnTree]]"></thead><tbody id="items" is="vaadin-grid-table-body"></tbody><tfoot id="footer" target="[[target]]" is="vaadin-grid-table-footer" column-tree="[[columnTree]]"></tfoot></table><vaadin-grid-table-outer-scroller id="outerscroller" scroll-target="[[scrollTarget]]" overflow-hidden$="[[_hideOuterScroller(scrollbarWidth, safari)]]" ios$="[[ios]]" scrolling$="[[scrolling]]"><div id="outersizer" is="vaadin-grid-sizer" top="[[_estScrollHeight]]" column-tree="[[columnTree]]"></div></vaadin-grid-table-outer-scroller><div id="reorderghost"></div><content select="#footerFocusTrap"></content><vaadin-grid-table-focus-trap id="footerFocusTrap" on-focus="_onFooterFocus" on-focusin="_onFooterFocus" on-focusout="_onFocusout"></vaadin-grid-table-focus-trap></template></dom-module><script>Polymer({is:'vaadin-grid-table',behaviors:[vaadin.elements.grid.IronListBehavior,vaadin.elements.grid.TableScrollBehavior,vaadin.elements.grid.TableKeyboardBehavior,vaadin.elements.grid.TableColumnReorderingBehavior,Polymer.Templatizer],properties:{size:Number,columnTree:Array,bindData:Function,rowDetailsTemplate:Object,columnReorderingAllowed:{type:Boolean,reflectToAttribute:!0},safari:{type:Boolean,value:/^((?!chrome|android).)*safari/i.test(navigator.userAgent)},scrollbarWidth:{type:Number,value:function(){var b=document.createElement('div');b.style.width='100px',b.style.height='100px',b.style.overflow='scroll',b.style.position='absolute',b.style.top='-9999px',document.body.appendChild(b);var c=b.offsetWidth-b.clientWidth;return document.body.removeChild(b),c}},target:Object,hasData:Boolean},observers:['_columnTreeChanged(columnTree, _physicalItems, _physicalCountVal)','_sizeChanged(size, bindData, hasData)','_rowDetailsTemplateChanged(rowDetailsTemplate, _physicalItems, _physicalCountVal)'],listeners:{'property-changed':'_columnPropChanged',copy:'_onCopy',animationend:'_onAnimationEnd','header.column-resizing':'_onColumnResize'},_onColumnResize:function(){this.toggleAttribute('column-resizing',this.$.header.querySelector('[column-resizing]')),this._gridResizeHandler()},_onAnimationEnd:function(b){/appear/.test(b.animationName)&&(this._render(),this._updateHeaderFooterMetrics(),b.stopPropagation())},_columnPropChanged:function(b){'headerTemplate'===b.detail.path&&this.toggleAttribute('has-templates',!0,this.$.header),'footerTemplate'===b.detail.path&&this.toggleAttribute('has-templates',!0,this.$.footer),/frozen|hidden/.test(b.detail.path)&&this._frozenCellsChanged(),'hidden'===b.detail.path&&this._gridResizeHandler()},_onCopy:function(){this.safari&&(this.toggleAttribute('copying',!0),this.async(function(){this.toggleAttribute('copying',!1)},1))},_hideOuterScroller:function(b,c){return 0===b&&!c},_hideTableOverflow:function(b,c){return 0===b&&c},_rowDetailsTemplateChanged:function(b,c){c.forEach(function(d){d.rowDetailsTemplate=b})},_columnTreeChanged:function(b,c){this._frozenCellsChanged(),this._hasTemplatesChanged(b),c.forEach(function(f){f.columns=b[b.length-1]}),this._gridResizeHandler(),this._updateLastColumn()},_updateLastColumn:function(){Polymer.dom(this.$.table).querySelectorAll('tr').forEach(function(b){b.updateLastColumn()})},_updateHeaderFooterMetrics:function(){this._physicalSizes&&Polymer.dom.flush(),this._updateHeaderFooterMetricsSync(),Polymer.RenderStatus.afterNextRender(this.$.header,function(){this._updateHeaderFooterMetricsSync(),this._pendingScrollToScaledIndex&&this.scrollToScaledIndex(this._pendingScrollToScaledIndex)}.bind(this))},_updateHeaderFooterMetricsSync:function(){var b=this.$.header.clientHeight+'px',c=this.$.footer.clientHeight+'px';[this.$.outersizer,this.$.fixedsizer,this.$.items].forEach(function(d){d.style.borderTopWidth=b,d.style.borderBottomWidth=c})},_hasTemplatesChanged:function(b){var c=!1,d=!1;b.forEach(function(f){return f.forEach(function(g){c=c||g.headerTemplate,d=d||g.footerTemplate})}),this.toggleAttribute('has-templates',c,this.$.header),this.toggleAttribute('has-templates',d,this.$.footer)},_createPool:function(b){for(var f,c=Array(b),d=0;d<b;d++)f=document.createElement('tr','vaadin-grid-table-row'),f.target=this.domHost,c[d]=f,f.setAttribute('hidden',''),Polymer.dom(this.$.items).appendChild(f);return c},_sizeChanged:function(b){var f=this._scrollTop,g=this.firstVisibleIndex+this._vidxOffset;if(this._virtualCount=Math.min(b,1e5),this._physicalIndexForKey={},this._firstVisibleIndexVal=null,this._lastVisibleIndexVal=null,this._vidxOffset=0,!this._physicalItems){this._physicalCount=Math.max(1,Math.min(25,this._virtualCount)),this._physicalItems=this._createPool(this._physicalCount),this._physicalSizes=Array(this._physicalCount)}this._itemsRendered=!1,this._debounceTemplate(function(){this._render(),this._viewportHeight&&(this.scrollToScaledIndex(Math.min(g,this.size)),this._scrollTop=f,this._scrollHandler(),this.flushDebouncer('vaadin-grid-scrolling'))})},_assignModels:function(b){this._virtualIndexToItem=this._virtualIndexToItem||{},this._iterateItems(function(c,d){var f=this._physicalItems[c];f.index&&delete this._virtualIndexToItem[f.index],f.index=d+this._vidxOffset,this._virtualIndexToItem[f.index]=f,f.toggleAttribute('odd',f.index%2),f.toggleAttribute('lastrow',f.index===this.size-1),f.toggleAttribute('hidden',f.index>=this.size),this.bindData(f.index,f)},b)},_gridResizeHandler:function(){this._updateHeaderFooterMetrics(),this._physicalSizes&&(this._physicalItems.forEach(function(b){b.updateRowDetailsCellMetrics()}),this.debounce('vaadin-grid-resizing',function(){this._update()}.bind(this),1))}});</script></body></html>
+      ::content > vaadin-grid-column-group{display:none;}:host([no-content-pointer-events]) .vaadin-grid-cell ::content > vaadin-grid-cell-content{pointer-events:none;}#reorderghost{visibility:hidden;position:fixed;opacity:0.5;pointer-events:none;}:host([copying]) tr{opacity:0 !important;position:static !important;display:table-row !important;}:host([copying]) .vaadin-grid-cell{display:table-cell !important;}</style></template></dom-module><dom-module id="vaadin-grid-table-themability-styles"><template><style>thead tr:last-child th ::content > vaadin-grid-cell-content{border-bottom:1px solid var(--divider-color, rgba(0, 0, 0, 0.08));}tfoot tr:first-child td ::content > vaadin-grid-cell-content{border-top:1px solid var(--divider-color, rgba(0, 0, 0, 0.08));}tbody tr:not([lastrow]) td ::content > vaadin-grid-cell-content{border-bottom:1px solid var(--divider-color, rgba(0, 0, 0, 0.08));}[last-frozen] ::content > vaadin-grid-cell-content{border-right:1px solid var(--divider-color, rgba(0, 0, 0, 0.08));}.vaadin-grid-column-resize-handle{border-right:1px solid var(--divider-color, rgba(0, 0, 0, 0.08));@apply (--vaadin-grid-column-resize-handle);}table tr .vaadin-grid-cell:not([detailscell]) ::content > vaadin-grid-cell-content{background:#fff;text-align:left;padding:8px;box-sizing:border-box;@apply (--vaadin-grid-cell);}table thead .vaadin-grid-cell:not([detailscell]) ::content > vaadin-grid-cell-content{font-weight:500;@apply (--vaadin-grid-header-cell);}table tfoot .vaadin-grid-cell:not([detailscell]) ::content > vaadin-grid-cell-content{font-weight:500;@apply (--vaadin-grid-footer-cell);}table tbody .vaadin-grid-cell:not([detailscell]) ::content > vaadin-grid-cell-content{@apply (--vaadin-grid-body-cell);}tbody [odd] .vaadin-grid-cell:not([detailscell]) ::content > vaadin-grid-cell-content{@apply (--vaadin-grid-body-row-odd-cell);}table tr .vaadin-grid-cell:not([detailscell])[last-frozen] ::content > vaadin-grid-cell-content{@apply (--vaadin-grid-cell-last-frozen);}:host(:not([scrolling])) tbody tr:hover .vaadin-grid-cell ::content > vaadin-grid-cell-content{@apply (--vaadin-grid-body-row-hover-cell);}table tr .vaadin-grid-cell.vaadin-grid-cell[lastcolumn] ::content > vaadin-grid-cell-content{border-right:none;}</style></template></dom-module><dom-module id="vaadin-grid-table"><template><style include="vaadin-grid-table-scroll-styles"></style><style include="vaadin-grid-row-details-styles"></style><style include="vaadin-grid-table-styles"></style><style include="vaadin-grid-table-themability-styles"></style><style include="vaadin-grid-selection-themability-styles"></style><style include="vaadin-grid-navigation-themability-styles"></style><style include="vaadin-grid-active-item-themability-styles"></style><style include="vaadin-grid-data-provider-themability-styles"></style><style include="vaadin-grid-row-details-themability-styles"></style><style include="vaadin-grid-column-reordering-themability-styles"></style><vaadin-grid-table-focus-trap id="headerFocusTrap" on-focus="_onHeaderFocus" on-focusin="_onHeaderFocus" on-focusout="_onFocusout"></vaadin-grid-table-focus-trap><content select="#headerFocusTrap"></content><vaadin-grid-table-focus-trap id="bodyFocusTrap" on-focus="_onBodyFocus" on-focusin="_onBodyFocus" on-focusout="_onFocusout"></vaadin-grid-table-focus-trap><content select="#bodyFocusTrap"></content><content select="vaadin-grid-column, vaadin-grid-selection-column, vaadin-grid-column-group"></content><div id="spinner"></div><table id="table" overflow-hidden$="[[_hideTableOverflow(scrollbarWidth, safari)]]"><caption><div id="fixedsizer" is="vaadin-grid-sizer" top="[[_estScrollHeight]]" column-tree="[[columnTree]]"></div></caption><thead id="header" target="[[target]]" is="vaadin-grid-table-header" column-tree="[[columnTree]]"></thead><tbody id="items" is="vaadin-grid-table-body"></tbody><tfoot id="footer" target="[[target]]" is="vaadin-grid-table-footer" column-tree="[[columnTree]]"></tfoot></table><vaadin-grid-table-outer-scroller id="outerscroller" scroll-target="[[scrollTarget]]" overflow-hidden$="[[_hideOuterScroller(scrollbarWidth, safari)]]" ios$="[[ios]]" scrolling$="[[scrolling]]"><div id="outersizer" is="vaadin-grid-sizer" top="[[_estScrollHeight]]" column-tree="[[columnTree]]"></div></vaadin-grid-table-outer-scroller><div id="reorderghost"></div><content select="#footerFocusTrap"></content><vaadin-grid-table-focus-trap id="footerFocusTrap" on-focus="_onFooterFocus" on-focusin="_onFooterFocus" on-focusout="_onFocusout"></vaadin-grid-table-focus-trap></template></dom-module><script>
+
+Polymer({
+
+  is: 'vaadin-grid-table',
+
+  behaviors: [vaadin.elements.grid.IronListBehavior, vaadin.elements.grid.TableScrollBehavior, vaadin.elements.grid.TableKeyboardBehavior, vaadin.elements.grid.TableColumnReorderingBehavior, Polymer.Templatizer],
+
+  properties: {
+    size: Number,
+
+    columnTree: Array,
+
+    bindData: Function,
+
+    rowDetailsTemplate: Object,
+
+    columnReorderingAllowed: {
+      type: Boolean,
+      reflectToAttribute: true
+    },
+
+    safari: {
+      type: Boolean,
+      value: /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
+    },
+
+    scrollbarWidth: {
+      type: Number,
+      value: function value() {
+        // Create the measurement node
+        var scrollDiv = document.createElement('div');
+        scrollDiv.style.width = '100px';
+        scrollDiv.style.height = '100px';
+        scrollDiv.style.overflow = 'scroll';
+        scrollDiv.style.position = 'absolute';
+        scrollDiv.style.top = '-9999px';
+        document.body.appendChild(scrollDiv);
+        // Get the scrollbar width
+        var scrollbarWidth = scrollDiv.offsetWidth - scrollDiv.clientWidth;
+
+        // Delete the DIV
+        document.body.removeChild(scrollDiv);
+        return scrollbarWidth;
+      }
+    },
+
+    target: Object,
+
+    hasData: Boolean
+  },
+
+  observers: ['_columnTreeChanged(columnTree, _physicalItems, _physicalCountVal)', '_sizeChanged(size, bindData, hasData)', '_rowDetailsTemplateChanged(rowDetailsTemplate, _physicalItems, _physicalCountVal)'],
+
+  listeners: {
+    'property-changed': '_columnPropChanged',
+    'copy': '_onCopy',
+    'animationend': '_onAnimationEnd',
+    'header.column-resizing': '_onColumnResize'
+  },
+
+  _onColumnResize: function _onColumnResize() {
+    this.toggleAttribute('column-resizing', this.$.header.querySelector('[column-resizing]'));
+    this._gridResizeHandler();
+  },
+
+  _onAnimationEnd: function _onAnimationEnd(e) {
+    if (/appear/.test(e.animationName)) {
+      this._render();
+      this._updateHeaderFooterMetrics();
+      e.stopPropagation();
+    }
+  },
+
+  _columnPropChanged: function _columnPropChanged(e) {
+    if (e.detail.path === 'headerTemplate') {
+      this.toggleAttribute('has-templates', true, this.$.header);
+    }
+
+    if (e.detail.path === 'footerTemplate') {
+      this.toggleAttribute('has-templates', true, this.$.footer);
+    }
+
+    if (/frozen|hidden/.test(e.detail.path)) {
+      this._frozenCellsChanged();
+    }
+
+    if (e.detail.path === 'hidden') {
+      this._gridResizeHandler();
+    }
+  },
+
+  _onCopy: function _onCopy() {
+    if (this.safari) {
+      this.toggleAttribute('copying', true);
+      this.async(function () {
+        this.toggleAttribute('copying', false);
+      }, 1);
+    }
+  },
+
+  // The following values aim at avoiding having 2 overlapping semi-invisible
+  // scrollbars visible at the same time when scrollbar width is 0
+  // (OSX's "show scrollbars: when scrolling").
+  // 1. hide the outerscroller altogether when scrollbar width is 0
+  _hideOuterScroller: function _hideOuterScroller(scrollbarWidth, safari) {
+    return scrollbarWidth === 0 && !safari;
+  },
+  // 2. Safari (on desktop and IOS) requires outer scroller to work properly
+  // so in that case we hide the table's scrollbar instead.
+  _hideTableOverflow: function _hideTableOverflow(scrollbarWidth, safari) {
+    return scrollbarWidth === 0 && safari;
+  },
+
+  _rowDetailsTemplateChanged: function _rowDetailsTemplateChanged(rowDetailsTemplate, physicalItems) {
+    physicalItems.forEach(function (row) {
+      row.rowDetailsTemplate = rowDetailsTemplate;
+    });
+  },
+
+  _columnTreeChanged: function _columnTreeChanged(columnTree, physicalItems, count) {
+    this._frozenCellsChanged();
+    this._hasTemplatesChanged(columnTree);
+
+    physicalItems.forEach(function (row) {
+      row.columns = columnTree[columnTree.length - 1];
+    });
+
+    this._gridResizeHandler();
+    this._updateLastColumn();
+  },
+
+  _updateLastColumn: function _updateLastColumn() {
+    Polymer.dom(this.$.table).querySelectorAll('tr').forEach(function (row) {
+      row.updateLastColumn();
+    });
+  },
+
+  _updateHeaderFooterMetrics: function _updateHeaderFooterMetrics() {
+    if (this._physicalSizes) {
+      Polymer.dom.flush();
+    }
+    this._updateHeaderFooterMetricsSync();
+
+    Polymer.RenderStatus.afterNextRender(this.$.header, function () {
+      this._updateHeaderFooterMetricsSync();
+      if (this._pendingScrollToScaledIndex) {
+        this.scrollToScaledIndex(this._pendingScrollToScaledIndex);
+      }
+    }.bind(this));
+  },
+
+  _updateHeaderFooterMetricsSync: function _updateHeaderFooterMetricsSync() {
+    var headerHeight = this.$.header.clientHeight + 'px';
+    var footerHeight = this.$.footer.clientHeight + 'px';
+
+    [this.$.outersizer, this.$.fixedsizer, this.$.items].forEach(function (element) {
+      element.style.borderTopWidth = headerHeight;
+      element.style.borderBottomWidth = footerHeight;
+    });
+  },
+
+  _hasTemplatesChanged: function _hasTemplatesChanged(columnTree) {
+    var hasHeaders = false;
+    var hasFooters = false;
+    columnTree.forEach(function (row) {
+      return row.forEach(function (col) {
+        hasHeaders = hasHeaders || col.headerTemplate;
+        hasFooters = hasFooters || col.footerTemplate;
+      });
+    });
+
+    this.toggleAttribute('has-templates', hasHeaders, this.$.header);
+    this.toggleAttribute('has-templates', hasFooters, this.$.footer);
+  },
+
+  /**
+   * Creates a pool of DOM elements and attaches them to the local dom.
+   */
+  _createPool: function _createPool(size) {
+    var physicalItems = new Array(size);
+
+    for (var i = 0; i < size; i++) {
+      var row = document.createElement('tr', 'vaadin-grid-table-row');
+      row.target = this.domHost;
+      physicalItems[i] = row;
+      row.setAttribute('hidden', ''); // hidden by default, removed when data is bound.
+      Polymer.dom(this.$.items).appendChild(row);
+    }
+
+    return physicalItems;
+  },
+
+  _sizeChanged: function _sizeChanged(size, bindData, hasData) {
+    var scrollTop = this._scrollTop;
+    var firstVisibleIndex = this.firstVisibleIndex + this._vidxOffset;
+
+    /* TODO: virtual count of 500k will make the sizer.top too large for Firefox */
+    this._virtualCount = Math.min(size, 100000);
+    this._physicalIndexForKey = {};
+    this._firstVisibleIndexVal = null;
+    this._lastVisibleIndexVal = null;
+
+    this._vidxOffset = 0;
+
+    if (!this._physicalItems) {
+      var DEFAULT_PHYSICAL_COUNT = 25;
+
+      this._physicalCount = Math.max(1, Math.min(DEFAULT_PHYSICAL_COUNT, this._virtualCount));
+      this._physicalItems = this._createPool(this._physicalCount);
+      this._physicalSizes = new Array(this._physicalCount);
+    }
+
+    this._itemsRendered = false;
+
+    this._debounceTemplate(function () {
+      this._render();
+
+      if (!this._viewportHeight) {
+        return;
+        // Don't run the following before init or pool size for non-Chrome browsers grows too large
+      }
+
+      // The size may have decreased so need to scroll to appropriate index first
+      this.scrollToScaledIndex(Math.min(firstVisibleIndex, this.size));
+      // Scroll to the original scroll position (if possible)
+      this._scrollTop = scrollTop;
+      this._scrollHandler();
+
+      this.flushDebouncer('vaadin-grid-scrolling');
+    });
+  },
+
+  /**
+   * Assigns the data models to a given set of items.
+   * @param {!Array<number>=} itemSet
+   */
+  _assignModels: function _assignModels(itemSet) {
+    this._virtualIndexToItem = this._virtualIndexToItem || {};
+    this._iterateItems(function (pidx, vidx) {
+      var el = this._physicalItems[pidx];
+      if (el.index) {
+        delete this._virtualIndexToItem[el.index];
+      }
+      el.index = vidx + this._vidxOffset;
+      this._virtualIndexToItem[el.index] = el;
+      el.toggleAttribute('odd', el.index % 2);
+      el.toggleAttribute('lastrow', el.index === this.size - 1);
+      el.toggleAttribute('hidden', el.index >= this.size);
+      this.bindData(el.index, el);
+    }, itemSet);
+  },
+
+  _gridResizeHandler: function _gridResizeHandler() {
+    this._updateHeaderFooterMetrics();
+
+    if (this._physicalSizes) {
+      this._physicalItems.forEach(function (row) {
+        row.updateRowDetailsCellMetrics();
+      });
+      this.debounce('vaadin-grid-resizing', function () {
+        this._update();
+      }.bind(this), 1);
+    }
+  }
+
+});</script></body></html>

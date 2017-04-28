@@ -1,1 +1,251 @@
-var _typeof="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(y){return typeof y}:function(y){return y&&"function"==typeof Symbol&&y.constructor===Symbol&&y!==Symbol.prototype?"symbol":typeof y};(function(y){"object"===("undefined"==typeof module?"undefined":_typeof(module))&&module.exports?module.exports=y:y(Highcharts)})(function(y){var F,z=y.win.document,A=y.each,B=y.pick,C=y.inArray,D=y.isNumber,E=y.splat,G=function(I,J){this.init(I,J)};y.extend(G.prototype,{init:function(I,J){this.options=I,this.chartOptions=J,this.columns=I.columns||this.rowsToColumns(I.rows)||[],this.firstRowAsNames=B(I.firstRowAsNames,!0),this.decimalRegex=I.decimalPoint&&RegExp("^(-?[0-9]+)"+I.decimalPoint+"([0-9]+)$"),this.rawColumns=[],this.columns.length?this.dataFound():(this.parseCSV(),this.parseTable(),this.parseGoogleSpreadsheet())},getColumnDistribution:function(){var Q,I=this.chartOptions,J=this.options,K=[],L=function(S){return(y.seriesTypes[S||"line"].prototype.pointArrayMap||[0]).length},M=I&&I.chart&&I.chart.type,N=[],O=[],P=0;A(I&&I.series||[],function(R){N.push(L(R.type||M))}),A(J&&J.seriesMapping||[],function(R){K.push(R.x||0)}),0===K.length&&K.push(0),A(J&&J.seriesMapping||[],function(R){var T,S=new F,U=N[P]||L(M),V=y.seriesTypes[((I&&I.series||[])[P]||{}).type||M||"line"].prototype.pointArrayMap||["y"];for(T in S.addColumnReader(R.x,"x"),R)R.hasOwnProperty(T)&&"x"!==T&&S.addColumnReader(R[T],T);for(Q=0;Q<U;Q++)S.hasReader(V[Q])||S.addColumnReader(void 0,V[Q]);O.push(S),P++}),J=y.seriesTypes[M||"line"].prototype.pointArrayMap,void 0===J&&(J=["y"]),this.valueCount={global:L(M),xColumns:K,individual:N,seriesBuilders:O,globalPointArrayMap:J}},dataFound:function(){this.options.switchRowsAndColumns&&(this.columns=this.rowsToColumns(this.columns)),this.getColumnDistribution(),this.parseTypes(),!1!==this.parsed()&&this.complete()},parseCSV:function(){var Q,R,I=this,J=this.options,K=J.csv,L=this.columns,M=J.startRow||0,N=J.endRow||Number.MAX_VALUE,O=J.startColumn||0,P=J.endColumn||Number.MAX_VALUE,S=0;K&&(R=K.replace(/\r\n/g,"\n").replace(/\r/g,"\n").split(J.lineDelimiter||"\n"),Q=J.itemDelimiter||(-1===K.indexOf("\t")?",":"\t"),A(R,function(T,U){var V=I.trim(T),W=0===V.indexOf("#");U>=M&&U<=N&&!W&&""!==V&&(V=T.split(Q),A(V,function(X,Y){Y>=O&&Y<=P&&(L[Y-O]||(L[Y-O]=[]),L[Y-O][S]=X)}),S+=1)}),this.dataFound())},parseTable:function(){var I=this.options,J=I.table,K=this.columns,L=I.startRow||0,M=I.endRow||Number.MAX_VALUE,N=I.startColumn||0,O=I.endColumn||Number.MAX_VALUE;J&&("string"==typeof J&&(J=z.getElementById(J)),A(J.getElementsByTagName("tr"),function(P,Q){Q>=L&&Q<=M&&A(P.children,function(R,S){("TD"===R.tagName||"TH"===R.tagName)&&S>=N&&S<=O&&(K[S-N]||(K[S-N]=[]),K[S-N][Q-L]=R.innerHTML)})}),this.dataFound())},parseGoogleSpreadsheet:function(){var Q,R,I=this,J=this.options,K=J.googleSpreadsheetKey,L=this.columns,M=J.startRow||0,N=J.endRow||Number.MAX_VALUE,O=J.startColumn||0,P=J.endColumn||Number.MAX_VALUE;K&&jQuery.ajax({dataType:"json",url:"https://spreadsheets.google.com/feeds/cells/"+K+"/"+(J.googleSpreadsheetWorksheet||"od6")+"/public/values?alt=json-in-script&callback=?",error:J.error,success:function(T){var U,Y,T=T.feed.entry,V=T.length,W=0,X=0;for(Y=0;Y<V;Y++)U=T[Y],W=Math.max(W,U.gs$cell.col),X=Math.max(X,U.gs$cell.row);for(Y=0;Y<W;Y++)Y>=O&&Y<=P&&(L[Y-O]=[],L[Y-O].length=Math.min(X,N-M));for(Y=0;Y<V;Y++)(U=T[Y],Q=U.gs$cell.row-1,R=U.gs$cell.col-1,R>=O&&R<=P&&Q>=M&&Q<=N)&&(L[R-O][Q-M]=U.content.$t);A(L,function(Z){for(Y=0;Y<Z.length;Y++)void 0===Z[Y]&&(Z[Y]=null)}),I.dataFound()}})},trim:function(I,J){return"string"==typeof I&&(I=I.replace(/^\s+|\s+$/g,""),J&&/^[0-9\s]+$/.test(I)&&(I=I.replace(/\s/g,"")),this.decimalRegex&&(I=I.replace(this.decimalRegex,"$1.$2"))),I},parseTypes:function(){for(var I=this.columns,J=I.length;J--;)this.parseColumn(I[J],J)},parseColumn:function(I,J){var N,O,P,Q,V,K=this.rawColumns,L=this.columns,M=I.length,R=this.firstRowAsNames,S=-1!==C(J,this.valueCount.xColumns),T=[],U=this.chartOptions,W=(this.options.columnTypes||[])[J],U=S&&(U&&U.xAxis&&"category"===E(U.xAxis)[0].type||"string"===W);for(K[J]||(K[J]=[]);M--;)(N=T[M]||I[M],P=this.trim(N),Q=this.trim(N,!0),O=parseFloat(Q),void 0===K[J][M]&&(K[J][M]=P),U||0===M&&R)?I[M]=P:+Q===O?(I[M]=O,31536E6<O&&"float"!==W?I.isDatetime=!0:I.isNumeric=!0,void 0!==I[M+1]&&(V=O>I[M+1])):(O=this.parseDate(N),S&&D(O)&&"float"!==W)?(T[M]=N,I[M]=O,I.isDatetime=!0,void 0!==I[M+1])&&(N=O>I[M+1],N!==V&&void 0!==V&&(this.alternativeFormat?(this.dateFormat=this.alternativeFormat,M=I.length,this.alternativeFormat=this.dateFormats[this.dateFormat].alternative):I.unsorted=!0),V=N):(I[M]=""===P?null:P,0!==M&&(I.isDatetime||I.isNumeric))&&(I.mixed=!0);if(S&&I.mixed&&(L[J]=K[J]),S&&V&&this.options.sort)for(J=0;J<L.length;J++)L[J].reverse(),R&&L[J].unshift(L[J].pop())},dateFormats:{"YYYY-mm-dd":{regex:/^([0-9]{4})[\-\/\.]([0-9]{2})[\-\/\.]([0-9]{2})$/,parser:function(I){return Date.UTC(+I[1],I[2]-1,+I[3])}},"dd/mm/YYYY":{regex:/^([0-9]{1,2})[\-\/\.]([0-9]{1,2})[\-\/\.]([0-9]{4})$/,parser:function(I){return Date.UTC(+I[3],I[2]-1,+I[1])},alternative:"mm/dd/YYYY"},"mm/dd/YYYY":{regex:/^([0-9]{1,2})[\-\/\.]([0-9]{1,2})[\-\/\.]([0-9]{4})$/,parser:function(I){return Date.UTC(+I[3],I[1]-1,+I[2])}},"dd/mm/YY":{regex:/^([0-9]{1,2})[\-\/\.]([0-9]{1,2})[\-\/\.]([0-9]{2})$/,parser:function(I){return Date.UTC(+I[3]+2E3,I[2]-1,+I[1])},alternative:"mm/dd/YY"},"mm/dd/YY":{regex:/^([0-9]{1,2})[\-\/\.]([0-9]{1,2})[\-\/\.]([0-9]{2})$/,parser:function(I){return Date.UTC(+I[3]+2E3,I[1]-1,+I[2])}}},parseDate:function(I){var K,L,N,J=this.options.parseDate,M=this.options.dateFormat||this.dateFormat;if(J)K=J(I);else if("string"==typeof I){if(M)J=this.dateFormats[M],(N=I.match(J.regex))&&(K=J.parser(N));else for(L in this.dateFormats)if(J=this.dateFormats[L],N=I.match(J.regex)){this.dateFormat=L,this.alternativeFormat=J.alternative,K=J.parser(N);break}N||(N=Date.parse(I),"object"===("undefined"==typeof N?"undefined":_typeof(N))&&null!==N&&N.getTime?K=N.getTime()-6E4*N.getTimezoneOffset():D(N)&&(K=N-6E4*new Date(N).getTimezoneOffset()))}return K},rowsToColumns:function(I){var J,K,L,M,N;if(I)for(N=[],K=I.length,J=0;J<K;J++)for(M=I[J].length,L=0;L<M;L++)N[L]||(N[L]=[]),N[L][J]=I[J][L];return N},parsed:function(){if(this.options.parsed)return this.options.parsed.call(this,this.columns)},getFreeIndexes:function(I,J){var K,L,O,M=[],N=[];for(L=0;L<I;L+=1)M.push(!0);for(K=0;K<J.length;K+=1)for(O=J[K].getReferencedColumnIndexes(),L=0;L<O.length;L+=1)M[O[L]]=!1;for(L=0;L<M.length;L+=1)M[L]&&N.push(L);return N},complete:function(){var J,L,M,N,O,Q,I=this.columns,K=this.options,P=[];if(K.complete||K.afterComplete){for(N=0;N<I.length;N++)this.firstRowAsNames&&(I[N].name=I[N].shift());for(L=[],M=this.getFreeIndexes(I.length,this.valueCount.seriesBuilders),N=0;N<this.valueCount.seriesBuilders.length;N++)Q=this.valueCount.seriesBuilders[N],Q.populateColumns(M)&&P.push(Q);for(;0<M.length;){for(Q=new F,Q.addColumnReader(0,"x"),N=C(0,M),-1!==N&&M.splice(N,1),N=0;N<this.valueCount.global;N++)Q.addColumnReader(void 0,this.valueCount.globalPointArrayMap[N]);Q.populateColumns(M)&&P.push(Q)}if(0<P.length&&0<P[0].readers.length&&(Q=I[P[0].readers[0].columnIndex],void 0!==Q&&(Q.isDatetime?J="datetime":Q.isNumeric||(J="category"))),"category"===J)for(N=0;N<P.length;N++)for(Q=P[N],M=0;M<Q.readers.length;M++)"x"===Q.readers[M].configName&&(Q.readers[M].configName="name");for(N=0;N<P.length;N++){for(Q=P[N],M=[],O=0;O<I[0].length;O++)M[O]=Q.read(I,O);L[N]={data:M},Q.name&&(L[N].name=Q.name),"category"===J&&(L[N].turboThreshold=0)}I={series:L},J&&(I.xAxis={type:J}),K.complete&&K.complete(I),K.afterComplete&&K.afterComplete(I)}}}),y.Data=G,y.data=function(H,I){return new G(H,I)},y.wrap(y.Chart.prototype,"init",function(H,I,J){var K=this;I&&I.data?y.data(y.extend(I.data,{afterComplete:function(M){var N,O;if(I.hasOwnProperty("series"))if("object"===_typeof(I.series))for(N=Math.max(I.series.length,M.series.length);N--;)O=I.series[N]||{},I.series[N]=y.merge(O,M.series[N]);else delete I.series;I=y.merge(M,I),H.call(K,I,J)}}),I):H.call(K,I,J)}),F=function(){this.readers=[],this.pointIsArray=!0},F.prototype.populateColumns=function(H){var I=!0;return A(this.readers,function(J){void 0===J.columnIndex&&(J.columnIndex=H.shift())}),A(this.readers,function(J){void 0===J.columnIndex&&(I=!1)}),I},F.prototype.read=function(H,I){var L,J=this.pointIsArray,K=J?[]:{};return A(this.readers,function(M){var N=H[M.columnIndex][I];J?K.push(N):K[M.configName]=N}),void 0===this.name&&2<=this.readers.length&&(L=this.getReferencedColumnIndexes(),2<=L.length)&&(L.shift(),L.sort(),this.name=H[L.shift()].name),K},F.prototype.addColumnReader=function(H,I){this.readers.push({columnIndex:H,configName:I}),"x"===I||"y"===I||void 0===I||(this.pointIsArray=!1)},F.prototype.getReferencedColumnIndexes=function(){var H,J,I=[];for(H=0;H<this.readers.length;H+=1)J=this.readers[H],void 0!==J.columnIndex&&I.push(J.columnIndex);return I},F.prototype.hasReader=function(H){var I,J;for(I=0;I<this.readers.length;I+=1)if(J=this.readers[I],J.configName===H)return!0}});
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+/*
+ Highcharts JS v4.2.6 (2016-08-02)
+ Data module
+
+ (c) 2012-2016 Torstein Honsi
+
+ License: www.highcharts.com/license
+*/
+(function (g) {
+  (typeof module === "undefined" ? "undefined" : _typeof(module)) === "object" && module.exports ? module.exports = g : g(Highcharts);
+})(function (g) {
+  var v = g.win.document,
+      k = g.each,
+      w = g.pick,
+      s = g.inArray,
+      t = g.isNumber,
+      x = g.splat,
+      l,
+      p = function p(b, a) {
+    this.init(b, a);
+  };g.extend(p.prototype, { init: function init(b, a) {
+      this.options = b;this.chartOptions = a;this.columns = b.columns || this.rowsToColumns(b.rows) || [];this.firstRowAsNames = w(b.firstRowAsNames, !0);this.decimalRegex = b.decimalPoint && RegExp("^(-?[0-9]+)" + b.decimalPoint + "([0-9]+)$");this.rawColumns = [];this.columns.length ? this.dataFound() : (this.parseCSV(), this.parseTable(), this.parseGoogleSpreadsheet());
+    }, getColumnDistribution: function getColumnDistribution() {
+      var b = this.chartOptions,
+          a = this.options,
+          e = [],
+          f = function f(b) {
+        return (g.seriesTypes[b || "line"].prototype.pointArrayMap || [0]).length;
+      },
+          d = b && b.chart && b.chart.type,
+          c = [],
+          h = [],
+          r = 0,
+          i;k(b && b.series || [], function (b) {
+        c.push(f(b.type || d));
+      });k(a && a.seriesMapping || [], function (b) {
+        e.push(b.x || 0);
+      });e.length === 0 && e.push(0);k(a && a.seriesMapping || [], function (a) {
+        var e = new l(),
+            o,
+            n = c[r] || f(d),
+            m = g.seriesTypes[((b && b.series || [])[r] || {}).type || d || "line"].prototype.pointArrayMap || ["y"];e.addColumnReader(a.x, "x");for (o in a) {
+          a.hasOwnProperty(o) && o !== "x" && e.addColumnReader(a[o], o);
+        }for (i = 0; i < n; i++) {
+          e.hasReader(m[i]) || e.addColumnReader(void 0, m[i]);
+        }h.push(e);r++;
+      });a = g.seriesTypes[d || "line"].prototype.pointArrayMap;a === void 0 && (a = ["y"]);this.valueCount = { global: f(d), xColumns: e, individual: c, seriesBuilders: h, globalPointArrayMap: a };
+    }, dataFound: function dataFound() {
+      if (this.options.switchRowsAndColumns) this.columns = this.rowsToColumns(this.columns);
+      this.getColumnDistribution();this.parseTypes();this.parsed() !== !1 && this.complete();
+    }, parseCSV: function parseCSV() {
+      var b = this,
+          a = this.options,
+          e = a.csv,
+          f = this.columns,
+          d = a.startRow || 0,
+          c = a.endRow || Number.MAX_VALUE,
+          h = a.startColumn || 0,
+          r = a.endColumn || Number.MAX_VALUE,
+          i,
+          g,
+          u = 0;e && (g = e.replace(/\r\n/g, "\n").replace(/\r/g, "\n").split(a.lineDelimiter || "\n"), i = a.itemDelimiter || (e.indexOf("\t") !== -1 ? "\t" : ","), k(g, function (a, e) {
+        var g = b.trim(a),
+            q = g.indexOf("#") === 0;e >= d && e <= c && !q && g !== "" && (g = a.split(i), k(g, function (b, a) {
+          a >= h && a <= r && (f[a - h] || (f[a - h] = []), f[a - h][u] = b);
+        }), u += 1);
+      }), this.dataFound());
+    }, parseTable: function parseTable() {
+      var b = this.options,
+          a = b.table,
+          e = this.columns,
+          f = b.startRow || 0,
+          d = b.endRow || Number.MAX_VALUE,
+          c = b.startColumn || 0,
+          h = b.endColumn || Number.MAX_VALUE;a && (typeof a === "string" && (a = v.getElementById(a)), k(a.getElementsByTagName("tr"), function (b, a) {
+        a >= f && a <= d && k(b.children, function (b, d) {
+          if ((b.tagName === "TD" || b.tagName === "TH") && d >= c && d <= h) e[d - c] || (e[d - c] = []), e[d - c][a - f] = b.innerHTML;
+        });
+      }), this.dataFound());
+    }, parseGoogleSpreadsheet: function parseGoogleSpreadsheet() {
+      var b = this,
+          a = this.options,
+          e = a.googleSpreadsheetKey,
+          f = this.columns,
+          d = a.startRow || 0,
+          c = a.endRow || Number.MAX_VALUE,
+          h = a.startColumn || 0,
+          g = a.endColumn || Number.MAX_VALUE,
+          i,
+          q;e && jQuery.ajax({ dataType: "json", url: "https://spreadsheets.google.com/feeds/cells/" + e + "/" + (a.googleSpreadsheetWorksheet || "od6") + "/public/values?alt=json-in-script&callback=?", error: a.error, success: function success(a) {
+          var a = a.feed.entry,
+              e,
+              n = a.length,
+              m = 0,
+              l = 0,
+              j;for (j = 0; j < n; j++) {
+            e = a[j], m = Math.max(m, e.gs$cell.col), l = Math.max(l, e.gs$cell.row);
+          }for (j = 0; j < m; j++) {
+            if (j >= h && j <= g) f[j - h] = [], f[j - h].length = Math.min(l, c - d);
+          }for (j = 0; j < n; j++) {
+            if (e = a[j], i = e.gs$cell.row - 1, q = e.gs$cell.col - 1, q >= h && q <= g && i >= d && i <= c) f[q - h][i - d] = e.content.$t;
+          }k(f, function (a) {
+            for (j = 0; j < a.length; j++) {
+              a[j] === void 0 && (a[j] = null);
+            }
+          });b.dataFound();
+        } });
+    }, trim: function trim(b, a) {
+      typeof b === "string" && (b = b.replace(/^\s+|\s+$/g, ""), a && /^[0-9\s]+$/.test(b) && (b = b.replace(/\s/g, "")), this.decimalRegex && (b = b.replace(this.decimalRegex, "$1.$2")));return b;
+    }, parseTypes: function parseTypes() {
+      for (var b = this.columns, a = b.length; a--;) {
+        this.parseColumn(b[a], a);
+      }
+    }, parseColumn: function parseColumn(b, a) {
+      var e = this.rawColumns,
+          f = this.columns,
+          d = b.length,
+          c,
+          h,
+          g,
+          i,
+          l = this.firstRowAsNames,
+          k = s(a, this.valueCount.xColumns) !== -1,
+          o = [],
+          n = this.chartOptions,
+          m,
+          p = (this.options.columnTypes || [])[a],
+          n = k && (n && n.xAxis && x(n.xAxis)[0].type === "category" || p === "string");for (e[a] || (e[a] = []); d--;) {
+        if (c = o[d] || b[d], g = this.trim(c), i = this.trim(c, !0), h = parseFloat(i), e[a][d] === void 0 && (e[a][d] = g), n || d === 0 && l) b[d] = g;else if (+i === h) b[d] = h, h > 31536E6 && p !== "float" ? b.isDatetime = !0 : b.isNumeric = !0, b[d + 1] !== void 0 && (m = h > b[d + 1]);else if (h = this.parseDate(c), k && t(h) && p !== "float") {
+          if (o[d] = c, b[d] = h, b.isDatetime = !0, b[d + 1] !== void 0) {
+            c = h > b[d + 1];if (c !== m && m !== void 0) this.alternativeFormat ? (this.dateFormat = this.alternativeFormat, d = b.length, this.alternativeFormat = this.dateFormats[this.dateFormat].alternative) : b.unsorted = !0;m = c;
+          }
+        } else if (b[d] = g === "" ? null : g, d !== 0 && (b.isDatetime || b.isNumeric)) b.mixed = !0;
+      }k && b.mixed && (f[a] = e[a]);if (k && m && this.options.sort) for (a = 0; a < f.length; a++) {
+        f[a].reverse(), l && f[a].unshift(f[a].pop());
+      }
+    }, dateFormats: { "YYYY-mm-dd": { regex: /^([0-9]{4})[\-\/\.]([0-9]{2})[\-\/\.]([0-9]{2})$/,
+        parser: function parser(b) {
+          return Date.UTC(+b[1], b[2] - 1, +b[3]);
+        } }, "dd/mm/YYYY": { regex: /^([0-9]{1,2})[\-\/\.]([0-9]{1,2})[\-\/\.]([0-9]{4})$/, parser: function parser(b) {
+          return Date.UTC(+b[3], b[2] - 1, +b[1]);
+        }, alternative: "mm/dd/YYYY" }, "mm/dd/YYYY": { regex: /^([0-9]{1,2})[\-\/\.]([0-9]{1,2})[\-\/\.]([0-9]{4})$/, parser: function parser(b) {
+          return Date.UTC(+b[3], b[1] - 1, +b[2]);
+        } }, "dd/mm/YY": { regex: /^([0-9]{1,2})[\-\/\.]([0-9]{1,2})[\-\/\.]([0-9]{2})$/, parser: function parser(b) {
+          return Date.UTC(+b[3] + 2E3, b[2] - 1, +b[1]);
+        }, alternative: "mm/dd/YY" },
+      "mm/dd/YY": { regex: /^([0-9]{1,2})[\-\/\.]([0-9]{1,2})[\-\/\.]([0-9]{2})$/, parser: function parser(b) {
+          return Date.UTC(+b[3] + 2E3, b[1] - 1, +b[2]);
+        } } }, parseDate: function parseDate(b) {
+      var a = this.options.parseDate,
+          e,
+          f,
+          d = this.options.dateFormat || this.dateFormat,
+          c;if (a) e = a(b);else if (typeof b === "string") {
+        if (d) a = this.dateFormats[d], (c = b.match(a.regex)) && (e = a.parser(c));else for (f in this.dateFormats) {
+          if (a = this.dateFormats[f], c = b.match(a.regex)) {
+            this.dateFormat = f;this.alternativeFormat = a.alternative;e = a.parser(c);break;
+          }
+        }c || (c = Date.parse(b), (typeof c === "undefined" ? "undefined" : _typeof(c)) === "object" && c !== null && c.getTime ? e = c.getTime() - c.getTimezoneOffset() * 6E4 : t(c) && (e = c - new Date(c).getTimezoneOffset() * 6E4));
+      }return e;
+    }, rowsToColumns: function rowsToColumns(b) {
+      var a, e, f, d, c;if (b) {
+        c = [];e = b.length;for (a = 0; a < e; a++) {
+          d = b[a].length;for (f = 0; f < d; f++) {
+            c[f] || (c[f] = []), c[f][a] = b[a][f];
+          }
+        }
+      }return c;
+    }, parsed: function parsed() {
+      if (this.options.parsed) return this.options.parsed.call(this, this.columns);
+    }, getFreeIndexes: function getFreeIndexes(b, a) {
+      var e,
+          f,
+          d = [],
+          c = [],
+          h;for (f = 0; f < b; f += 1) {
+        d.push(!0);
+      }for (e = 0; e < a.length; e += 1) {
+        h = a[e].getReferencedColumnIndexes();
+        for (f = 0; f < h.length; f += 1) {
+          d[h[f]] = !1;
+        }
+      }for (f = 0; f < d.length; f += 1) {
+        d[f] && c.push(f);
+      }return c;
+    }, complete: function complete() {
+      var b = this.columns,
+          a,
+          e = this.options,
+          f,
+          d,
+          c,
+          h,
+          g = [],
+          i;if (e.complete || e.afterComplete) {
+        for (c = 0; c < b.length; c++) {
+          if (this.firstRowAsNames) b[c].name = b[c].shift();
+        }f = [];d = this.getFreeIndexes(b.length, this.valueCount.seriesBuilders);for (c = 0; c < this.valueCount.seriesBuilders.length; c++) {
+          i = this.valueCount.seriesBuilders[c], i.populateColumns(d) && g.push(i);
+        }for (; d.length > 0;) {
+          i = new l();i.addColumnReader(0, "x");c = s(0, d);c !== -1 && d.splice(c, 1);for (c = 0; c < this.valueCount.global; c++) {
+            i.addColumnReader(void 0, this.valueCount.globalPointArrayMap[c]);
+          }i.populateColumns(d) && g.push(i);
+        }g.length > 0 && g[0].readers.length > 0 && (i = b[g[0].readers[0].columnIndex], i !== void 0 && (i.isDatetime ? a = "datetime" : i.isNumeric || (a = "category")));if (a === "category") for (c = 0; c < g.length; c++) {
+          i = g[c];for (d = 0; d < i.readers.length; d++) {
+            if (i.readers[d].configName === "x") i.readers[d].configName = "name";
+          }
+        }for (c = 0; c < g.length; c++) {
+          i = g[c];d = [];for (h = 0; h < b[0].length; h++) {
+            d[h] = i.read(b, h);
+          }f[c] = { data: d };if (i.name) f[c].name = i.name;if (a === "category") f[c].turboThreshold = 0;
+        }b = { series: f };if (a) b.xAxis = { type: a };e.complete && e.complete(b);e.afterComplete && e.afterComplete(b);
+      }
+    } });g.Data = p;g.data = function (b, a) {
+    return new p(b, a);
+  };g.wrap(g.Chart.prototype, "init", function (b, a, e) {
+    var f = this;a && a.data ? g.data(g.extend(a.data, { afterComplete: function afterComplete(d) {
+        var c, h;if (a.hasOwnProperty("series")) if (_typeof(a.series) === "object") for (c = Math.max(a.series.length, d.series.length); c--;) {
+          h = a.series[c] || {}, a.series[c] = g.merge(h, d.series[c]);
+        } else delete a.series;a = g.merge(d, a);b.call(f, a, e);
+      } }), a) : b.call(f, a, e);
+  });l = function l() {
+    this.readers = [];this.pointIsArray = !0;
+  };l.prototype.populateColumns = function (b) {
+    var a = !0;k(this.readers, function (a) {
+      if (a.columnIndex === void 0) a.columnIndex = b.shift();
+    });k(this.readers, function (b) {
+      b.columnIndex === void 0 && (a = !1);
+    });return a;
+  };l.prototype.read = function (b, a) {
+    var e = this.pointIsArray,
+        f = e ? [] : {},
+        d;k(this.readers, function (c) {
+      var d = b[c.columnIndex][a];e ? f.push(d) : f[c.configName] = d;
+    });if (this.name === void 0 && this.readers.length >= 2 && (d = this.getReferencedColumnIndexes(), d.length >= 2)) d.shift(), d.sort(), this.name = b[d.shift()].name;return f;
+  };l.prototype.addColumnReader = function (b, a) {
+    this.readers.push({ columnIndex: b, configName: a });if (!(a === "x" || a === "y" || a === void 0)) this.pointIsArray = !1;
+  };l.prototype.getReferencedColumnIndexes = function () {
+    var b,
+        a = [],
+        e;for (b = 0; b < this.readers.length; b += 1) {
+      e = this.readers[b], e.columnIndex !== void 0 && a.push(e.columnIndex);
+    }return a;
+  };l.prototype.hasReader = function (b) {
+    var a, e;for (a = 0; a < this.readers.length; a += 1) {
+      if (e = this.readers[a], e.configName === b) return !0;
+    }
+  };
+});

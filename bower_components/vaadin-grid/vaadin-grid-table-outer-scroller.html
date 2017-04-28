@@ -1,1 +1,64 @@
-<html><head><link rel="import" href="../polymer/polymer.html"></head><body><dom-module id="vaadin-grid-table-outer-scroller"><template><style>:host{display:block;height:100%;width:100%;position:absolute;top:0;box-sizing:border-box;overflow:auto;}:host([passthrough]){pointer-events:none;}:host([ios]){pointer-events:all;z-index:-3;}:host([ios][scrolling]){z-index:0;}</style><content></content></template><script>Polymer({is:'vaadin-grid-table-outer-scroller',properties:{scrollTarget:{type:Object,observer:'_scrollTargetChanged'},passthrough:{type:Boolean,reflectToAttribute:!0,value:!0}},listeners:{scroll:'_syncScrollTarget'},attached:function(){this.listen(this.domHost,'mousemove','_onMouseMove'),this.style.webkitOverflowScrolling='touch'},detached:function(){this.unlisten(this.domHost,'mousemove','_onMouseMove')},_scrollTargetChanged:function(b,c){c&&this.unlisten(c,'scroll','_syncOuterScroller'),this.listen(b,'scroll','_syncOuterScroller')},_onMouseMove:function(b){this.passthrough=b.offsetY<=this.clientHeight&&b.offsetX<=this.clientWidth},_syncOuterScroller:function(){this._syncingScrollTarget||(this._syncingOuterScroller=!0,this.scrollTop=this.domHost._scrollTop,this.scrollLeft=this.domHost._scrollLeft),this._syncingScrollTarget=!1},_syncScrollTarget:function(){this._syncingOuterScroller||(this._syncingScrollTarget=!0,this.scrollTarget.scrollTop=this.scrollTop,this.scrollTarget.scrollLeft=this.scrollLeft,this.domHost._scrollHandler()),this._syncingOuterScroller=!1}});</script></dom-module></body></html>
+<html><head><link rel="import" href="../polymer/polymer.html"></head><body><dom-module id="vaadin-grid-table-outer-scroller"><template><style>:host{display:block;height:100%;width:100%;position:absolute;top:0;box-sizing:border-box;overflow:auto;}:host([passthrough]){pointer-events:none;}:host([ios]){pointer-events:all;z-index:-3;}:host([ios][scrolling]){z-index:0;}</style><content></content></template><script>
+Polymer({
+  is: 'vaadin-grid-table-outer-scroller',
+
+  properties: {
+    scrollTarget: {
+      type: Object,
+      observer: '_scrollTargetChanged'
+    },
+
+    passthrough: {
+      type: Boolean,
+      reflectToAttribute: true,
+      value: true
+    }
+  },
+
+  listeners: {
+    'scroll': '_syncScrollTarget'
+  },
+
+  attached: function attached() {
+    this.listen(this.domHost, 'mousemove', '_onMouseMove');
+
+    // for some reason scroll bars are hidden in iOS if this style is
+    // added in stylesheets or before attaching.
+    this.style.webkitOverflowScrolling = 'touch';
+  },
+
+  detached: function detached() {
+    this.unlisten(this.domHost, 'mousemove', '_onMouseMove');
+  },
+
+  _scrollTargetChanged: function _scrollTargetChanged(scrollTarget, oldScrollTarget) {
+    if (oldScrollTarget) {
+      this.unlisten(oldScrollTarget, 'scroll', '_syncOuterScroller');
+    }
+    this.listen(scrollTarget, 'scroll', '_syncOuterScroller');
+  },
+
+  _onMouseMove: function _onMouseMove(e) {
+    this.passthrough = e.offsetY <= this.clientHeight && e.offsetX <= this.clientWidth;
+  },
+
+  _syncOuterScroller: function _syncOuterScroller() {
+    if (!this._syncingScrollTarget) {
+      this._syncingOuterScroller = true;
+      this.scrollTop = this.domHost._scrollTop;
+      this.scrollLeft = this.domHost._scrollLeft;
+    }
+    this._syncingScrollTarget = false;
+  },
+
+  _syncScrollTarget: function _syncScrollTarget() {
+    if (!this._syncingOuterScroller) {
+      this._syncingScrollTarget = true;
+      this.scrollTarget.scrollTop = this.scrollTop;
+      this.scrollTarget.scrollLeft = this.scrollLeft;
+      this.domHost._scrollHandler();
+    }
+    this._syncingOuterScroller = false;
+  }
+
+});</script></dom-module></body></html>

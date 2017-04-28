@@ -1,1 +1,272 @@
-<html><head><link rel="import" href="../polymer/polymer.html"><link rel="import" href="configuration-reader.html"><script>DataSeries=Polymer({is:'data-series',behaviors:[VaadinCharts.ConfigurationReaderBehavior],properties:{drilldown:{type:Boolean,value:!1},data:{type:Array},_seriesConf:{type:Object,value:function(){return{}}},_seriesIndex:Number,_observer:Object},observers:['_dataChanged(data.splices)'],_reloadConfiguration:function(){this._seriesConf={},this._initConfiguration(),!this._seriesConf.hasOwnProperty('data')&&this.data&&(this._seriesConf.data=this.data),this._seriesIndex=this.drilldown?this._parentChart()._addDrilldownSeries(this._seriesConf):this._parentChart()._addSeries(this._seriesConf)},_dataChanged:function(){this._seriesIndex!=void 0&&this._parentChart().isInitialized()?this._updateChartData(this.data):this._seriesConf.data=this.data},_updateChartData:function(b){this.drilldown?this._parentChart().chart.drilldown.series[this._seriesIndex].setData(b):this._parentChart().chart.series[this._seriesIndex].setData(b)},_ignoredNodes:['#text','#comment','data'],_evalJavascript:function(b){return 0===b.indexOf('function')||0===b.indexOf('Date.UTC')||0===b.indexOf('[')},_parentChart:function(){for(var b=Polymer.dom(this.root).parentNode;b._addSeries===void 0;)b=b.parentNode;return b},_loadData:function(){for(var b=Polymer.dom(this),c=0;c<b.childNodes.length;c++){var d=b.childNodes[c],f=d.nodeName.toLowerCase(),g=this._toCamelCase(f);if('data'===g){var h;if(this._hasPointNodes(d)){h=[];for(var i=0;i<d.childNodes.length;i++)this._isPointNode(d.childNodes[i])&&h.push(this._parsePoint(d.childNodes[i]))}else{var j=d.textContent.replace(/(\n)/gm,' ');h='['+j+']'}this._setProperty(g,h)}}},_parsePoint:function(b){for(var f,c={},d=0;d<b.childNodes.length;d++)if(f=b.childNodes[d],this._hasOnlyTextContent(f)){var g=this._toCamelCase(f.nodeName.toLowerCase());if('date'!==g)void 0===c[g]?c[g]=this._parseAttribute(f.textContent):console.log(g+' value is already defined for this point, \''+f.textContent+'\' couldn\'t be set');else if(void 0===c.x){var h=this._parseDate(f.textContent);void 0===h?console.log('Unable to parse date: '+f.textContent):c.x=h}else console.log('x value is already defined for this point, \''+f.textContent+'\' couldn\'t be set')}return this._loadConfiguration(c,b),c},_parseDate:function(b){if(this._isValidDate(b))return Date.parse(b)},_isValidDate:function(b){try{var c=new Date(b);return 0===c.toISOString().indexOf(b)&&'[object Date]'===Object.prototype.toString.call(c)&&!isNaN(c.getTime())}catch(d){}return!1},_hasPointNodes:function(b){var c=Array.prototype.slice.call(b.children,0);return 0<c.length&&0<c.filter(this._isPointNode).length},_isPointNode:function(b){return 1===b.nodeType&&'point'===b.nodeName.toLowerCase()},_setProperty:function(b,c){var d=this._parseAttribute(c);void 0!==d&&(void 0===this._seriesConf[b]?this._seriesConf[b]=d:'data'===b&&Array.prototype.push.apply(this._seriesConf[b],d))},created:function(){this._seriesConf=this.properties._seriesConf.value()},_initialize:function(){this._initConfiguration(),this._seriesIndex=this.drilldown?this._parentChart()._addDrilldownSeries(this._seriesConf):this._parentChart()._addSeries(this._seriesConf)},_initConfiguration:function(){var b=Polymer.dom(this);this._cleanNode(b),this._loadFromNode(this._seriesConf,b.node),this._loadConfiguration(this._seriesConf,b),this._loadData(),this._addDataPointsObserver()},_addDataPointsObserver:function(){if(MutationObserver&&!this._observer){var b=Polymer.dom(this).querySelectorAll('data');if(b&&0<b.length){this._observer=new MutationObserver(this._reloadData.bind(this));for(var c=0;c<b.length;c++)this._observer.observe(b[c],{attributes:!1,childList:!0,characterData:!0,characterDataOldValue:!1,subtree:!0})}}},_reloadData:function(){this._seriesConf.data=[],this._loadData(),this._updateChartData(this._seriesConf.data)}});</script></head><body></body></html>
+<html><head><link rel="import" href="../polymer/polymer.html"><link rel="import" href="configuration-reader.html"><script>
+/**
+ * A series element for a chart element. Accepts data in various formats and can be updated
+ * after creation. The updates are reflected on the parent chart.
+ *
+ * Cannot be used without a parent chart element.
+ **/
+DataSeries = Polymer({
+    is: "data-series",
+    behaviors: [VaadinCharts.ConfigurationReaderBehavior],
+
+    properties: {
+
+        /**
+         * If this series is a  drilldown series
+         */
+        drilldown: {
+            type: Boolean,
+            value: false
+        },
+
+        /**
+         * The data contents of this series as an array. Examples:
+         * - [1,2,3]
+         * - [[1,2],[1,3],[2,4]]
+         * - [[Date.UTC(2013,5,2), 0.7695], [Date.UTC(2013,5,3), 0.7648]]
+         **/
+        data: {
+            type: Array
+        },
+
+        /**
+         * Initial chart configuration before initial rendering.
+         **/
+        _seriesConf: {
+            type: Object,
+            value: function value() {
+                return {};
+            }
+        },
+
+        /**
+         * Index the series was given in the chart series array
+         */
+        _seriesIndex: Number,
+
+        /**
+         * MutatorObserver used to observe changes in data element
+         */
+        _observer: Object
+
+    },
+
+    observers: [
+    //Observer called when data array is changed
+    '_dataChanged(data.splices)'],
+
+    /**
+     * Reloads the series with the original configuration defined in elements and its attributes.
+     */
+    _reloadConfiguration: function _reloadConfiguration() {
+        this._seriesConf = {};
+        this._initConfiguration();
+        if (!this._seriesConf.hasOwnProperty('data') && this.data) {
+            this._seriesConf.data = this.data;
+        }
+        if (this.drilldown) {
+            this._seriesIndex = this._parentChart()._addDrilldownSeries(this._seriesConf);
+        } else {
+            this._seriesIndex = this._parentChart()._addSeries(this._seriesConf);
+        }
+    },
+
+    /**
+     * Updates chart data when series data changes
+     */
+    _dataChanged: function _dataChanged() {
+        if (this._seriesIndex != undefined && this._parentChart().isInitialized()) {
+            this._updateChartData(this.data);
+        } else {
+            this._seriesConf['data'] = this.data;
+        }
+    },
+
+    _updateChartData: function _updateChartData(newData) {
+        if (this.drilldown) {
+            this._parentChart().chart.drilldown.series[this._seriesIndex].setData(newData);
+        } else {
+            this._parentChart().chart.series[this._seriesIndex].setData(newData);
+        }
+    },
+
+    _ignoredNodes: ["#text", "#comment", "data"],
+
+    /**
+     * Overrides behavior, for data-series all values should be evaluated as javascript
+     **/
+    _evalJavascript: function _evalJavascript(val) {
+        // only eval when needed
+        // functions, dates and arrays
+        return val.indexOf('function') === 0 || val.indexOf('Date.UTC') === 0 || val.indexOf('[') === 0;
+    },
+
+    _parentChart: function _parentChart() {
+        var parent = Polymer.dom(this.root).parentNode;
+        while (parent._addSeries === undefined) {
+            parent = parent.parentNode;
+        }
+        return parent;
+    },
+
+    /**
+     * Load the configuration from the element attributes and the light-DOM elements.
+     **/
+    _loadData: function _loadData() {
+        var element = Polymer.dom(this);
+
+        for (var n = 0; n < element.childNodes.length; n++) {
+            var node = element.childNodes[n];
+            var name = node.nodeName.toLowerCase();
+            var camelName = this._toCamelCase(name);
+            if (camelName === 'data') {
+                var value;
+                if (this._hasPointNodes(node)) {
+                    value = [];
+                    for (var o = 0; o < node.childNodes.length; o++) {
+                        if (this._isPointNode(node.childNodes[o])) {
+                            value.push(this._parsePoint(node.childNodes[o]));
+                        }
+                    }
+                } else {
+                    // Replace line breaks as empty space.
+                    var textContent = node.textContent.replace(/(\n)/gm, " ");
+                    value = '[' + textContent + ']';
+                }
+                this._setProperty(camelName, value);
+            }
+        }
+    },
+
+    /**
+     * Creates a point object from a point node.
+     **/
+    _parsePoint: function _parsePoint(pointNode) {
+        var result = {};
+
+        for (var n = 0; n < pointNode.childNodes.length; n++) {
+            var node = pointNode.childNodes[n];
+            if (this._hasOnlyTextContent(node)) {
+                var camelName = this._toCamelCase(node.nodeName.toLowerCase());
+                if ('date' === camelName) {
+                    if (result['x'] === undefined) {
+                        var parsedDate = this._parseDate(node.textContent);
+                        if (parsedDate !== undefined) {
+                            result['x'] = parsedDate;
+                        } else {
+                            console.log('Unable to parse date: ' + node.textContent);
+                        }
+                    } else {
+                        console.log('x value is already defined for this point, \'' + node.textContent + '\' couldn\'t be set');
+                    }
+                } else if (result[camelName] === undefined) {
+                    result[camelName] = this._parseAttribute(node.textContent);
+                } else {
+                    console.log(camelName + ' value is already defined for this point, \'' + node.textContent + '\' couldn\'t be set');
+                }
+            }
+        }
+        this._loadConfiguration(result, pointNode);
+
+        return result;
+    },
+
+    _parseDate: function _parseDate(dateString) {
+        if (this._isValidDate(dateString)) {
+            return Date.parse(dateString);
+        }
+    },
+
+    _isValidDate: function _isValidDate(dateString) {
+        try {
+            var dateValue = new Date(dateString);
+            //If dateValue is invalid getTime is NaN
+            return dateValue.toISOString().indexOf(dateString) === 0 && Object.prototype.toString.call(dateValue) === "[object Date]" && !isNaN(dateValue.getTime());
+        } catch (e) {}
+
+        return false;
+    },
+
+    /**
+     * Checks if nodes has child nodes that correspond to points.
+     **/
+    _hasPointNodes: function _hasPointNodes(node) {
+        var nodeChildrenArray = Array.prototype.slice.call(node.children, 0);
+        return nodeChildrenArray.length > 0 && nodeChildrenArray.filter(this._isPointNode).length > 0;
+    },
+
+    /**
+     * Checks if node is a point node.
+     **/
+    _isPointNode: function _isPointNode(node) {
+        return node.nodeType === 1 && 'point' === node.nodeName.toLowerCase();
+    },
+
+    /**
+     * Set single property in series configuration.
+     * @param {string} name
+     * @param {object} value to be set
+     **/
+    _setProperty: function _setProperty(name, value) {
+        var parsedValue = this._parseAttribute(value);
+        //if value is undefined it shouldn't be set to keep _seriesConf minimal
+        if (undefined !== parsedValue) {
+            if (undefined === this._seriesConf[name]) {
+                this._seriesConf[name] = parsedValue;
+            } else if (name === 'data') {
+                Array.prototype.push.apply(this._seriesConf[name], parsedValue);
+            }
+        }
+    },
+
+    created: function created() {
+        // Make sure that seriesConf is initialized
+        this._seriesConf = this.properties._seriesConf.value();
+    },
+
+    // Kind of attached but attached is not called then the element is only in the light DOM
+    _initialize: function _initialize() {
+        this._initConfiguration();
+        if (this.drilldown) {
+            this._seriesIndex = this._parentChart()._addDrilldownSeries(this._seriesConf);
+        } else {
+            this._seriesIndex = this._parentChart()._addSeries(this._seriesConf);
+        }
+    },
+
+    /**
+     * Initializes the series json configuration.
+     */
+    _initConfiguration: function _initConfiguration() {
+        var element = Polymer.dom(this);
+        this._cleanNode(element);
+        this._loadFromNode(this._seriesConf, element.node);
+        this._loadConfiguration(this._seriesConf, element);
+        this._loadData();
+        this._addDataPointsObserver();
+    },
+
+    _addDataPointsObserver: function _addDataPointsObserver() {
+        if (MutationObserver && !this._observer) {
+            var dataElements = Polymer.dom(this).querySelectorAll('data');
+            if (dataElements && dataElements.length > 0) {
+                this._observer = new MutationObserver(this._reloadData.bind(this));
+                for (var n = 0; n < dataElements.length; n++) {
+                    this._observer.observe(dataElements[n], {
+                        attributes: false,
+                        childList: true,
+                        characterData: true,
+                        characterDataOldValue: false,
+                        subtree: true
+                    });
+                }
+            }
+        }
+    },
+
+    _reloadData: function _reloadData() {
+        this._seriesConf.data = [];
+        this._loadData();
+        this._updateChartData(this._seriesConf.data);
+    }
+});</script></head><body></body></html>

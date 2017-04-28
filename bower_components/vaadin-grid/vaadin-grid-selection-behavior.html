@@ -1,1 +1,111 @@
-<html><head><script>window.vaadin=window.vaadin||{},vaadin.elements=vaadin.elements||{},vaadin.elements.grid=vaadin.elements.grid||{},vaadin.elements.grid.SelectionBehavior={properties:{selectedItems:{type:Object,notify:!0,value:function(){return[]}}},observers:['_selectedItemsChanged(selectedItems.*)'],listeners:{'template-instance-changed':'_templateInstanceChangedSelection'},_templateInstanceChangedSelection:function(b){if('selected'===b.detail.prop){var c=b.detail.inst.item;(this._isSelected(c)?this.deselectItem:this.selectItem).bind(this)(c),this.fire('iron-announce',{text:(this._isSelected(c)?'Selected':'Deselected')+' Row '+(b.detail.inst.index+1)+' of '+this.size}),b.stopPropagation()}},_isSelected:function(b){return this.selectedItems&&-1<this.selectedItems.indexOf(b)},selectItem:function(b){b=this._takeItem(b),this._isSelected(b)||this.push('selectedItems',b)},deselectItem:function(b){b=this._takeItem(b);var c=this.selectedItems.indexOf(b);-1<c&&this.splice('selectedItems',c,1)},_toggleItem:function(b){b=this._takeItem(b);var c=this.selectedItems.indexOf(b);-1===c?this.selectItem(b):this.deselectItem(b)},_takeItem:function(b){return'number'==typeof b&&0<=b&&this.items&&this.items.length>b?this.items[b]:b},_selectedItemsChanged:function(b){this.$.scroller._physicalItems&&('selectedItems'===b.path||'selectedItems.splices'===b.path)&&this.$.scroller._physicalItems.forEach(function(c){c.selected=this._isSelected(c.item)}.bind(this))}};</script></head><body><dom-module id="vaadin-grid-selection-themability-styles"><template><style>table tr[selected] .vaadin-grid-cell:not([detailscell]) ::content > vaadin-grid-cell-content{background-color:var(--paper-grey-100, rgb(243, 243, 243));@apply (--vaadin-grid-body-row-selected-cell);}</style></template></dom-module></body></html>
+<html><head><script>
+window.vaadin = window.vaadin || {};
+vaadin.elements = vaadin.elements || {};
+vaadin.elements.grid = vaadin.elements.grid || {};
+
+/**
+ * @polymerBehavior vaadin.elements.grid.SelectionBehavior
+ */
+vaadin.elements.grid.SelectionBehavior = {
+
+  properties: {
+
+    /**
+     * An array that contains the selected items.
+     */
+    selectedItems: {
+      type: Object,
+      notify: true,
+      value: function value() {
+        return [];
+      }
+    }
+  },
+
+  observers: ['_selectedItemsChanged(selectedItems.*)'],
+
+  listeners: {
+    'template-instance-changed': '_templateInstanceChangedSelection'
+  },
+
+  _templateInstanceChangedSelection: function _templateInstanceChangedSelection(e) {
+    if (e.detail.prop === 'selected') {
+      var item = e.detail.inst.item;
+      (this._isSelected(item) ? this.deselectItem : this.selectItem).bind(this)(item);
+
+      this.fire('iron-announce', {
+        text: (this._isSelected(item) ? 'Selected' : 'Deselected') + ' Row ' + (e.detail.inst.index + 1) + ' of ' + this.size
+      });
+
+      // stop this internal event from propagating outside.
+      e.stopPropagation();
+    }
+  },
+
+  _isSelected: function _isSelected(item) {
+    return this.selectedItems && this.selectedItems.indexOf(item) > -1;
+  },
+
+  /**
+   * Selects the given item.
+   *
+   * @method selectItem
+   * @param {number|Object} item The item index or the item object
+   */
+  selectItem: function selectItem(item) {
+    item = this._takeItem(item);
+    if (!this._isSelected(item)) {
+      this.push('selectedItems', item);
+    }
+  },
+
+  /**
+   * Deselects the given item if it is already selected.
+   *
+   * @method deselect
+   * @param {number|Object} item The item index or the item object
+   */
+  deselectItem: function deselectItem(item) {
+    item = this._takeItem(item);
+    var index = this.selectedItems.indexOf(item);
+    if (index > -1) {
+      this.splice('selectedItems', index, 1);
+    }
+  },
+
+  /**
+   * Toggles the selected state of the given item.
+   *
+   * @method toggle
+   * @param {number|Object} item The item index or the item object
+   */
+  _toggleItem: function _toggleItem(item) {
+    item = this._takeItem(item);
+    var index = this.selectedItems.indexOf(item);
+    if (index === -1) {
+      this.selectItem(item);
+    } else {
+      this.deselectItem(item);
+    }
+  },
+
+  /**
+   * Returns item object itself or by the item index.
+   *
+   * @param {number|Object} item The item index or the item object
+   */
+  _takeItem: function _takeItem(item) {
+    if (typeof item === 'number' && item >= 0 && this.items && this.items.length > item) {
+      return this.items[item];
+    }
+    return item;
+  },
+
+  _selectedItemsChanged: function _selectedItemsChanged(e) {
+    if (this.$.scroller._physicalItems && (e.path === 'selectedItems' || e.path === 'selectedItems.splices')) {
+      this.$.scroller._physicalItems.forEach(function (row) {
+        row.selected = this._isSelected(row.item);
+      }.bind(this));
+    }
+  }
+};</script></head><body><dom-module id="vaadin-grid-selection-themability-styles"><template><style>table tr[selected] .vaadin-grid-cell:not([detailscell]) ::content > vaadin-grid-cell-content{background-color:var(--paper-grey-100, rgb(243, 243, 243));@apply (--vaadin-grid-body-row-selected-cell);}</style></template></dom-module></body></html>

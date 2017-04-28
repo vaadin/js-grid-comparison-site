@@ -1,1 +1,112 @@
-<html><head><link rel="import" href="../polymer/polymer.html"><link rel="import" href="../iron-meta/iron-meta.html"><link rel="import" href="neon-animatable-behavior.html"><script>Polymer.NeonAnimationRunnerBehaviorImpl={_configureAnimations:function(b){var c=[];if(0<b.length)for(var d,g,f=0;d=b[f];f++)if(g=document.createElement(d.name),g.isNeonAnimation){var h=null;try{h=g.configure(d),'function'!=typeof h.cancel&&(h=document.timeline.play(h))}catch(j){h=null,console.warn('Couldnt play','(',d.name,').',j)}h&&c.push({neonAnimation:g,config:d,animation:h})}else console.warn(this.is+':',d.name,'not found!');return c},_shouldComplete:function(b){for(var c=!0,d=0;d<b.length;d++)if('finished'!=b[d].animation.playState){c=!1;break}return c},_complete:function(b){for(var c=0;c<b.length;c++)b[c].neonAnimation.complete(b[c].config);for(var c=0;c<b.length;c++)b[c].animation.cancel()},playAnimation:function(b,c){var d=this.getAnimationConfig(b);if(d){this._active=this._active||{},this._active[b]&&(this._complete(this._active[b]),delete this._active[b]);var f=this._configureAnimations(d);if(0==f.length)return void this.fire('neon-animation-finish',c,{bubbles:!1});this._active[b]=f;for(var g=0;g<f.length;g++)f[g].animation.onfinish=function(){this._shouldComplete(f)&&(this._complete(f),delete this._active[b],this.fire('neon-animation-finish',c,{bubbles:!1}))}.bind(this)}},cancelAnimation:function(){for(var b in this._animations)this._animations[b].cancel();this._animations={}}},Polymer.NeonAnimationRunnerBehavior=[Polymer.NeonAnimatableBehavior,Polymer.NeonAnimationRunnerBehaviorImpl];</script></head><body></body></html>
+<html><head><link rel="import" href="../polymer/polymer.html"><link rel="import" href="../iron-meta/iron-meta.html"><link rel="import" href="neon-animatable-behavior.html"><script>
+
+/**
+ * `Polymer.NeonAnimationRunnerBehavior` adds a method to run animations.
+ *
+ * @polymerBehavior Polymer.NeonAnimationRunnerBehavior
+ */
+Polymer.NeonAnimationRunnerBehaviorImpl = {
+
+  _configureAnimations: function _configureAnimations(configs) {
+    var results = [];
+    if (configs.length > 0) {
+      for (var config, index = 0; config = configs[index]; index++) {
+        var neonAnimation = document.createElement(config.name);
+        // is this element actually a neon animation?
+        if (neonAnimation.isNeonAnimation) {
+          var result = null;
+          // configuration or play could fail if polyfills aren't loaded
+          try {
+            result = neonAnimation.configure(config);
+            // Check if we have an Effect rather than an Animation
+            if (typeof result.cancel != 'function') {
+              result = document.timeline.play(result);
+            }
+          } catch (e) {
+            result = null;
+            console.warn('Couldnt play', '(', config.name, ').', e);
+          }
+          if (result) {
+            results.push({
+              neonAnimation: neonAnimation,
+              config: config,
+              animation: result
+            });
+          }
+        } else {
+          console.warn(this.is + ':', config.name, 'not found!');
+        }
+      }
+    }
+    return results;
+  },
+
+  _shouldComplete: function _shouldComplete(activeEntries) {
+    var finished = true;
+    for (var i = 0; i < activeEntries.length; i++) {
+      if (activeEntries[i].animation.playState != 'finished') {
+        finished = false;
+        break;
+      }
+    }
+    return finished;
+  },
+
+  _complete: function _complete(activeEntries) {
+    for (var i = 0; i < activeEntries.length; i++) {
+      activeEntries[i].neonAnimation.complete(activeEntries[i].config);
+    }
+    for (var i = 0; i < activeEntries.length; i++) {
+      activeEntries[i].animation.cancel();
+    }
+  },
+
+  /**
+   * Plays an animation with an optional `type`.
+   * @param {string=} type
+   * @param {!Object=} cookie
+   */
+  playAnimation: function playAnimation(type, cookie) {
+    var configs = this.getAnimationConfig(type);
+    if (!configs) {
+      return;
+    }
+    this._active = this._active || {};
+    if (this._active[type]) {
+      this._complete(this._active[type]);
+      delete this._active[type];
+    }
+
+    var activeEntries = this._configureAnimations(configs);
+
+    if (activeEntries.length == 0) {
+      this.fire('neon-animation-finish', cookie, { bubbles: false });
+      return;
+    }
+
+    this._active[type] = activeEntries;
+
+    for (var i = 0; i < activeEntries.length; i++) {
+      activeEntries[i].animation.onfinish = function () {
+        if (this._shouldComplete(activeEntries)) {
+          this._complete(activeEntries);
+          delete this._active[type];
+          this.fire('neon-animation-finish', cookie, { bubbles: false });
+        }
+      }.bind(this);
+    }
+  },
+
+  /**
+   * Cancels the currently running animations.
+   */
+  cancelAnimation: function cancelAnimation() {
+    for (var k in this._animations) {
+      this._animations[k].cancel();
+    }
+    this._animations = {};
+  }
+};
+
+/** @polymerBehavior Polymer.NeonAnimationRunnerBehavior */
+Polymer.NeonAnimationRunnerBehavior = [Polymer.NeonAnimatableBehavior, Polymer.NeonAnimationRunnerBehaviorImpl];</script></head><body></body></html>

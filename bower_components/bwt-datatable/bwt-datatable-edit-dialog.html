@@ -1,1 +1,94 @@
-<html><head><link rel="import" href="../polymer/polymer.html"><link rel="import" href="../paper-material/paper-material.html"><link rel="import" href="../iron-form/iron-form.html"><link rel="import" href="../iron-resizable-behavior/iron-resizable-behavior.html"><link rel="import" href="../iron-flex-layout/iron-flex-layout-classes.html"></head><body><dom-module id="paper-datatable-edit-dialog"><template><custom-style><style is="custom-style" include="iron-flex iron-flex-alignment iron-positioning"></style><style is="custom-style">:host{position:absolute;z-index:10;display:none;}:host([visible]){display:block;}paper-material{position:absolute;left:0px;top:0px;right:0px;min-width:100px;display:inline-block;padding:4px 24px;background:var(--paper-datatable-edit-dialog-color, var(--paper-grey-50));border-radius:2px;box-sizing:border-box;@apply --paper-datatable-edit-dialog;}</style></custom-style><paper-material id="material" elevation="1"><form is="iron-form" id="form" on-iron-form-presubmit="dismiss"><slot></slot></form></paper-material></template><script>Polymer({is:'paper-datatable-edit-dialog',properties:{positionedRelativeTo:{type:Element,observer:'setLocationRelativeTo'},visible:{type:Boolean,reflectToAttribute:!0}},behaviors:[Polymer.IronResizableBehavior],listeners:{'iron-resize':'setLocationRelativeTo'},ready:function(){this.addEventListener('keyup',function(b){var c=Polymer.dom(b);13==b.keyCode&&'textarea'!==c.path[0].nodeName.toLowerCase()&&this.dismiss()}.bind(this)),document.body.addEventListener('click',function(b){var c=Polymer.dom(b).path;this.positionedRelativeTo&&-1==c.indexOf(this)&&-1==c.indexOf(this.positionedRelativeTo)&&this.dismiss(b)}.bind(this))},dismiss:function(b){this.set('visible',void 0),this.positionedRelativeTo=void 0,b&&b.preventDefault()},findFocus:function(){var b=Polymer.dom(this).querySelector('paper-input');b&&b.$.input.focus();var b=Polymer.dom(this).querySelector('paper-textarea');if(b){var c=b.$.input.$.textarea.value.length;b.$.input.$.textarea.focus(),b.$.input.$.textarea.setSelectionRange(c,c)}var d=Polymer.dom(this).querySelector('input');d&&d.focus()},setLocationRelativeTo:function(){if(this.positionedRelativeTo){this.set('visible',!0),this.revealTime=Date.now();for(var b=this.parentNode;b!==window;)if('#document-fragment'==b.nodeName)b=b.host;else{if('relative'==getComputedStyle(b).position||'absolute'==getComputedStyle(b).position)break;b=Polymer.dom(b).parentNode}var c=b.getBoundingClientRect(),d=this.positionedRelativeTo.getBoundingClientRect();this.style.top=d.top-2-c.top+'px',this.style.left=d.left-c.left+'px',this.style.right=Math.max(c.right-d.right,0)+'px',this.$.material.style.minHeight=d.height+2+'px'}}});</script></dom-module></body></html>
+<html><head><link rel="import" href="../polymer/polymer.html"><link rel="import" href="../paper-material/paper-material.html"><link rel="import" href="../iron-form/iron-form.html"><link rel="import" href="../iron-resizable-behavior/iron-resizable-behavior.html"><link rel="import" href="../iron-flex-layout/iron-flex-layout-classes.html"></head><body><dom-module id="paper-datatable-edit-dialog"><template><custom-style><style is="custom-style" include="iron-flex iron-flex-alignment iron-positioning"></style><style is="custom-style">:host{position:absolute;z-index:10;display:none;}:host([visible]){display:block;}paper-material{position:absolute;left:0px;top:0px;right:0px;min-width:100px;display:inline-block;padding:4px 24px;background:var(--paper-datatable-edit-dialog-color, var(--paper-grey-50));border-radius:2px;box-sizing:border-box;@apply --paper-datatable-edit-dialog;}</style></custom-style><paper-material id="material" elevation="1"><form is="iron-form" id="form" on-iron-form-presubmit="dismiss"><slot></slot></form></paper-material></template><script>
+
+/**
+ * This shouldn't be showing up here, but I can't see to get this documentation system to ignore this file,
+ * so just ignore it.
+ *
+ * This element is used internally to render the dialog boxes when `<paper-datatable-column>` is used with the
+ * `[dialog]` attribute.
+ */
+
+Polymer({
+
+	is: 'paper-datatable-edit-dialog',
+
+	properties: {
+		positionedRelativeTo: {
+			type: Element,
+			observer: 'setLocationRelativeTo'
+		},
+		visible: {
+			type: Boolean,
+			reflectToAttribute: true
+		}
+	},
+
+	behaviors: [Polymer.IronResizableBehavior],
+
+	listeners: {
+		'iron-resize': 'setLocationRelativeTo'
+	},
+
+	ready: function ready() {
+		this.addEventListener('keyup', function (ev) {
+			var genericEvent = Polymer.dom(ev);
+			if (ev.keyCode == 13 && genericEvent.path[0].nodeName.toLowerCase() !== 'textarea') {
+				this.dismiss();
+			}
+		}.bind(this));
+		document.body.addEventListener('click', function (ev) {
+			var path = Polymer.dom(ev).path;
+			if (this.positionedRelativeTo && path.indexOf(this) == -1 && path.indexOf(this.positionedRelativeTo) == -1) {
+				this.dismiss(ev);
+			}
+		}.bind(this));
+	},
+
+	dismiss: function dismiss(ev) {
+		this.set('visible', undefined);
+		this.positionedRelativeTo = undefined;
+		if (ev) ev.preventDefault();
+	},
+
+	findFocus: function findFocus() {
+		var paperInput = Polymer.dom(this).querySelector('paper-input');
+		if (paperInput) {
+			paperInput.$.input.focus();
+		}
+		var paperInput = Polymer.dom(this).querySelector('paper-textarea');
+		if (paperInput) {
+			var position = paperInput.$.input.$.textarea.value.length;
+			paperInput.$.input.$.textarea.focus();
+			paperInput.$.input.$.textarea.setSelectionRange(position, position);
+		}
+		var input = Polymer.dom(this).querySelector('input');
+		if (input) {
+			input.focus();
+		}
+	},
+
+	setLocationRelativeTo: function setLocationRelativeTo() {
+		if (this.positionedRelativeTo) {
+			this.set('visible', true);
+			this.revealTime = Date.now();
+			var relativeToParent = this.parentNode;
+			while (relativeToParent !== window) {
+				if (relativeToParent.nodeName == '#document-fragment') {
+					relativeToParent = relativeToParent.host;
+				} else {
+					if (getComputedStyle(relativeToParent).position == 'relative' || getComputedStyle(relativeToParent).position == 'absolute') {
+						break;
+					}
+					relativeToParent = Polymer.dom(relativeToParent).parentNode;
+				}
+			}
+			var parent = relativeToParent.getBoundingClientRect();
+			var child = this.positionedRelativeTo.getBoundingClientRect();
+			this.style.top = child.top - 2 - parent.top + "px";
+			this.style.left = child.left - parent.left + "px";
+			this.style.right = Math.max(parent.right - child.right, 0) + "px";
+			this.$.material.style.minHeight = child.height + 2 + "px";
+		}
+	}
+
+});</script></dom-module></body></html>
