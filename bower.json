@@ -1,0 +1,29 @@
+{
+  "name": "grid-comparison-site",
+  "main": "index.html",
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.9.0",
+    "vaadin-grid": "^2.0.0",
+    "bwt-datatable": "^1.0.5",
+    "ag-grid": "^8.2.0",
+    "paper-datatable": "^0.9.8",
+    "datatables.net": "^1.10.15",
+    "datatables.net-dt": "^3.2.2",
+    "datatables.net-keytable": "^2.2.1",
+    "datatables.net-keytable-dt": "^2.2.1",
+    "datatables.net-scroller": "^1.4.2",
+    "datatables.net-scroller-dt": "^1.4.2",
+    "vaadin-charts": "^4.0.0",
+    "paper-tabs": "PolymerElements/paper-tabs#^1.8.0",
+    "iron-pages": "PolymerElements/iron-pages#^1.0.9",
+    "marked-element": "PolymerElements/marked-element#^1.4.1",
+    "prism-element": "PolymerElements/prism-highlighter#^1.2.0",
+    "paper-progress": "PolymerElements/paper-progress#^1.0.12"
+  },
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+    "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^1.0.0",
+    "web-component-tester": "^6.0.0-prerelease.5",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
+  }
+}
