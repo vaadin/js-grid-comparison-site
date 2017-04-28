@@ -1,0 +1,45 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<dom-module id="rating-stars">
+  <template>
+    <style>
+       :host {
+        display: block;
+      }
+
+      svg {
+        fill: orange;
+      }
+    </style>
+
+    <template is="dom-if" if="[[isNumber(stars)]]">
+      <template is="dom-repeat" items="[[repeat]]">
+        <svg height="12" viewBox="0 0 24 24" width="12" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12.9 15.4l-4.9-2.6-4.9 2.6 0.9-5.4-4-3.9 5.5-0.8 2.4-5 2.4 5 5.5 0.8-3.8 3.9 0.9 5.4z" />
+        </svg>
+      </template>
+    </template>
+    <template is="dom-if" if="[[!isNumber(stars)]]">
+      [[stars]]
+    </template>
+  </template>
+  <script>
+    Polymer({
+      is: 'rating-stars',
+      properties: {
+        stars: Number,
+        repeat: {
+          type: Array,
+          computed: '_emptyArray(stars)'
+        }
+      },
+      isNumber: function (num) {
+        let isNum = !isNaN(num);
+        return isNum;
+      },
+      _emptyArray: function (stars) {
+        return new Array(stars);
+      }
+    });
+  </script>
+</dom-module>

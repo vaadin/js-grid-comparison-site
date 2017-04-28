@@ -3,13 +3,17 @@
 
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
 
   <title>grid-comparison-site</title>
-  <meta name="description" content="grid-comparison-site description">
-  <script src="/bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+  <script>
+    // var basePath = 'https://vaadin-marcus.github.io/js-grid-comparison-site/';
+    var basePath = ''; // Local
+  </script>
+</head>
 
-  <link rel="import" href="elements.html">
+<body>
+  <!--<link rel="import" href="https://vaadin-marcus.github.io/js-grid-comparison-site/deps/elements.html">-->
+  <link rel="import" href="deps/elements.html">
   <style is="custom-style">
      :root {
       --primary-color: #00B4F0;
@@ -44,6 +48,7 @@
 
     paper-tabs {
       margin-bottom: 20px;
+      --paper-tabs-selection-bar-color: #00B4F0;
     }
 
     vaadin-column-chart {
@@ -56,10 +61,6 @@
       width: 100%;
     }
   </style>
-</head>
-
-<body>
-
   <div class="article">
     <h1>JavaScript grid smackdown</h1>
     <p>
@@ -81,7 +82,7 @@
 
     <template is="dom-bind" id="contenders">
       <div class="intro-wrapper">
-        <paper-tabs selected="{{selectedTab}}" scrollable>
+        <paper-tabs selected="{{selectedTab}}" scrollable noink>
           <paper-tab>Vaadin Grid</paper-tab>
           <paper-tab>bwt-datatable</paper-tab>
           <paper-tab>ag-Grid</paper-tab>
@@ -97,7 +98,7 @@
                 yet include native support.
               </p>
 
-              <vaadin-grid items="[[people]]">
+              <vaadin-grid items="[[people]]" style="height: 400px;">
                 <vaadin-grid-column>
                   <template class="header">First Name</template>
                   <template>[[item.firstName]]</template>
@@ -239,34 +240,8 @@
                 to the plain JavaScript and Web Component APIs. In this comparison, we'll look at the Web Component API.
               </p>
 
-              <ag-grid style="height: 400px; display: block;" id="myGrid" class="ag-fresh"></ag-grid>
+              <ag-grid style="height: 400px; display: block;" id="agGrid" class="ag-fresh"></ag-grid>
 
-              <script>
-                var columnDefs = [{
-                  headerName: "First Name",
-                  field: "firstName"
-                }, {
-                  headerName: "Last Name",
-                  field: "lastName"
-                }, {
-                  headerName: "Address",
-                  field: "address"
-                }];
-                var gridOptions = {
-                  columnDefs: columnDefs,
-                  rowData: people.map(function (row) {
-                    return {
-                      firstName: row.firstName,
-                      lastName: row.lastName,
-                      address: row.address.street + ', ' + row.address.city
-                    }
-                  })
-                };
-                document.addEventListener('DOMContentLoaded', function () {
-                  var grid = document.querySelector('#myGrid');
-                  grid.setGridOptions(gridOptions);
-                });
-              </script>
 
               <h3>Installation</h3>
 
@@ -443,6 +418,7 @@ $(document).ready( function () {
 
     <vaadin-grid id="load-time-grid" style="height: 270px;">
       <vaadin-grid-column>
+        <template class="header">&nbsp;</template>
         <template><b>[[item.gridName]]</b></template>
       </vaadin-grid-column>
       <vaadin-grid-column-group>
@@ -544,6 +520,7 @@ $(document).ready( function () {
 
     <vaadin-grid id="data-transfer-table" style="height: 210px;">
       <vaadin-grid-column>
+        <template class="header">&nbsp;</template>
         <template><b>[[item.gridName]]</b></template>
       </vaadin-grid-column>
       <vaadin-grid-column>
@@ -587,34 +564,51 @@ $(document).ready( function () {
       The results for each grid are summarized in the grid below:
     </p>
 
-    <vaadin-grid style="height: 350px;" id="results-summary">
-      <vaadin-grid-column frozen width="200px">
-        <template><b>[[item.category]]</b></template>
-      </vaadin-grid-column>
-      <vaadin-grid-column>
-        <template class="header">Vaadin Grid</template>
-        <template>[[item.vaadin]]</template>
-      </vaadin-grid-column>
-      <vaadin-grid-column>
-        <template class="header">bwt-datatable</template>
-        <template>[[item.bwt]]</template>
-      </vaadin-grid-column>
-      <vaadin-grid-column>
-        <template class="header">ag-Grid</template>
-        <template>[[item.ag]]</template>
-      </vaadin-grid-column>
-      <vaadin-grid-column>
-        <template class="header">jQuery DataTables</template>
-        <template>[[item.jquery]]</template>
-      </vaadin-grid-column>
-    </vaadin-grid>
+
+    <template is="dom-bind" id="results-summary">
+      <vaadin-grid items="[[data]]">
+        <vaadin-grid-column frozen width="180px">
+          <template class="header">&nbsp;</template>
+          <template><b>[[item.category]]</b></template>
+        </vaadin-grid-column>
+        <vaadin-grid-column>
+          <template class="header">Vaadin Grid</template>
+          <template>
+            <rating-stars stars="[[item.vaadin]]"></rating-stars>
+          </template>
+        </vaadin-grid-column>
+        <vaadin-grid-column>
+          <template class="header">bwt-datatable</template>
+          <template>
+            <p style="white-space: normal">
+              <rating-stars stars="[[item.bwt]]"></rating-stars>
+            </p>
+          </template>
+        </vaadin-grid-column>
+        <vaadin-grid-column>
+          <template class="header">ag-Grid</template>
+          <template>
+            <p style="white-space: normal">
+              <rating-stars stars="[[item.ag]]"></rating-stars>
+            </p>
+          </template>
+        </vaadin-grid-column>
+        <vaadin-grid-column>
+          <template class="header">jQuery DataTables</template>
+          <template>
+            <p style="white-space: normal">
+              <rating-stars stars="[[item.jquery]]"></rating-stars>
+            </p>
+          </template>
+        </vaadin-grid-column>
+      </vaadin-grid>
+    </template>
+
+
     <script>
       document.addEventListener('WebComponentsReady', function () {
-        function stars(numStars) {
-          return '*'.repeat(numStars);
-        };
-
-        document.querySelector("#results-summary").items = [{
+        let summary = document.querySelector("#results-summary");
+        summary.data = [{
           category: 'License',
           vaadin: 'Apache 2',
           bwt: 'MIT',
@@ -628,40 +622,40 @@ $(document).ready( function () {
           jquery: 'Free'
         }, {
           category: 'Performance',
-          vaadin: stars(5),
-          bwt: stars(3),
-          ag: stars(4),
-          jquery: stars(4)
+          vaadin: 5,
+          bwt: 3,
+          ag: 4,
+          jquery: 5
         }, {
           category: 'Size',
-          vaadin: stars(5),
-          bwt: stars(3),
-          ag: stars(4),
-          jquery: stars(4)
+          vaadin: 5,
+          bwt: 3,
+          ag: 4,
+          jquery: 4
         }, {
           category: 'Features',
-          vaadin: stars(4),
-          bwt: stars(3),
-          ag: stars(5),
-          jquery: stars(5)
+          vaadin: 4,
+          bwt: 3,
+          ag: 5,
+          jquery: 5
         }, {
           category: 'Developer experience',
-          vaadin: stars(5),
-          bwt: stars(5),
-          ag: stars(3),
-          jquery: stars(2)
+          vaadin: 5,
+          bwt: 5,
+          ag: 3,
+          jquery: 2
         }, {
           category: 'User experience',
-          vaadin: stars(5),
-          bwt: stars(4),
-          ag: stars(3),
-          jquery: stars(2)
+          vaadin: 5,
+          bwt: 4,
+          ag: 3,
+          jquery: 2
         }, {
           category: 'Overall',
-          vaadin: stars(5),
-          bwt: stars(4),
-          ag: stars(4),
-          jquery: stars(3)
+          vaadin: 5,
+          bwt: 4,
+          ag: 4,
+          jquery: 3
         }];
       });
     </script>
@@ -671,62 +665,72 @@ $(document).ready( function () {
       Are we missing a grid that should be here? Did we make a mistake somewhere? File issues and contribute with pull requests
       on GitHub [link here]
     </p>
+
+    <h2>Authors</h2>
+    <p>Sami Suo-Heikki <a href="https://twitter.com/samisuoheikki">@samisuoheikki</a> &amp; Marcus Hellberg <a href="https://twitter.com/marcushellberg">@marcushellberg</a></p>
   </div>
+
+
   <prism-highlighter></prism-highlighter>
   <script>
-    function loadScript(file, callback) {
+    function loadHTML(file, successCallback = null, errorCallback = null) {
+      Polymer.Base.importHref(file, successCallback, errorCallback);
+    }
+
+    function loadJS(file, callback) {
       var e = document.createElement('script');
       e.src = file;
-      if (callback) {
-        e.onload = callback;
-      }
+      e.onload = callback;
       document.head.appendChild(e);
     }
 
     function loadCSS(file, callback) {
       var e = document.createElement('link');
-      e.rel = 'stylesheet';
+      e.rel = 'stylesheet'
       e.href = file;
-      if (callback) {
-        e.onload = callback;
-      }
+      e.onload = callback;
       document.head.appendChild(e);
-    }
-
-    function loadHTML(file) {
-      Polymer.Base.importHref(file, null, null);
-    }
-
-    // load webcomponents polyfills if needed
-    if ('registerElement' in document &&
-      'import' in document.createElement('link') &&
-      'content' in document.createElement('template')) {
-      // browser has web components
-    } else {
-      // polyfill web components
-      loadScript('bower_components/webcomponentsjs/webcomponents-lite.min.js');
     }
 
     // Load in rest of dependencies deferred
     document.addEventListener('WebComponentsReady', function () {
       setTimeout(() => {
-        loadHTML('bower_components/vaadin-grid/vaadin-grid.html');
-        loadHTML('bower_components/vaadin-grid/vaadin-grid-column-group.html');
+        loadHTML(`${basePath}deps/vaadin-grid.html`);
       }, 0);
       setTimeout(() => {
-        loadHTML('bower_components/vaadin-charts/vaadin-column-chart.html');
+        loadHTML(`${basePath}deps/vaadin-charts.html`);
       }, 0);
       setTimeout(() => {
-        loadHTML('bower_components/bwt-datatable/bwt-datatable.html');
+        loadHTML(`${basePath}deps/bwt-datatable.html`);
       }, 0);
       setTimeout(() => {
-        loadScript('bower_components/ag-grid/dist/ag-grid.js', () => {
-          agGrid.initialiseAgGridWithWebComponents();
+        loadHTML(`${basePath}deps/ag-grid.html`, () => {
+          var columnDefs = [{
+            headerName: "First Name",
+            field: "firstName"
+          }, {
+            headerName: "Last Name",
+            field: "lastName"
+          }, {
+            headerName: "Address",
+            field: "address"
+          }];
+          var gridOptions = {
+            columnDefs: columnDefs,
+            rowData: people.map(function (row) {
+              return {
+                firstName: row.firstName,
+                lastName: row.lastName,
+                address: row.address.street + ', ' + row.address.city
+              }
+            })
+          };
+          var grid = document.querySelector('#agGrid');
+          grid.setGridOptions(gridOptions);
         });
       }, 0);
       setTimeout(() => {
-        loadScript('bower_components/jquery/dist/jquery.min.js');
-        loadScript('bower_components/datatables.net/js/jquery.dataTables.min.js', () => {
+        loadHTML(`${basePath}deps/jquery-datatables.html`, () => {
           $(document).ready(function () {
             $('#data-table').DataTable({
               data: people,
@@ -744,7 +748,6 @@ $(document).ready( function () {
                 }
               ]
             });
-            loadCSS('bower_components/datatables.net-dt/css/jquery.dataTables.min.css');
           });
         });
       }, 0);
@@ -886,6 +889,25 @@ $(document).ready( function () {
       "email": "jordan.morris@company.com"
     }];
     contenders.people = people;
+
+    function onload() {
+      if (!window.HTMLImports) {
+        document.dispatchEvent(
+          new CustomEvent('WebComponentsReady', {
+            bubbles: true
+          }));
+      }
+    }
+    // load webcomponents polyfills if needed
+    if ('registerElement' in document &&
+      'import' in document.createElement('link') &&
+      'content' in document.createElement('template')) {
+      // browser has web components
+      onload();
+    } else {
+      // polyfill web components
+      loadJS('`${basePath}bower_components/webcomponentsjs/webcomponents-lite.min.js', onload);
+    }
   </script>
 </body>
 

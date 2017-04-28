@@ -5,11 +5,20 @@
     ]
   },
   "entrypoint": "index.html",
-  "shell": "elements.html",
+  "shell": "deps/elements.html",
   "fragments": [
-    "vaadin-grid.html",
-    "vaadin-charts.html",
-    "bwt-datatable.html"
+    "deps/vaadin-grid.html",
+    "deps/vaadin-charts.html",
+    "deps/bwt-datatable.html",
+    "deps/ag-grid.html",
+    "deps/jquery-datatables.html"
+  ],
+  "extraDependencies": [
+    "bower_components/webcomponentsjs/webcomponents-lite.min.js"
+  ],
+  "sources": [
+    "img/**/*",
+    "sources/**/*"
   ],
   "builds": [{
     "name": "bundled",
@@ -17,7 +26,7 @@
     "bundle": true,
     "js": {
       "compile": true,
-      "minify": true
+      "minify": false
     },
     "css": {
       "minify": true
