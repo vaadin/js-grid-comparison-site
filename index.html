@@ -726,8 +726,7 @@ $(document).ready( function () {
       }, 0);
       setTimeout(() => {
         loadScript('bower_components/jquery/dist/jquery.min.js');
-        loadScript('bower_components/datatables.net/js/jquery.dataTables.min.js');
-        loadCSS('bower_components/datatables.net-dt/css/jquery.dataTables.min.css', () => {
+        loadScript('bower_components/datatables.net/js/jquery.dataTables.min.js', () => {
           $(document).ready(function () {
             $('#data-table').DataTable({
               data: people,
@@ -745,6 +744,7 @@ $(document).ready( function () {
                 }
               ]
             });
+            loadCSS('bower_components/datatables.net-dt/css/jquery.dataTables.min.css');
           });
         });
       }, 0);
