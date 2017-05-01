@@ -15,12 +15,9 @@
         scroller: true,
         scrollY: 200,
         keys: true,
-        columns: [{
-            data: 'firstName'
-          },
-          {
-            data: 'lastName'
-          },
+        columns: [
+          { data: 'firstName' },
+          { data: 'lastName' },
           {
             data: 'address',
             render: function (data, type, row) {
