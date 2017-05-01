@@ -5,13 +5,15 @@
   <meta charset="utf-8">
 
   <title>grid-comparison-site</title>
-  <script>
-    // var basePath = 'https://vaadin-marcus.github.io/js-grid-comparison-site/';
-    var basePath = ''; // Local
-  </script>
+
 </head>
 
 <body>
+  <script>
+    // var basePath = 'https://vaadin-marcus.github.io/js-grid-comparison-site/';
+    var basePath = window.location.hostname === 'localhost' ? '' :
+      'https://vaadin-marcus.github.io/js-grid-comparison-site/';
+  </script>
   <!--<link rel="import" href="https://vaadin-marcus.github.io/js-grid-comparison-site/deps/elements.html">-->
   <link rel="import" href="deps/elements.html">
   <style is="custom-style">
@@ -98,7 +100,7 @@
                 yet include native support.
               </p>
 
-              <vaadin-grid items="[[people]]" style="height: 400px;">
+              <vaadin-grid items="[[people]]">
                 <vaadin-grid-column>
                   <template class="header">First Name</template>
                   <template>[[item.firstName]]</template>
@@ -149,7 +151,7 @@
               </p>
 
               <marked-element>
-                <script type="text/markdown" src="sources/vaadin-grid.md"></script>
+                <script type="text/markdown" src="https://vaadin-marcus.github.io/js-grid-comparison-site/sources/vaadin-grid.md"></script>
               </marked-element>
 
               <p>
@@ -219,7 +221,7 @@
               </p>
 
               <marked-element>
-                <script type="text/markdown" src="sources/bwt-datatable.md"></script>
+                <script type="text/markdown" src="https://vaadin-marcus.github.io/js-grid-comparison-site/sources/bwt-datatable.md"></script>
               </marked-element>
 
               <h3>End user experience</h3>
@@ -276,7 +278,7 @@
               <p>Even though ag-Grid is a Web Component, it does not have a declarative API. Instead, it is initialized programmatically
                 in JavaScript. </p>
               <marked-element>
-                <script type="text/markdown" src="sources/ag-grid.md"></script>
+                <script type="text/markdown" src="https://vaadin-marcus.github.io/js-grid-comparison-site/sources/ag-grid.md"></script>
               </marked-element>
 
               <h3>End user experience</h3>
@@ -350,7 +352,7 @@ $(document).ready( function () {
                 just to use one single component. Fortunately, jQuery is a fairly small library.</p>
 
               <marked-element>
-                <script type="text/markdown" src="sources/jquery-datatables.md"></script>
+                <script type="text/markdown" src="https://vaadin-marcus.github.io/js-grid-comparison-site/sources/jquery-datatables.md"></script>
               </marked-element>
 
               <p>While jQuery DataTables supports server side processing, it requires the server to comply to it's own processing
@@ -370,12 +372,11 @@ $(document).ready( function () {
 
     <h2>Test setup</h2>
     <p>
-      The data grids were tested on three different aspects:
+      The data grids were compared on two aspects:
     </p>
     <ol>
       <li>Performance for showing a local 200-item array</li>
       <li>Performance for showing a remote 1 billion item data set</li>
-      <li>Customizability</li>
     </ol>
 
     <p>
@@ -383,7 +384,7 @@ $(document).ready( function () {
       data. The tests were run with Chrome DevTools, using the performance tab and looking at the gathered screenshots:
     </p>
 
-    <img src="img/dev-tools.png" alt="Chrome Developer Tools Performance view">
+    <img src="https://vaadin-marcus.github.io/js-grid-comparison-site/img/dev-tools.png" alt="Chrome Developer Tools Performance view">
 
     <h2>The results</h2>
 
@@ -416,13 +417,13 @@ $(document).ready( function () {
       </data-series>
     </vaadin-column-chart>
 
-    <vaadin-grid id="load-time-grid" style="height: 270px;">
+    <vaadin-grid id="load-time-grid" style="height: auto;">
       <vaadin-grid-column>
         <template class="header">&nbsp;</template>
         <template><b>[[item.gridName]]</b></template>
       </vaadin-grid-column>
       <vaadin-grid-column-group>
-        <template class="header">Local data</template>
+        <template class="header">Local data (ms)</template>
         <vaadin-grid-column>
           <template class="header">First paint</template>
           <template>[[item.local.firstPaint]]</template>
@@ -433,7 +434,7 @@ $(document).ready( function () {
         </vaadin-grid-column>
       </vaadin-grid-column-group>
       <vaadin-grid-column-group>
-        <template class="header">Remote data</template>
+        <template class="header">Remote data (ms)</template>
         <vaadin-grid-column>
           <template class="header">First paint</template>
           <template>[[item.remote.firstPaint]]</template>
@@ -518,17 +519,17 @@ $(document).ready( function () {
       </data-series>
     </vaadin-column-chart>
 
-    <vaadin-grid id="data-transfer-table" style="height: 210px;">
+    <vaadin-grid id="data-transfer-table" style="height: auto;">
       <vaadin-grid-column>
         <template class="header">&nbsp;</template>
         <template><b>[[item.gridName]]</b></template>
       </vaadin-grid-column>
       <vaadin-grid-column>
-        <template class="header">Local data</template>
+        <template class="header">Local data (KB)</template>
         <template>[[item.local]]</template>
       </vaadin-grid-column>
       <vaadin-grid-column>
-        <template class="header">Remote data</template>
+        <template class="header">Remote data (KB)</template>
         <template>[[item.remote]]</template>
       </vaadin-grid-column>
     </vaadin-grid>
@@ -566,7 +567,7 @@ $(document).ready( function () {
 
 
     <template is="dom-bind" id="results-summary">
-      <vaadin-grid items="[[data]]">
+      <vaadin-grid items="[[data]]" style="height: auto;">
         <vaadin-grid-column frozen width="180px">
           <template class="header">&nbsp;</template>
           <template><b>[[item.category]]</b></template>
@@ -574,7 +575,9 @@ $(document).ready( function () {
         <vaadin-grid-column>
           <template class="header">Vaadin Grid</template>
           <template>
-            <rating-stars stars="[[item.vaadin]]"></rating-stars>
+            <p style="white-space: normal">
+              <rating-stars stars="[[item.vaadin]]"></rating-stars>
+            </p>
           </template>
         </vaadin-grid-column>
         <vaadin-grid-column>
@@ -906,7 +909,7 @@ $(document).ready( function () {
       onload();
     } else {
       // polyfill web components
-      loadJS('`${basePath}bower_components/webcomponentsjs/webcomponents-lite.min.js', onload);
+      loadJS(`${basePath}bower_components/webcomponentsjs/webcomponents-lite.min.js`, onload);
     }
   </script>
 </body>
